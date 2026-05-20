@@ -44,6 +44,7 @@ from app.model_manager import ModelFileManager
 from app.custom_node_manager import CustomNodeManager
 from app.subgraph_manager import SubgraphManager
 from app.node_replace_manager import NodeReplaceManager
+from app.prompt_metadata import validate_client_metadata
 from typing import Optional, Union
 from api_server.routes.internal.internal_routes import InternalRoutes
 from protocol import BinaryEventTypes
@@ -252,8 +253,10 @@ class PromptServer():
         self.last_node_id = None
         self.client_id = None
 
-        # Opaque tag dict pinned by main.py around each prompt; send_sync spreads it.
-        self.active_prompt_metadata: Optional[dict] = None
+        # (prompt_id, opaque tag dict) pinned by main.py around each prompt.
+        # send_sync only spreads the dict onto payloads whose prompt_id matches,
+        # so concurrent queue/status broadcasts are not contaminated.
+        self.active_prompt_metadata: Optional[tuple[str, dict]] = None
 
         self.on_prompt_handlers = []
 
@@ -282,8 +285,11 @@ class PromptServer():
                     last_prompt_id = getattr(self, "last_prompt_id", None)
                     if last_prompt_id:
                         payload["prompt_id"] = last_prompt_id
-                    if self.active_prompt_metadata:
-                        payload = {**self.active_prompt_metadata, **payload}
+                    slot = self.active_prompt_metadata
+                    if slot is not None:
+                        active_prompt_id, meta = slot
+                        if meta and payload.get("prompt_id") == active_prompt_id:
+                            payload = {**meta, **payload}
                     await self.send("executing", payload, sid)
 
                 # Flag to track if we've received the first message
@@ -965,7 +971,12 @@ class PromptServer():
                             sensitive[sensitive_val] = extra_data.pop(sensitive_val)
                     extra_data["create_time"] = int(time.time() * 1000)  # timestamp in milliseconds
                     raw_metadata = extra_data.pop("metadata", None)
-                    client_metadata = raw_metadata if isinstance(raw_metadata, dict) else {}
+                    client_metadata, meta_error = validate_client_metadata(raw_metadata)
+                    if meta_error is not None:
+                        return web.json_response(
+                            {"error": {"type": "invalid_metadata", "message": meta_error}},
+                            status=400,
+                        )
                     self.prompt_queue.put((number, prompt_id, prompt, extra_data, outputs_to_execute, sensitive, client_metadata))
                     response = {"prompt_id": prompt_id, "number": number, "node_errors": valid[3]}
                     return web.json_response(response)
@@ -1228,9 +1239,11 @@ class PromptServer():
             await send_socket_catch_exception(self.sockets[sid].send_json, message)
 
     def send_sync(self, event, data, sid=None):
-        meta = self.active_prompt_metadata
-        if meta and isinstance(data, dict):
-            data = {**meta, **data}
+        slot = self.active_prompt_metadata
+        if slot is not None and isinstance(data, dict):
+            active_prompt_id, meta = slot
+            if meta and data.get("prompt_id") == active_prompt_id:
+                data = {**meta, **data}
         self.loop.call_soon_threadsafe(
             self.messages.put_nowait, (event, data, sid))
 

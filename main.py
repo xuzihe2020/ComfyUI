@@ -318,7 +318,7 @@ def prompt_worker(q, server_instance):
                 extra_data[k] = sensitive[k]
 
             metadata = item[6] if len(item) > 6 and isinstance(item[6], dict) else None
-            server_instance.active_prompt_metadata = metadata
+            server_instance.active_prompt_metadata = (prompt_id, metadata) if metadata else None
 
             asset_seeder.pause()
             try:
