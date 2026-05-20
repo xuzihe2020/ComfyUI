@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import timedelta
 from typing import Iterable, Sequence
 
 import sqlalchemy as sa
@@ -98,15 +99,21 @@ def set_reference_tags(
 
     if to_add:
         ensure_tags_exist(session, to_add, tag_type="user")
+        # Stagger added_at by microsecond per tag so the retrieval ORDER BY
+        # added_at preserves input order. Per-tag get_utc_now() calls can
+        # collide at microsecond resolution on fast machines, dropping the
+        # query to the tag_name alphabetical tiebreaker — same fix as in
+        # batch_insert_seed_assets.
+        base_ts = get_utc_now()
         session.add_all(
             [
                 AssetReferenceTag(
                     asset_reference_id=reference_id,
                     tag_name=t,
                     origin=origin,
-                    added_at=get_utc_now(),
+                    added_at=base_ts + timedelta(microseconds=i),
                 )
-                for t in to_add
+                for i, t in enumerate(to_add)
             ]
         )
         session.flush()
@@ -150,6 +157,8 @@ def add_tags_to_reference(
     to_add = sorted(want - current)
 
     if to_add:
+        # See set_reference_tags for the rationale behind the per-tag stagger.
+        base_ts = get_utc_now()
         with session.begin_nested() as nested:
             try:
                 session.add_all(
@@ -158,9 +167,9 @@ def add_tags_to_reference(
                             asset_reference_id=reference_id,
                             tag_name=t,
                             origin=origin,
-                            added_at=get_utc_now(),
+                            added_at=base_ts + timedelta(microseconds=i),
                         )
-                        for t in to_add
+                        for i, t in enumerate(to_add)
                     ]
                 )
                 session.flush()

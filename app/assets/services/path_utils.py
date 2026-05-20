@@ -31,9 +31,13 @@ def resolve_destination_from_tags(tags: list[str]) -> tuple[str, list[str]]:
     Accepts both the legacy one-tag-per-directory shape
     (``["models", "diffusers", "Kolors", "text_encoder"]``) and the
     slash-joined shape emitted by :func:`get_name_and_tags_from_asset_path`
-    (``["models", "diffusers/Kolors/text_encoder"]``). Either shape is
-    split into a category (for ``models``) plus subdirs, with the same
-    safety checks applied to each component.
+    (``["models", "diffusers/Kolors/text_encoder"]``). Hybrid shapes that
+    mix the two within a single call (e.g.
+    ``["models", "diffusers", "Kolors/text_encoder"]``) are also
+    accepted: each entry after ``tags[0]`` is split on ``/`` and
+    concatenated, so the two shapes — and any mix of them — resolve to
+    the same destination. The same safety checks are applied to each
+    component after expansion.
     """
     if not tags:
         raise ValueError("tags must not be empty")
@@ -186,12 +190,14 @@ def get_name_and_tags_from_asset_path(file_path: str) -> tuple[str, list[str]]:
       consumers can use ``tags[1]`` as a stable category identifier that
       survives nested directory layouts (e.g. diffusers components).
 
-      Both the root category and the subpath are lowercased to match the
-      canonicalization applied by :func:`ensure_tags_exist`, otherwise the
-      ``asset_reference_tags.tag_name`` FK to the lowercased
-      ``tags.name`` would fail for any path containing uppercase letters.
-      Consumers that need to look up providers keyed on original-case
-      paths should normalize their lookup key to lowercase.
+      The subpath is lowercased to match the canonicalization applied by
+      :func:`ensure_tags_exist`; without that, the
+      ``asset_reference_tags.tag_name`` FK to the lowercased ``tags.name``
+      would fail for any path containing uppercase letters. The root
+      category is lowercase by construction in
+      :func:`get_asset_category_and_relative_path`, so no separate cast
+      is applied here. Consumers that need to look up providers keyed on
+      original-case paths should normalize their lookup key to lowercase.
 
     Raises:
         ValueError: path does not belong to any known root.
