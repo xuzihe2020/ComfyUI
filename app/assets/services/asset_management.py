@@ -253,9 +253,8 @@ def get_asset_by_hash(asset_hash: str) -> AssetData | None:
         return extract_asset_data(asset)
 
 
-# Sort fields that support cursor pagination. Mirrors cloud's allowlist
-# (created_at, updated_at, name, size). `last_access_time` is OSS-only and
-# falls back to offset/limit — no cloud contract to match.
+# Sort fields that support cursor pagination. `last_access_time` is not
+# in this list — it falls back to offset/limit.
 _CURSOR_SORT_FIELDS = ("created_at", "updated_at", "name", "size")
 
 

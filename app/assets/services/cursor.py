@@ -1,8 +1,6 @@
 """Opaque keyset-pagination cursor for /api/assets.
 
-Wire format aligns with the cloud Go implementation in
-`common/pagination/cursor.go` so the frontend sees one contract across
-runtimes. Payload JSON uses short keys to keep the encoded length small:
+Payload JSON uses short keys to keep the encoded length small:
 
     {"s": <sort_field>, "v": <value>, "id": <id>, "o": <order>}
 
@@ -10,14 +8,12 @@ The `o` key binds the cursor to the sort direction it was minted under,
 so replaying a `desc` cursor against an `asc` request fails with
 ``INVALID_CURSOR`` rather than silently walking the wrong direction.
 `o` is mandatory on every payload — a cursor without it is rejected as
-malformed. Cloud will land the same field in its mirror PR; until then,
-Python and cloud cursors differ by exactly the `o` key, and a cloud-
-minted cursor cannot be decoded by this endpoint.
+malformed.
 
 Encoding is base64url with no padding. JSON serialization escapes `<`,
 `>`, `&`, U+2028, and U+2029 to match Go's default `json.Marshal`
 behavior so asset names containing those characters produce
-byte-identical cursors across runtimes.
+byte-identical cursors across compatible Go implementations.
 
 Time values are serialized as Unix microseconds (UTC) — microsecond
 precision matches PostgreSQL's `timestamp` type, so a cursor minted from
@@ -44,12 +40,9 @@ class InvalidCursorError(ValueError):
 # decode path from oversized allocations and downstream SQL predicates from
 # unbounded strings.
 #
-# MAX_CURSOR_VALUE_LENGTH is 512 (vs cloud's 256) to fit OSS's
-# `AssetReference.name` column max (String(512)) — otherwise a long-named
-# asset would mint a cursor the same server then refuses on the next request.
-# Cloud's data model has shorter names so its lower cap is fine there;
-# cross-runtime byte-identity is unaffected because no real cloud cursor ever
-# carries a value > 256.
+# MAX_CURSOR_VALUE_LENGTH is 512 to fit the `AssetReference.name` column max
+# (`String(512)`) — otherwise a long-named asset would mint a cursor the same
+# server then refuses on the next request.
 MAX_ENCODED_CURSOR_LENGTH = 1024
 MAX_CURSOR_VALUE_LENGTH = 512
 MAX_CURSOR_ID_LENGTH = 128
@@ -63,8 +56,6 @@ class CursorPayload:
     order: str
 
 
-# Order direction tokens. Mirrored on the cloud follow-up so cursors carrying
-# `o` are interchangeable between runtimes once both sides ship the field.
 _VALID_ORDERS = ("asc", "desc")
 
 

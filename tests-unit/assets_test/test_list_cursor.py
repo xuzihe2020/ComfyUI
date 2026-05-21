@@ -1,8 +1,8 @@
 """Integration tests for cursor-based pagination on GET /api/assets.
 
-Wire contract is shared with cloud's Go implementation (BE-893). These tests
-exercise the handler/service/query path end-to-end; cursor-encoding-level
-tests live in tests-unit/assets_test/services/test_cursor.py.
+These tests exercise the handler/service/query path end-to-end;
+cursor-encoding-level tests live in
+tests-unit/assets_test/services/test_cursor.py.
 """
 import time
 

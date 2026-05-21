@@ -1,10 +1,9 @@
 """Tests for app.assets.services.cursor.
 
-The wire format must stay byte-identical with the cloud Go implementation
-(common/pagination/cursor.go in Comfy-Org/cloud) so the frontend sees one
-contract across runtimes. The byte-identity fixture below mirrors the Go
-test cases — any drift here means cloud and OSS minted different cursors
-for the same triple, which would break FE pagination across backends.
+The byte-identity fixtures below pin the wire format so a parallel Go
+implementation can mint exchange-compatible cursors for the same triple
+(asset name, value, id). Drift here would break frontend pagination
+against any compatible backend.
 """
 from __future__ import annotations
 
@@ -187,9 +186,9 @@ class TestEncoderDecoderSymmetry:
     """
 
     def test_long_name_within_cap_round_trips(self):
-        """OSS assets allow names up to 512 chars (`String(512)`); cursor must
-        handle that. Cloud's lower cap is acceptable on its side because the
-        cloud schema doesn't permit names that long."""
+        """Assets allow names up to 512 chars (`String(512)`); the cursor
+        encoder must round-trip a value at that cap so a freshly minted
+        cursor never fails decode on the next request."""
         long_name = "n" * MAX_CURSOR_VALUE_LENGTH
         encoded = encode_cursor("name", long_name, "asset-x")
         payload = decode_cursor(encoded, ALLOWED)
@@ -269,10 +268,10 @@ class TestGoCompatJsonEscaping:
 class TestByteIdentityFixtures:
     """Pin the wire format so it doesn't drift silently.
 
-    NOTE — these fixtures will need updates on the cloud side once cloud
-    mirrors the `o` (order binding) field. Until then, Python cursors and
-    cloud cursors differ by exactly that key. The structural format (`s`,
-    `v`, `id` plus base64url + Go-compat escaping) remains aligned.
+    These fixtures hold the exact base64url-encoded bytes a given payload
+    produces. Any change to the encoding (key order, escaping, ordering of
+    structural fields) will fail these tests loudly rather than diverge
+    silently from external consumers.
     """
 
     @pytest.mark.parametrize(
