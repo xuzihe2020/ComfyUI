@@ -9940,3 +9940,13 @@ components:
           description: When the user joined the workspace (same as created_at for the workspace creator)
         subscription_tier:
           $ref: '#/components/schemas/SubscriptionTier'
+
+    BindingErrorResponse:
+      type: object
+      x-runtime: [cloud]
+      description: '[cloud-only] Error shape returned when request binding or validation fails before the handler runs.'
+      required:
+      - message
+      properties:
+        message:
+          type: string
