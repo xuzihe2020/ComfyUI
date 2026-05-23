@@ -9662,6 +9662,12 @@ components:
           type: string
         name:
           type: string
+        type:
+          type: string
+          enum:
+            - personal
+            - team
+          description: Workspace type (personal vs. team).
         owner_id:
           type: string
         member_count:
