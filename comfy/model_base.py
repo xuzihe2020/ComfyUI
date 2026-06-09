@@ -55,6 +55,7 @@ import comfy.ldm.pixeldit.pid
 import comfy.ldm.ace.model
 import comfy.ldm.omnigen.omnigen2
 import comfy.ldm.qwen_image.model
+import comfy.ldm.ideogram4.model
 import comfy.ldm.kandinsky5.model
 import comfy.ldm.anima.model
 import comfy.ldm.ace.ace_step15
@@ -1754,6 +1755,80 @@ class WAN21_SCAIL(WAN21):
 
         return out
 
+class WAN21_SCAIL2(WAN21_SCAIL):
+    """SCAIL-2: SCAIL-Preview + an additive binary multi-identity mask stream."""
+
+    def __init__(self, model_config, model_type=ModelType.FLOW, image_to_video=False, device=None):
+        super(WAN21, self).__init__(model_config, model_type, device=device, unet_model=comfy.ldm.wan.model.SCAIL2WanModel)
+        self.memory_usage_factor_conds = ("reference_latent", "pose_latents", "ref_mask_latents", "sam_latents")
+        self.memory_usage_shape_process = {
+            "pose_latents": lambda shape: [shape[0], shape[1], 1.5, shape[-2], shape[-1]],
+            "sam_latents":  lambda shape: [shape[0], shape[1], 1.5, shape[-2], shape[-1]],
+        }
+        self.image_to_video = image_to_video
+
+    def extra_conds(self, **kwargs):
+        out = super().extra_conds(**kwargs)
+
+        driving_mask_28ch = kwargs.get("driving_mask_28ch", None)
+        if driving_mask_28ch is not None:
+            out['sam_latents'] = comfy.conds.CONDRegular(driving_mask_28ch.movedim(1, 2).contiguous())
+
+        ref_mask_28ch = kwargs.get("ref_mask_28ch", None)
+        if ref_mask_28ch is not None:
+            out['ref_mask_latents'] = comfy.conds.CONDRegular(ref_mask_28ch.movedim(1, 2).contiguous())
+
+        ref_mask_flag = kwargs.get("ref_mask_flag", None)
+        if ref_mask_flag is not None:
+            out['ref_mask_flag'] = comfy.conds.CONDConstant(ref_mask_flag)
+
+        return out
+
+    def extra_conds_shapes(self, **kwargs):
+        out = super().extra_conds_shapes(**kwargs)
+        driving_mask_28ch = kwargs.get("driving_mask_28ch", None)
+        if driving_mask_28ch is not None:
+            s = driving_mask_28ch.shape
+            out['sam_latents'] = [s[0], 28, s[1], s[3], s[4]]
+        ref_mask_28ch = kwargs.get("ref_mask_28ch", None)
+        if ref_mask_28ch is not None:
+            s = ref_mask_28ch.shape
+            out['ref_mask_latents'] = [s[0], 28, s[1], s[3], s[4]]
+        return out
+
+    def resize_cond_for_context_window(self, cond_key, cond_value, window, x_in, device, retain_index_list=[]):
+        if cond_key in ("sam_latents", "pose_latents"):
+            return comfy.context_windows.slice_cond(cond_value, window, x_in, device, temporal_dim=2, temporal_offset=1)
+        return super().resize_cond_for_context_window(cond_key, cond_value, window, x_in, device, retain_index_list=retain_index_list)
+
+    def concat_cond(self, **kwargs):
+        # The 4 extra channels are the history_mask (1 at clean-anchor frames).
+        noise = kwargs.get("noise", None)
+        extra_channels = self.diffusion_model.patch_embedding.weight.shape[1] - noise.shape[1]
+        if extra_channels != 4:
+            return super().concat_cond(**kwargs)
+
+        mask = kwargs.get("concat_mask", kwargs.get("denoise_mask", None))
+        if mask is None:
+            return torch.zeros_like(noise)[:, :4]
+
+        device = kwargs["device"]
+        if mask.shape[1] != 4:
+            mask = torch.mean(mask, dim=1, keepdim=True)
+        mask = 1.0 - mask
+        mask = utils.common_upscale(mask.to(device), noise.shape[-1], noise.shape[-2], "bilinear", "center")
+        if mask.shape[-3] < noise.shape[-3]:
+            mask = torch.nn.functional.pad(mask, (0, 0, 0, 0, 0, noise.shape[-3] - mask.shape[-3]), mode='constant', value=0)
+        if mask.shape[1] == 1:
+            mask = mask.repeat(1, 4, 1, 1, 1)
+        mask = utils.resize_to_batch_size(mask, noise.shape[0])
+        return mask
+
+    def scale_latent_inpaint(self, sigma, noise, latent_image, **kwargs):
+        # Hold anchor constant across all sigmas instead of base sigma*noise + (1-sigma)*latent_image.
+        return latent_image
+
+
 class WAN22_WanDancer(WAN21):
     def __init__(self, model_config, model_type=ModelType.FLOW, image_to_video=True, device=None):
         super(WAN21, self).__init__(model_config, model_type, device=device, unet_model=comfy.ldm.wan.model_wandancer.WanDancerModel)
@@ -2017,6 +2092,21 @@ class QwenImage(BaseModel):
         ref_latents = kwargs.get("reference_latents", None)
         if ref_latents is not None:
             out['ref_latents'] = list([1, 16, sum(map(lambda a: math.prod(a.size()), ref_latents)) // 16])
+        return out
+
+class Ideogram4(BaseModel):
+    def __init__(self, model_config, model_type=ModelType.FLOW, device=None):
+        super().__init__(model_config, model_type, device=device, unet_model=comfy.ldm.ideogram4.model.Ideogram4Transformer2DModel)
+
+    def extra_conds(self, **kwargs):
+        out = super().extra_conds(**kwargs)
+        attention_mask = kwargs.get("attention_mask", None)
+        if attention_mask is not None:
+            if torch.numel(attention_mask) != attention_mask.sum():
+                out['attention_mask'] = comfy.conds.CONDRegular(attention_mask)
+        cross_attn = kwargs.get("cross_attn", None)
+        if cross_attn is not None:
+            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
         return out
 
 class HunyuanImage21(BaseModel):
