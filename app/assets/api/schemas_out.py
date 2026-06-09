@@ -22,6 +22,7 @@ class Asset(BaseModel):
         default=None,
         description="Human-facing display label for the asset, usually the filename relative to its root or registered model-folder name.",
     )
+    hash: str | None = None
     asset_hash: str | None = None
     size: int | None = None
     mime_type: str | None = None

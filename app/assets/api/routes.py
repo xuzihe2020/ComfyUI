@@ -168,12 +168,14 @@ def _build_asset_response(result: schemas.AssetDetailResult | schemas.UploadResu
         file_path, display_name = paths if paths else (None, None)
     else:
         file_path, display_name = None, None
+    asset_content_hash = result.asset.hash if result.asset else None
     return schemas_out.Asset(
         id=result.ref.id,
         name=result.ref.name,
         file_path=file_path,
         display_name=display_name,
-        asset_hash=result.asset.hash if result.asset else None,
+        hash=asset_content_hash,
+        asset_hash=asset_content_hash,
         size=int(result.asset.size_bytes) if result.asset else None,
         mime_type=result.asset.mime_type if result.asset else None,
         tags=result.tags,
