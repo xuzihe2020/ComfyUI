@@ -33,6 +33,32 @@ class AssetPathContext(AssetPathInfo):
     relative_path: str
 
 
+def get_asset_system_tags(
+    asset_type: str | None,
+    model_folder: str | None = None,
+    model_folders: list[str] | None = None,
+) -> list[str]:
+    tags: list[str] = []
+    if asset_type:
+        tags.append(f"asset_type:{asset_type}")
+    if asset_type == "model":
+        folders = model_folders or ([model_folder] if model_folder else [])
+        tags.extend(f"model_folder:{folder}" for folder in folders if folder)
+    return normalize_tags(tags)
+
+
+def get_asset_system_tags_from_tags(tags: list[str] | None) -> list[str]:
+    if not tags:
+        return []
+    root = tags[0].strip().lower()
+    if root == "models":
+        model_folder = tags[1] if len(tags) > 1 else None
+        return get_asset_system_tags("model", model_folder=model_folder)
+    if root in {"input", "output", "temp"}:
+        return get_asset_system_tags(root)
+    return []
+
+
 def get_comfy_models_folders() -> list[tuple[str, list[str]]]:
     """Build list of (folder_name, base_paths[]) for all model locations.
 
@@ -435,4 +461,16 @@ def get_name_and_tags_from_asset_path(file_path: str) -> tuple[str, list[str]]:
     parent_parts = [
         part for part in p.parent.parts if part not in (".", "..", p.anchor)
     ]
-    return p.name, list(dict.fromkeys(normalize_tags([root_category, *parent_parts])))
+    response_info = get_asset_response_path_info(file_path)
+    tags = normalize_tags(
+        [
+            root_category,
+            *parent_parts,
+            *get_asset_system_tags(
+                response_info.asset_type,
+                response_info.model_folder,
+                response_info.model_folders,
+            ),
+        ]
+    )
+    return p.name, list(dict.fromkeys(tags))

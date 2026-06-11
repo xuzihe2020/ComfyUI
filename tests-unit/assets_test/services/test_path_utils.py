@@ -9,6 +9,7 @@ import pytest
 from app.assets.services.path_utils import (
     compute_relative_filename,
     get_comfy_models_folders,
+    get_name_and_tags_from_asset_path,
     get_model_folder_matches,
     get_asset_category_and_relative_path,
     get_asset_path_info,
@@ -83,6 +84,27 @@ class TestGetAssetCategoryAndRelativePath:
         f.touch()
         cat, rel = get_asset_category_and_relative_path(str(f))
         assert cat == "models"
+
+    def test_model_path_tags_include_namespaced_memberships(self, fake_dirs):
+        f = fake_dirs["models"] / "subdir" / "model.safetensors"
+        f.parent.mkdir()
+        f.touch()
+
+        _name, tags = get_name_and_tags_from_asset_path(str(f))
+
+        assert "models" in tags
+        assert "checkpoints" in tags
+        assert "asset_type:model" in tags
+        assert "model_folder:checkpoints" in tags
+
+    def test_output_path_tags_include_namespaced_asset_type(self, fake_dirs):
+        f = fake_dirs["output"] / "result.png"
+        f.touch()
+
+        _name, tags = get_name_and_tags_from_asset_path(str(f))
+
+        assert "output" in tags
+        assert "asset_type:output" in tags
 
     def test_unknown_path_raises(self, fake_dirs):
         with pytest.raises(ValueError, match="not within"):

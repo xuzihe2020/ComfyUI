@@ -29,7 +29,7 @@ from app.assets.database.queries import (
     update_reference_updated_at,
 )
 from app.assets.helpers import select_best_live_path
-from app.assets.services.path_utils import compute_relative_filename
+from app.assets.services.path_utils import compute_relative_filename, get_asset_system_tags
 from app.assets.services.schemas import (
     AssetData,
     AssetDetailResult,
@@ -104,7 +104,10 @@ def update_asset_metadata(
             set_reference_tags(
                 session,
                 reference_id=reference_id,
-                tags=tags,
+                tags=[
+                    *tags,
+                    *get_asset_system_tags(ref.asset_type, ref.model_folder),
+                ],
                 origin=tag_origin,
             )
             touched = True

@@ -102,6 +102,53 @@ class TestBatchInsertSeedAssets:
         assert len(refs) == 1
         assert refs[0].name == "first"
 
+    def test_duplicate_hashes_preserve_distinct_file_references(
+        self, session: Session, temp_dir: Path
+    ):
+        path_a = temp_dir / "models" / "checkpoints" / "same.safetensors"
+        path_b = temp_dir / "models" / "loras" / "same.safetensors"
+        path_a.parent.mkdir(parents=True)
+        path_b.parent.mkdir(parents=True)
+        path_a.write_bytes(b"same content")
+        path_b.write_bytes(b"same content")
+        asset_hash = "blake3:" + "a" * 64
+
+        specs: list[SeedAssetSpec] = [
+            {
+                "abs_path": str(path_a),
+                "size_bytes": 12,
+                "mtime_ns": 123,
+                "info_name": "checkpoint copy",
+                "tags": ["models", "checkpoints", "asset_type:model"],
+                "fname": "checkpoints/same.safetensors",
+                "metadata": None,
+                "hash": asset_hash,
+                "mime_type": "application/safetensors",
+            },
+            {
+                "abs_path": str(path_b),
+                "size_bytes": 12,
+                "mtime_ns": 456,
+                "info_name": "lora copy",
+                "tags": ["models", "loras", "asset_type:model"],
+                "fname": "loras/same.safetensors",
+                "metadata": None,
+                "hash": asset_hash,
+                "mime_type": "application/safetensors",
+            },
+        ]
+
+        result = batch_insert_seed_assets(session, specs=specs, owner_id="")
+
+        assert result.inserted_refs == 2
+        assets = session.query(Asset).all()
+        refs = session.query(AssetReference).order_by(AssetReference.name).all()
+        assert len(assets) == 1
+        assert len(refs) == 2
+        assert {ref.asset_id for ref in refs} == {assets[0].id}
+        assert {ref.file_path for ref in refs} == {str(path_a), str(path_b)}
+        assert {ref.name for ref in refs} == {"checkpoint copy", "lora copy"}
+
     def test_various_model_mime_types(self, session: Session, temp_dir: Path):
         """Verify various model file types get correct mime_type."""
         test_cases = [

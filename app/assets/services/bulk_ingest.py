@@ -6,8 +6,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, TypedDict
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.assets.database.models import Asset
 from app.assets.database.queries import (
     bulk_insert_assets,
     bulk_insert_references_ignore_conflicts,
@@ -91,6 +93,13 @@ class MetadataRow(TypedDict):
     val_json: dict[str, Any] | None
 
 
+def _get_asset_ids_by_hashes(session: Session, hashes: list[str]) -> dict[str, str]:
+    if not hashes:
+        return {}
+    rows = session.execute(select(Asset.hash, Asset.id).where(Asset.hash.in_(hashes)))
+    return {hash_value: asset_id for hash_value, asset_id in rows if hash_value}
+
+
 @dataclass
 class BulkInsertResult:
     """Result of bulk asset insertion."""
@@ -144,7 +153,9 @@ def batch_insert_seed_assets(
     asset_rows: list[AssetRow] = []
     reference_rows: list[ReferenceRow] = []
     path_to_asset_id: dict[str, str] = {}
-    asset_id_to_ref_data: dict[str, dict] = {}
+    path_to_created_asset_id: dict[str, str] = {}
+    path_to_hash: dict[str, str | None] = {}
+    path_to_ref_data: dict[str, dict] = {}
     absolute_path_list: list[str] = []
 
     for spec in specs:
@@ -153,6 +164,8 @@ def batch_insert_seed_assets(
         reference_id = str(uuid.uuid4())
         absolute_path_list.append(absolute_path)
         path_to_asset_id[absolute_path] = asset_id
+        path_to_created_asset_id[absolute_path] = asset_id
+        path_to_hash[absolute_path] = spec.get("hash")
 
         mime_type = spec.get("mime_type")
         try:
@@ -200,7 +213,7 @@ def batch_insert_seed_assets(
             }
         )
 
-        asset_id_to_ref_data[asset_id] = {
+        path_to_ref_data[absolute_path] = {
             "reference_id": reference_id,
             "tags": spec["tags"],
             "filename": spec["fname"],
@@ -209,24 +222,35 @@ def batch_insert_seed_assets(
 
     bulk_insert_assets(session, asset_rows)
 
-    # Filter reference rows to only those whose assets were actually inserted
-    # (assets with duplicate hashes are silently dropped by ON CONFLICT DO NOTHING)
     inserted_asset_ids = get_existing_asset_ids(
         session, [r["asset_id"] for r in reference_rows]
     )
-    reference_rows = [r for r in reference_rows if r["asset_id"] in inserted_asset_ids]
+    asset_ids_by_hash = _get_asset_ids_by_hashes(
+        session, [h for h in path_to_hash.values() if h]
+    )
+    resolved_reference_rows: list[ReferenceRow] = []
+    for row in reference_rows:
+        if row["asset_id"] in inserted_asset_ids:
+            resolved_reference_rows.append(row)
+            continue
+        existing_asset_id = asset_ids_by_hash.get(path_to_hash[row["file_path"]])
+        if existing_asset_id:
+            row["asset_id"] = existing_asset_id
+            path_to_asset_id[row["file_path"]] = existing_asset_id
+            resolved_reference_rows.append(row)
+    reference_rows = resolved_reference_rows
 
     bulk_insert_references_ignore_conflicts(session, reference_rows)
     restore_references_by_paths(session, absolute_path_list)
     winning_paths = get_references_by_paths_and_asset_ids(session, path_to_asset_id)
 
-    inserted_paths = {
-        path
-        for path in absolute_path_list
-        if path_to_asset_id[path] in inserted_asset_ids
-    }
+    inserted_paths = {row["file_path"] for row in reference_rows}
     losing_paths = inserted_paths - winning_paths
-    lost_asset_ids = [path_to_asset_id[path] for path in losing_paths]
+    lost_asset_ids = [
+        path_to_created_asset_id[path]
+        for path in losing_paths
+        if path_to_created_asset_id[path] in inserted_asset_ids
+    ]
 
     if lost_asset_ids:
         delete_assets_by_ids(session, lost_asset_ids)
@@ -240,7 +264,7 @@ def batch_insert_seed_assets(
 
     # Get reference IDs for winners
     winning_ref_ids = [
-        asset_id_to_ref_data[path_to_asset_id[path]]["reference_id"]
+        path_to_ref_data[path]["reference_id"]
         for path in winning_paths
     ]
     inserted_ref_ids = get_reference_ids_by_ids(session, winning_ref_ids)
@@ -250,8 +274,7 @@ def batch_insert_seed_assets(
 
     if inserted_ref_ids:
         for path in winning_paths:
-            asset_id = path_to_asset_id[path]
-            ref_data = asset_id_to_ref_data[asset_id]
+            ref_data = path_to_ref_data[path]
             ref_id = ref_data["reference_id"]
 
             if ref_id not in inserted_ref_ids:

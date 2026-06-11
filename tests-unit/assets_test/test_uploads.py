@@ -65,6 +65,61 @@ def test_upload_fastpath_from_existing_hash_no_file(http: requests.Session, api_
     assert b2["asset_hash"] == h
 
 
+def test_upload_fastpath_same_hash_and_name_creates_distinct_references(
+    http: requests.Session, api_base: str
+):
+    files = {"file": ("seed.bin", b"same-content" * 64, "application/octet-stream")}
+    form = {
+        "tags": json.dumps(["output", "unit-tests", "seed"]),
+        "name": "same-output.png",
+        "user_metadata": json.dumps({"filename": "same-output.png", "run": "seed"}),
+    }
+    r1 = http.post(api_base + "/api/assets", data=form, files=files, timeout=120)
+    seed = r1.json()
+    assert r1.status_code == 201, seed
+    asset_hash = seed["asset_hash"]
+
+    def create_output_copy(run: str):
+        parts = [
+            ("hash", (None, asset_hash)),
+            ("tags", (None, json.dumps(["output", "unit-tests", run]))),
+            ("name", (None, "same-output.png")),
+            (
+                "user_metadata",
+                (None, json.dumps({"filename": "same-output.png", "run": run})),
+            ),
+        ]
+        response = http.post(api_base + "/api/assets", files=parts, timeout=120)
+        body = response.json()
+        assert response.status_code == 200, body
+        return body
+
+    first = create_output_copy("run-a")
+    second = create_output_copy("run-b")
+
+    assert first["asset_hash"] == second["asset_hash"] == asset_hash
+    assert first["name"] == second["name"] == "same-output.png"
+    assert first["id"] != second["id"]
+
+    detail_a = http.get(f"{api_base}/api/assets/{first['id']}", timeout=120).json()
+    detail_b = http.get(f"{api_base}/api/assets/{second['id']}", timeout=120).json()
+    assert detail_a["user_metadata"]["run"] == "run-a"
+    assert detail_b["user_metadata"]["run"] == "run-b"
+    assert "run-a" in detail_a["tags"]
+    assert "run-b" in detail_b["tags"]
+    assert "asset_type:output" in detail_a["tags"]
+    assert "asset_type:output" in detail_b["tags"]
+
+    filtered = http.get(
+        api_base + "/api/assets",
+        params={"include_tags": "asset_type:output,unit-tests"},
+        timeout=120,
+    ).json()
+    filtered_ids = {asset["id"] for asset in filtered["assets"]}
+    assert first["id"] in filtered_ids
+    assert second["id"] in filtered_ids
+
+
 def test_upload_fastpath_with_known_hash_and_file(
     http: requests.Session, api_base: str
 ):

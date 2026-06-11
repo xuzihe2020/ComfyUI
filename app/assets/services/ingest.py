@@ -16,7 +16,7 @@ from app.assets.database.queries import (
     get_asset_by_hash,
     get_reference_by_file_path,
     get_reference_tags,
-    get_or_create_reference,
+    insert_reference,
     reference_exists,
     remove_missing_tag_for_asset_id,
     set_reference_metadata,
@@ -32,6 +32,9 @@ from app.assets.services.file_utils import get_size_and_mtime_ns
 from app.assets.services.path_utils import (
     compute_relative_filename,
     get_asset_path_info,
+    get_asset_response_path_info,
+    get_asset_system_tags,
+    get_asset_system_tags_from_tags,
     get_name_and_tags_from_asset_path,
     resolve_destination_from_tags,
     validate_path_within_base,
@@ -71,10 +74,16 @@ def _ingest_file_from_path(
     reference_id: str | None = None
 
     with create_session() as session:
+        system_tags: list[str] = []
         try:
-            path_info = get_asset_path_info(locator)
+            path_info = get_asset_response_path_info(locator)
             asset_type = path_info.asset_type
             model_folder = path_info.model_folder
+            system_tags = get_asset_system_tags(
+                path_info.asset_type,
+                path_info.model_folder,
+                path_info.model_folders,
+            )
         except ValueError:
             asset_type = None
             model_folder = None
@@ -109,7 +118,7 @@ def _ingest_file_from_path(
             if preview_id and ref.preview_id != preview_id:
                 ref.preview_id = preview_id
 
-            norm = normalize_tags(list(tags))
+            norm = normalize_tags([*list(tags), *system_tags])
             if norm:
                 if require_existing_tags:
                     validate_tags_exist(session, norm)
@@ -259,6 +268,7 @@ def _register_existing_asset(
     preview_id: str | None = None,
 ) -> RegisterAssetResult:
     user_metadata = user_metadata or {}
+    tags = normalize_tags([*(tags or []), *get_asset_system_tags_from_tags(tags or [])])
 
     with create_session() as session:
         asset = get_asset_by_hash(session, asset_hash=asset_hash)
@@ -272,27 +282,15 @@ def _register_existing_asset(
             if not reference_exists(session, preview_id):
                 preview_id = None
 
-        ref, ref_created = get_or_create_reference(
+        ref = insert_reference(
             session,
             asset_id=asset.id,
             owner_id=owner_id,
             name=name,
             preview_id=preview_id,
         )
-
-        if not ref_created:
-            if preview_id and ref.preview_id != preview_id:
-                ref.preview_id = preview_id
-
-            tag_names = get_reference_tags(session, reference_id=ref.id)
-            result = RegisterAssetResult(
-                ref=extract_reference_data(ref),
-                asset=extract_asset_data(asset),
-                tags=tag_names,
-                created=False,
-            )
-            session.commit()
-            return result
+        if not ref:
+            raise RuntimeError("Failed to create AssetReference for existing asset")
 
         new_meta = dict(user_metadata)
         computed_filename = compute_relative_filename(ref.file_path) if ref.file_path else None
@@ -306,7 +304,7 @@ def _register_existing_asset(
                 user_metadata=new_meta,
             )
 
-        if tags is not None:
+        if tags:
             set_reference_tags(
                 session,
                 reference_id=ref.id,

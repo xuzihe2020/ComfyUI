@@ -42,6 +42,7 @@ from app.assets.services import (
     upload_from_temp_path,
 )
 from app.assets.services.path_utils import (
+    get_asset_system_tags,
     get_comfy_models_folders,
     get_stored_asset_response_path_info,
 )
@@ -146,21 +147,24 @@ def _get_asset_path_info(
 def _build_preview_url_from_view(
     asset_type: str | None,
     user_metadata: dict[str, Any] | None,
+    display_name: str | None = None,
     fallback_tags: list[str] | None = None,
 ) -> str | None:
     """Build a /api/view preview URL from path-derived type and filename metadata."""
-    if not user_metadata:
-        return None
-    filename = user_metadata.get("filename")
+    filename = display_name
+    if not filename and user_metadata:
+        filename = user_metadata.get("filename")
     if not filename:
         return None
 
-    if asset_type in {"input", "output"}:
+    if asset_type in {"input", "output", "temp"}:
         view_type = asset_type
     elif fallback_tags and "input" in fallback_tags:
         view_type = "input"
     elif fallback_tags and "output" in fallback_tags:
         view_type = "output"
+    elif fallback_tags and "temp" in fallback_tags:
+        view_type = "temp"
     else:
         return None
 
@@ -194,6 +198,7 @@ def _build_asset_response(result: schemas.AssetDetailResult | schemas.UploadResu
             preview_url = _build_preview_url_from_view(
                 preview_path_info.asset_type if preview_path_info else None,
                 preview_detail.ref.user_metadata,
+                display_name=preview_path_info.display_name if preview_path_info else None,
                 fallback_tags=preview_detail.tags,
             )
         else:
@@ -202,6 +207,7 @@ def _build_asset_response(result: schemas.AssetDetailResult | schemas.UploadResu
         preview_url = _build_preview_url_from_view(
             path_info.asset_type if path_info else None,
             result.ref.user_metadata,
+            display_name=path_info.display_name if path_info else None,
             fallback_tags=result.tags,
         )
 
@@ -216,6 +222,14 @@ def _build_asset_response(result: schemas.AssetDetailResult | schemas.UploadResu
         model_folders = path_info.model_folders
         file_path = path_info.file_path
         display_name = path_info.display_name
+    tags = list(
+        dict.fromkeys(
+            [
+                *result.tags,
+                *get_asset_system_tags(asset_type, model_folder, model_folders),
+            ]
+        )
+    )
 
     return schemas_out.Asset(
         id=result.ref.id,
@@ -228,7 +242,7 @@ def _build_asset_response(result: schemas.AssetDetailResult | schemas.UploadResu
         model_folder=model_folder,
         model_folders=model_folders,
         asset_type=asset_type,
-        tags=result.tags,
+        tags=tags,
         preview_url=preview_url,
         preview_id=result.ref.preview_id,
         user_metadata=result.ref.user_metadata or {},

@@ -242,6 +242,8 @@ class TestBuildAssetResponsePathFields:
         assert asset.model_folders == ["checkpoints"]
         assert asset.display_name == "sub/model.safetensors"
         assert asset.file_path == "models/checkpoints/sub/model.safetensors"
+        assert "asset_type:model" in asset.tags
+        assert "model_folder:checkpoints" in asset.tags
 
     def test_model_response_includes_plural_model_folder_memberships(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -276,6 +278,9 @@ class TestBuildAssetResponsePathFields:
         assert asset.model_folders == ["checkpoints", "loras", "vae"]
         assert asset.display_name == "checkpoints/model.safetensors"
         assert asset.file_path == "models/checkpoints/checkpoints/model.safetensors"
+        assert "model_folder:checkpoints" in asset.tags
+        assert "model_folder:loras" in asset.tags
+        assert "model_folder:vae" in asset.tags
 
     def test_input_output_response_fields_use_persisted_classification(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
