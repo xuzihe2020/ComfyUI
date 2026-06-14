@@ -33,7 +33,7 @@ class ChromaRadianceOptions(io.ComfyNode):
     def define_schema(cls) -> io.Schema:
         return io.Schema(
             node_id="ChromaRadianceOptions",
-            category="model/patch/chroma_radiance",
+            category="model/patch/chroma radiance",
             description="Allows setting advanced options for the Chroma Radiance model.",
             inputs=[
                 io.Model.Input(id="model"),

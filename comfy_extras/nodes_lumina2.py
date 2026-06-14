@@ -9,7 +9,7 @@ class RenormCFG(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(
             node_id="RenormCFG",
-            category="advanced/model",
+            category="model/patch",
             inputs=[
                 io.Model.Input("model"),
                 io.Float.Input("cfg_trunc", default=100, min=0.0, max=100.0, step=0.01, advanced=True),

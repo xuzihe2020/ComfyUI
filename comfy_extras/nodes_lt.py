@@ -566,7 +566,7 @@ class ModelSamplingLTXV(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(
             node_id="ModelSamplingLTXV",
-            category="advanced/model",
+            category="model/patch/ltxv",
             inputs=[
                 io.Model.Input("model"),
                 io.Float.Input("max_shift", default=2.05, min=0.0, max=100.0, step=0.01),

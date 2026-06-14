@@ -117,7 +117,7 @@ class HiDreamO1PatchSeamSmoothing(io.ComfyNode):
         return io.Schema(
             node_id="HiDreamO1PatchSeamSmoothing",
             display_name="HiDream-O1 Patch Seam Smoothing",
-            category="advanced/model",
+            category="model/patch/hidream",
             is_experimental=True,
             description=(
                 "Average the model output across multiple shifted patch-grid "
