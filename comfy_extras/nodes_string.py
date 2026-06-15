@@ -440,6 +440,30 @@ class JsonExtractString(io.ComfyNode):
         except (json.JSONDecodeError, TypeError):
             return io.NodeOutput("")
 
+
+class DictToJsonString(io.ComfyNode):
+    @classmethod
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DictToJsonString",
+            display_name="Dict to JSON String",
+            category="text",
+            search_aliases=["json", "dict to json", "stringify", "serialize", "dict to string"],
+            inputs=[
+                io.ComfyDict.Input("value"),
+                io.Int.Input("indent", default=2, min=0, max=8,
+                             tooltip="Spaces per indent level. 0 produces compact single-line JSON."),
+            ],
+            outputs=[
+                io.String.Output(),
+            ],
+        )
+
+    @classmethod
+    def execute(cls, value, indent=2):
+        return io.NodeOutput(json.dumps(value, ensure_ascii=False, indent=indent or None))
+
+
 class StringExtension(ComfyExtension):
     @override
     async def get_node_list(self) -> list[type[io.ComfyNode]]:
@@ -457,6 +481,7 @@ class StringExtension(ComfyExtension):
             RegexExtract,
             RegexReplace,
             JsonExtractString,
+            DictToJsonString,
         ]
 
 async def comfy_entrypoint() -> StringExtension:

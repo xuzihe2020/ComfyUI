@@ -2363,6 +2363,8 @@ async def init_builtin_extra_nodes():
         "nodes_images.py",
         "nodes_video_model.py",
         "nodes_ideogram4.py",
+        "nodes_bounding_boxes.py",
+        "nodes_json_prompt.py",
         "nodes_train.py",
         "nodes_dataset.py",
         "nodes_sag.py",
