@@ -179,7 +179,10 @@ class TestResolveDestinationFromTags:
         assert base_dir == os.path.abspath(fake_dirs["input"])
         assert subdirs == ["foo", "bar"]
 
-    @pytest.mark.parametrize("subfolder", ["../escape", "foo/../bar", "/abs", "foo\\bar"])
+    @pytest.mark.parametrize(
+        "subfolder",
+        ["../escape", "foo/../bar", "/abs", "foo\\bar", "C:/escape", "C:escape"],
+    )
     def test_explicit_subfolder_rejects_unsafe_paths(self, fake_dirs, subfolder: str):
         with pytest.raises(ValueError, match="invalid subfolder"):
             resolve_destination_from_tags(["input", "unit-tests"], subfolder=subfolder)

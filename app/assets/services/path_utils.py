@@ -1,5 +1,5 @@
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Literal
 
 import folder_paths
@@ -28,6 +28,12 @@ def get_comfy_models_folders() -> list[tuple[str, list[str]]]:
 def _validate_subfolder(subfolder: str | None) -> list[str]:
     if not subfolder:
         return []
+
+    if "\\" in subfolder:
+        raise ValueError("invalid subfolder path")
+    windows_path = PureWindowsPath(subfolder)
+    if windows_path.drive or windows_path.root:
+        raise ValueError("invalid subfolder path")
 
     parts = Path(subfolder).parts
     invalid = {"", ".", ".."}
