@@ -463,6 +463,7 @@ def upload_from_temp_path(
     expected_hash: str | None = None,
     mime_type: str | None = None,
     preview_id: str | None = None,
+    subfolder: str | None = None,
 ) -> UploadResult:
     try:
         digest, _ = hashing.compute_blake3_hash(temp_path)
@@ -507,7 +508,7 @@ def upload_from_temp_path(
 
     if not tags:
         raise ValueError("tags are required for new asset uploads")
-    base_dir, subdirs = resolve_destination_from_tags(tags)
+    base_dir, subdirs = resolve_destination_from_tags(tags, subfolder=subfolder)
     dest_dir = os.path.join(base_dir, *subdirs) if subdirs else base_dir
     os.makedirs(dest_dir, exist_ok=True)
 

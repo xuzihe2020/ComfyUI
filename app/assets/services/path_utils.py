@@ -25,11 +25,27 @@ def get_comfy_models_folders() -> list[tuple[str, list[str]]]:
     return targets
 
 
-def resolve_destination_from_tags(tags: list[str]) -> tuple[str, list[str]]:
+def _validate_subfolder(subfolder: str | None) -> list[str]:
+    if not subfolder:
+        return []
+
+    parts = Path(subfolder).parts
+    invalid = {"", ".", ".."}
+    if Path(subfolder).is_absolute() or any(part in invalid for part in parts):
+        raise ValueError("invalid subfolder path")
+    if any("/" in part or "\\" in part for part in parts):
+        raise ValueError("invalid subfolder path")
+    return list(parts)
+
+
+def resolve_destination_from_tags(
+    tags: list[str], subfolder: str | None = None
+) -> tuple[str, list[str]]:
     """Validates and maps upload routing tags -> (base_dir, subdirs_for_fs).
 
     The request tags are only used to choose the write destination. Extra tags
     remain labels; they do not become path components or trusted classification.
+    Explicit subfolder is the only request field that can add path components.
     """
     destination_roles = [t for t in tags if t in {"input", "models", "output"}]
     if len(destination_roles) != 1:
@@ -56,7 +72,7 @@ def resolve_destination_from_tags(tags: list[str]) -> tuple[str, list[str]]:
     else:
         base_dir = os.path.abspath(folder_paths.get_output_directory())
 
-    return base_dir, []
+    return base_dir, _validate_subfolder(subfolder)
 
 
 def validate_path_within_base(candidate: str, base: str) -> None:

@@ -366,6 +366,39 @@ def test_upload_extra_tags_are_labels_not_path_components(http: requests.Session
     assert "model_type:checkpoints" in body["tags"]
 
 
+def test_upload_subfolder_is_explicit_path_component(
+    http: requests.Session, api_base: str, comfy_tmp_base_dir: Path
+):
+    files = {"file": ("nested.bin", b"nested" * 64, "application/octet-stream")}
+    form = {
+        "tags": json.dumps(["input", "unit-tests", "foo"]),
+        "subfolder": "foo/bar",
+        "name": "nested.bin",
+    }
+    r = http.post(api_base + "/api/assets", data=form, files=files, timeout=120)
+    body = r.json()
+
+    assert r.status_code == 201, body
+    stored_name = get_asset_filename(body["asset_hash"], ".bin")
+    assert (comfy_tmp_base_dir / "input" / "foo" / "bar" / stored_name).exists()
+    assert body["file_path"] == f"input/foo/bar/{stored_name}"
+    assert "foo" in body["tags"]
+
+
+def test_upload_rejects_unsafe_subfolder(http: requests.Session, api_base: str):
+    files = {"file": ("escape.bin", b"escape" * 64, "application/octet-stream")}
+    form = {
+        "tags": json.dumps(["input", "unit-tests"]),
+        "subfolder": "../escape",
+        "name": "escape.bin",
+    }
+    r = http.post(api_base + "/api/assets", data=form, files=files, timeout=120)
+    body = r.json()
+
+    assert r.status_code == 400, body
+    assert body["error"]["code"] == "INVALID_BODY"
+
+
 def test_multipart_upload_accepts_system_looking_extra_labels(
     http: requests.Session, api_base: str
 ):

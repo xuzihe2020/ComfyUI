@@ -431,7 +431,10 @@ class PromptServer():
                 if args.enable_assets:
                     try:
                         tag = image_upload_type if image_upload_type in ("input", "output") else "input"
-                        result = register_file_in_place(abs_path=filepath, name=filename, tags=[tag])
+                        tags = [tag]
+                        if subfolder in {"3d", "pasted", "painter", "threed", "webcam"}:
+                            tags.append(subfolder)
+                        result = register_file_in_place(abs_path=filepath, name=filename, tags=tags)
                         resp["asset"] = {
                             "id": result.ref.id,
                             "name": result.ref.name,

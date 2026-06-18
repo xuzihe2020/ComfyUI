@@ -409,6 +409,7 @@ async def upload_asset(request: web.Request) -> web.Response:
                 "hash": parsed.provided_hash,
                 "mime_type": parsed.provided_mime_type,
                 "preview_id": parsed.provided_preview_id,
+                "subfolder": parsed.provided_subfolder,
             }
         )
     except ValidationError as ve:
@@ -454,6 +455,7 @@ async def upload_asset(request: web.Request) -> web.Response:
                 expected_hash=spec.hash,
                 mime_type=spec.mime_type,
                 preview_id=spec.preview_id,
+                subfolder=spec.subfolder,
             )
     except AssetValidationError as e:
         delete_temp_file_if_exists(parsed.tmp_path)

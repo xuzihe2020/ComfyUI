@@ -47,6 +47,7 @@ class ParsedUpload:
     provided_hash_exists: bool | None
     provided_mime_type: str | None = None
     provided_preview_id: str | None = None
+    provided_subfolder: str | None = None
 
 
 class ListAssetsQuery(BaseModel):
@@ -239,8 +240,9 @@ class TagsRemove(TagsAdd):
 class UploadAssetSpec(BaseModel):
     """Upload Asset operation.
 
-    - tags: optional list; if provided, first is root ('models'|'input'|'output');
-            if root == 'models', second must be a valid category
+    - tags: labels plus one destination role ('models'|'input'|'output') for new bytes;
+            if role == 'models', exactly one model_type:<folder_name> tag is required
+    - subfolder: optional destination subfolder for new bytes
     - name: display name
     - user_metadata: arbitrary JSON object (optional)
     - hash: optional canonical 'blake3:<hex>' for validation / fast-path
@@ -258,6 +260,7 @@ class UploadAssetSpec(BaseModel):
     hash: str | None = Field(default=None)
     mime_type: str | None = Field(default=None)
     preview_id: str | None = Field(default=None)  # references an asset_reference id
+    subfolder: str | None = Field(default=None, max_length=1024)
 
     @field_validator("hash", mode="before")
     @classmethod
@@ -314,6 +317,14 @@ class UploadAssetSpec(BaseModel):
                 seen.add(tnorm)
                 norm.append(tnorm)
         return norm
+
+    @field_validator("subfolder", mode="before")
+    @classmethod
+    def _parse_subfolder(cls, v):
+        if v is None:
+            return None
+        s = str(v).strip()
+        return s or None
 
     @field_validator("user_metadata", mode="before")
     @classmethod

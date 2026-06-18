@@ -54,6 +54,7 @@ async def parse_multipart_upload(
     provided_hash_exists: bool | None = None
     provided_mime_type: str | None = None
     provided_preview_id: str | None = None
+    provided_subfolder: str | None = None
 
     file_written = 0
     tmp_path: str | None = None
@@ -140,6 +141,8 @@ async def parse_multipart_upload(
             provided_mime_type = ((await field.text()) or "").strip() or None
         elif fname == "preview_id":
             provided_preview_id = ((await field.text()) or "").strip() or None
+        elif fname == "subfolder":
+            provided_subfolder = ((await field.text()) or "").strip() or None
 
     if not file_present and not (provided_hash and provided_hash_exists):
         raise UploadError(
@@ -166,6 +169,7 @@ async def parse_multipart_upload(
         provided_hash_exists=provided_hash_exists,
         provided_mime_type=provided_mime_type,
         provided_preview_id=provided_preview_id,
+        provided_subfolder=provided_subfolder,
     )
 
 
