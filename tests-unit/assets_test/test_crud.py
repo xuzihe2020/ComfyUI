@@ -290,12 +290,16 @@ def test_metadata_filename_is_set_for_seed_asset_without_hash(
 
     r1 = http.get(
         api_base + "/api/assets",
-        params={"include_tags": f"unit-tests,{scope}", "name_contains": name},
+        params={"include_tags": root, "name_contains": name},
         timeout=120,
     )
     body = r1.json()
     assert r1.status_code == 200, body
-    matches = [a for a in body.get("assets", []) if a.get("name") == name]
+    expected_file_path = f"{root}/unit-tests/{scope}/a/b/{name}"
+    matches = [
+        a for a in body.get("assets", [])
+        if a.get("name") == name and a.get("file_path") == expected_file_path
+    ]
     assert matches, "Seed asset should be visible after sync"
     # Seed assets have no hash; exclude_none drops both keys from the response
     assert "asset_hash" not in matches[0]

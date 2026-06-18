@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 import requests
-from helpers import get_asset_filename, trigger_sync_seed_assets
+from helpers import trigger_sync_seed_assets
 
 
 @pytest.fixture
@@ -29,12 +29,17 @@ def create_seed_file(comfy_tmp_base_dir: Path):
 def find_asset(http: requests.Session, api_base: str):
     """Query API for assets matching scope and optional name."""
     def _find(scope: str, name: str | None = None) -> list[dict]:
-        params = {"include_tags": f"unit-tests,{scope}"}
+        params = {"limit": "500"}
         if name:
             params["name_contains"] = name
         r = http.get(f"{api_base}/api/assets", params=params, timeout=120)
         assert r.status_code == 200
         assets = r.json().get("assets", [])
+        expected_path_fragment = f"/unit-tests/{scope}/"
+        assets = [
+            a for a in assets
+            if expected_path_fragment in f"/{a.get('file_path', '')}"
+        ]
         if name:
             return [a for a in assets if a.get("name") == name]
         return assets
@@ -91,7 +96,7 @@ def test_hashed_asset_not_pruned_when_file_missing(
     data = make_asset_bytes("test", 2048)
     a = asset_factory("test.bin", ["input", "unit-tests", scope], {}, data)
 
-    path = comfy_tmp_base_dir / "input" / "unit-tests" / scope / get_asset_filename(a["asset_hash"], ".bin")
+    path = comfy_tmp_base_dir / a["file_path"]
     path.unlink()
 
     trigger_sync_seed_assets(http, api_base)

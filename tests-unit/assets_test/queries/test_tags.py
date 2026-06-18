@@ -58,7 +58,7 @@ class TestEnsureTagsExist:
         session.commit()
 
         tags = session.query(Tag).all()
-        assert {t.name for t in tags} == {"alpha", "beta"}
+        assert {t.name for t in tags} == {"ALPHA", "Beta", "alpha"}
 
     def test_empty_list_is_noop(self, session: Session):
         ensure_tags_exist(session, [])

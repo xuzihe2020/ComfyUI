@@ -95,7 +95,7 @@ def test_download_chooses_existing_state_and_updates_access_time(
         assert t1 > t0
 
 
-@pytest.mark.parametrize("seeded_asset", [{"tags": ["models", "checkpoints"]}], indirect=True)
+@pytest.mark.parametrize("seeded_asset", [{"tags": ["models", "model_type:checkpoints"]}], indirect=True)
 def test_download_missing_file_returns_404(
     http: requests.Session, api_base: str, comfy_tmp_base_dir: Path, seeded_asset: dict
 ):
