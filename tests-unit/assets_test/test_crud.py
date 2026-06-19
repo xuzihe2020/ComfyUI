@@ -295,11 +295,7 @@ def test_metadata_filename_is_set_for_seed_asset_without_hash(
     )
     body = r1.json()
     assert r1.status_code == 200, body
-    expected_file_path = f"{root}/unit-tests/{scope}/a/b/{name}"
-    matches = [
-        a for a in body.get("assets", [])
-        if a.get("name") == name and a.get("file_path") == expected_file_path
-    ]
+    matches = [a for a in body.get("assets", []) if a.get("name") == name]
     assert matches, "Seed asset should be visible after sync"
     # Seed assets have no hash; exclude_none drops both keys from the response
     assert "asset_hash" not in matches[0]

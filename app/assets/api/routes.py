@@ -39,7 +39,6 @@ from app.assets.services import (
     upload_from_temp_path,
 )
 from app.assets.services.cursor import InvalidCursorError
-from app.assets.services.path_utils import compute_api_file_path
 from app.assets.services.tagging import list_tag_histogram
 
 ROUTES = web.RouteTableDef()
@@ -169,7 +168,6 @@ def _build_asset_response(result: schemas.AssetDetailResult | schemas.UploadResu
         asset_hash=asset_content_hash,
         size=int(result.asset.size_bytes) if result.asset else None,
         mime_type=result.asset.mime_type if result.asset else None,
-        file_path=compute_api_file_path(result.ref.file_path),
         tags=result.tags,
         preview_url=preview_url,
         preview_id=result.ref.preview_id,

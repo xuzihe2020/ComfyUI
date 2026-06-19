@@ -381,7 +381,6 @@ def test_upload_subfolder_is_explicit_path_component(
     assert r.status_code == 201, body
     stored_name = get_asset_filename(body["asset_hash"], ".bin")
     assert (comfy_tmp_base_dir / "input" / "foo" / "bar" / stored_name).exists()
-    assert body["file_path"] == f"input/foo/bar/{stored_name}"
     assert "foo" in body["tags"]
 
 
@@ -498,7 +497,6 @@ def test_multipart_upload_role_selects_write_location(
     stored_name = get_asset_filename(body["asset_hash"], extension)
     expected_disk_path = comfy_tmp_base_dir / expected_root / stored_name
     assert expected_disk_path.exists()
-    assert body["file_path"] == f"{expected_root}/{stored_name}"
 
 
 def test_upload_empty_tags_rejected(http: requests.Session, api_base: str):

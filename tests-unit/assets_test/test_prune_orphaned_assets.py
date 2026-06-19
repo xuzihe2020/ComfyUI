@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 import requests
-from helpers import trigger_sync_seed_assets
+from helpers import get_asset_filename, trigger_sync_seed_assets
 
 
 @pytest.fixture
@@ -35,11 +35,6 @@ def find_asset(http: requests.Session, api_base: str):
         r = http.get(f"{api_base}/api/assets", params=params, timeout=120)
         assert r.status_code == 200
         assets = r.json().get("assets", [])
-        expected_path_fragment = f"/unit-tests/{scope}/"
-        assets = [
-            a for a in assets
-            if expected_path_fragment in f"/{a.get('file_path', '')}"
-        ]
         if name:
             return [a for a in assets if a.get("name") == name]
         return assets
@@ -96,7 +91,7 @@ def test_hashed_asset_not_pruned_when_file_missing(
     data = make_asset_bytes("test", 2048)
     a = asset_factory("test.bin", ["input", "unit-tests", scope], {}, data)
 
-    path = comfy_tmp_base_dir / a["file_path"]
+    path = comfy_tmp_base_dir / "input" / get_asset_filename(a["asset_hash"], ".bin")
     path.unlink()
 
     trigger_sync_seed_assets(http, api_base)
@@ -117,14 +112,14 @@ def test_prune_across_multiple_roots(
     create_seed_file("output", scope, "output.bin")
 
     trigger_sync_seed_assets(http, api_base)
-    assert len(find_asset(scope)) == 2
+    assert find_asset(scope, input_fp.name)
+    assert find_asset(scope, "output.bin")
 
     input_fp.unlink()
     trigger_sync_seed_assets(http, api_base)
 
-    remaining = find_asset(scope)
-    assert len(remaining) == 1
-    assert remaining[0]["name"] == "output.bin"
+    assert not find_asset(scope, input_fp.name)
+    assert find_asset(scope, "output.bin")
 
 
 @pytest.mark.parametrize("dirname", ["100%_done", "my_folder_name", "has spaces"])

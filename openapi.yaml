@@ -7,14 +7,6 @@ components:
                     description: Timestamp when the asset was created
                     format: date-time
                     type: string
-                display_name:
-                    description: Display name of the asset. Mirrors name for backwards compatibility.
-                    nullable: true
-                    type: string
-                file_path:
-                    description: Relative path in global-namespace-root form (e.g. "models/checkpoints/flux.safetensors")
-                    nullable: true
-                    type: string
                 hash:
                     description: Blake3 hash of the asset content.
                     pattern: ^blake3:[a-f0-9]{64}$
@@ -138,14 +130,6 @@ components:
         AssetUpdated:
             description: Response returned when an existing asset is successfully updated.
             properties:
-                display_name:
-                    description: Display name of the asset. Mirrors name for backwards compatibility.
-                    nullable: true
-                    type: string
-                file_path:
-                    description: Relative path in global-namespace-root form (e.g. "models/checkpoints/flux.safetensors")
-                    nullable: true
-                    type: string
                 hash:
                     description: Blake3 hash of the asset content.
                     pattern: ^blake3:[a-f0-9]{64}$

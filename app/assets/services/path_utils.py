@@ -114,25 +114,6 @@ def compute_relative_filename(file_path: str) -> str | None:
     return "/".join(parts)  # input/output: keep all parts
 
 
-def compute_api_file_path(file_path: str | None) -> str | None:
-    """Return a stable API-visible path relative to a known asset root.
-
-    Examples:
-      /.../input/foo.png -> "input/foo.png"
-      /.../models/checkpoints/foo.safetensors -> "models/checkpoints/foo.safetensors"
-
-    Returns None for references without a filesystem path or paths outside
-    known asset roots.
-    """
-    if not file_path:
-        return None
-    try:
-        root_category, rel_path = get_asset_category_and_relative_path(file_path)
-    except ValueError:
-        return None
-    return "/".join([root_category, *Path(rel_path).parts])
-
-
 def get_asset_category_and_relative_path(
     file_path: str,
 ) -> tuple[Literal["input", "output", "temp", "models"], str]:
