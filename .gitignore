@@ -1,5 +1,32 @@
 __pycache__/
 *.py[cod]
+*$py.class
+
+# Local Python environments
+/.venv/
+/venv/
+/venv*/
+/.python-version
+
+# Python tooling and test caches
+/.pytest_cache/
+/.mypy_cache/
+/.ruff_cache/
+/.coverage
+/.coverage.*
+/coverage.xml
+/htmlcov/
+/.hypothesis/
+/.tox/
+/.nox/
+
+# Python build artifacts
+/build/
+/dist/
+/*.egg-info/
+/.eggs/
+
+# ComfyUI-generated and user-owned data
 /output/
 /input/
 !/input/example.png
@@ -7,17 +34,40 @@ __pycache__/
 /temp/
 /custom_nodes/
 !custom_nodes/example_node.py.example
+/user/
+
+# Local caches and runtime state
+/.cache/
+/.torch/
+/.triton/
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+
+# Downloaded model/ML artifacts accidentally placed outside /models
+*.ckpt
+*.safetensors
+*.gguf
+*.onnx
+*.tflite
+
+# Local configuration and secrets
 extra_model_paths.yaml
+/.env
+/.env.*
+!/.env.example
+
+# IDE and OS metadata
 /.vs
 .vscode/
 .idea/
-venv*/
-.venv/
 /web/extensions/*
 !/web/extensions/logging.js.example
 !/web/extensions/core/
 /tests-ui/data/object_info.json
-/user/
 *.log
 web_custom_versions/
 .DS_Store
