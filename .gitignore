@@ -46,6 +46,7 @@ __pycache__/
 *.sqlite-journal
 *.sqlite-shm
 *.sqlite-wal
+test_images/
 
 # Downloaded model/ML artifacts accidentally placed outside /models
 *.ckpt
@@ -55,7 +56,6 @@ __pycache__/
 *.tflite
 
 # Local configuration and secrets
-extra_model_paths.yaml
 /.env
 /.env.*
 !/.env.example
