@@ -374,6 +374,269 @@ foreground occlusion layer
 
 This creates depth without forcing the model to regenerate the whole scene.
 
+### 8.1 Automatic Sprite Placement
+
+The composition step can be manual or automatic. For VN production, make it
+automatic by treating character placement as a deterministic layout problem.
+
+The most reliable default is not "let the model decide where to put the
+character." The reliable default is:
+
+```text
+background image
++ cutout character sprite
++ preset layout anchor
++ optional foreground occlusion mask
+-> deterministic composite
+-> low-denoise FLUX2 harmonization
+```
+
+For a bust sprite that should sit on the lower boundary, use anchor math.
+
+Definitions:
+
+```text
+W, H       = background width and height
+sw, sh     = scaled sprite width and height
+anchor_x   = horizontal scene position
+             0.25 left, 0.50 center, 0.75 right, 0.33 left-third
+anchor_y   = vertical scene position
+             usually 1.0 for bottom aligned
+sprite_ax  = sprite anchor x inside its own image
+             usually 0.5 for center of sprite
+sprite_ay  = sprite anchor y inside its own image
+             usually 1.0 for bottom of sprite
+margin_y   = bottom margin, usually H * 0.02
+```
+
+Placement formula:
+
+```text
+x = round(W * anchor_x - sw * sprite_ax)
+y = round(H * anchor_y - sh * sprite_ay - margin_y)
+
+x = clamp(x, 0, W - sw)
+y = clamp(y, 0, H - sh)
+```
+
+For a centered bust at the bottom:
+
+```text
+anchor_x  = 0.50
+anchor_y  = 1.00
+sprite_ax = 0.50
+sprite_ay = 1.00
+margin_y  = H * 0.02
+```
+
+For a bust placed around the left third:
+
+```text
+anchor_x = 0.33
+```
+
+For a bust that occupies the lower part of the frame, scale the sprite before
+placement:
+
+```text
+target_sprite_height = H * 0.58 to H * 0.70
+```
+
+The exact value depends on the VN style. A talking bust often feels natural
+around 60-70% of the canvas height. A smaller waist-up sprite may be closer to
+50-58%.
+
+ComfyUI implementation:
+
+```mermaid
+flowchart TD
+  BG["Background image"] --> BGS["GetImageSize<br/>W,H"]
+  CH["Character cutout<br/>RGB + mask/alpha"] --> CROP["Optional trim to mask bbox<br/>recommended"]
+  CROP --> SCALE["ImageScale<br/>height = int(H * 0.62)<br/>width = 0 preserve aspect"]
+  SCALE --> SGS["GetImageSize<br/>sw,sh"]
+
+  BGS --> XFORM["ComfyMathExpression<br/>x = clamp(W*anchor_x - sw*0.5)"]
+  SGS --> XFORM
+  BGS --> YFORM["ComfyMathExpression<br/>y = clamp(H - sh - H*0.02)"]
+  SGS --> YFORM
+
+  BG --> COMP["ImageCompositeMasked"]
+  SCALE --> COMP
+  XFORM --> COMP
+  YFORM --> COMP
+  CROP --> MASK["GrowMask + FeatherMask"]
+  MASK --> COMP
+
+  COMP --> HARM["FLUX2 low-denoise inpaint/edit<br/>edge, shadow, lighting"]
+  HARM --> OUT["Composited VN frame"]
+```
+
+Using built-in nodes:
+
+- `GetImageSize` gets background and sprite dimensions.
+- `ImageScale` can scale the sprite by height while preserving aspect ratio by
+  setting `width = 0`.
+- `ComfyMathExpression` can compute `x`, `y`, and target height.
+- `ImageCompositeMasked` places the sprite using explicit `x` and `y`.
+- `GrowMask` and `FeatherMask` soften the matte before compositing.
+
+Example `ComfyMathExpression` formulas:
+
+```text
+target_h:
+int(a * 0.62)
+where a = background height
+
+x center:
+max(0, min(a - b, round(a * 0.50 - b * 0.50)))
+where a = background width, b = sprite width
+
+x left-third:
+max(0, min(a - b, round(a * 0.33 - b * 0.50)))
+where a = background width, b = sprite width
+
+y bottom:
+max(0, min(a - b, round(a - b - a * 0.02)))
+where a = background height, b = sprite height
+```
+
+For "sane position in the background", the best production approach is a
+per-background safe-zone preset, not AI guessing every time.
+
+Example:
+
+```text
+cafe_counter_wide:
+  speaker_left:
+    anchor_x: 0.30
+    sprite_height_ratio: 0.64
+    bottom_margin_ratio: 0.02
+    foreground_occlusion: table_mask.png
+  speaker_right:
+    anchor_x: 0.70
+    sprite_height_ratio: 0.64
+    bottom_margin_ratio: 0.02
+    foreground_occlusion: table_mask.png
+
+classroom_front:
+  speaker_center:
+    anchor_x: 0.52
+    sprite_height_ratio: 0.62
+    bottom_margin_ratio: 0.02
+```
+
+This lets the VN script choose:
+
+```text
+background_id = cafe_counter_wide
+slot = speaker_left
+character = heroine_bust_happy
+```
+
+Then the workflow automatically composites the character into the same sane
+position every time.
+
+If the scene needs interaction with the background, add layers:
+
+```text
+background plate
+-> character sprite
+-> foreground occlusion mask/object, e.g. table/counter/door frame
+-> FLUX2 low-denoise harmonization
+```
+
+This is more reliable than asking FLUX2 to regenerate the whole background
+for every dialogue line.
+
+### 8.2 Interaction Shots: Sitting, Leaning, Holding, Touching
+
+Pure composition is best when the character is visually in front of the
+background but does not physically interact with it.
+
+If the character must sit on a chair, lean on a desk, hold a cup from the
+scene, touch a wall, lie on a bed, or cast important contact shadows, use a
+masked FLUX2 repaint workflow instead of simple paste-and-feather.
+
+Reason:
+
+```text
+simple composition can place pixels
+but it cannot solve body pose, chair occlusion, compression of clothing,
+contact shadows, perspective, or believable weight
+```
+
+Recommended workflow:
+
+```mermaid
+flowchart TD
+  BG["Background image<br/>chair already exists"] --> GUIDE["Rough layout guide<br/>optional pasted character / pose sketch"]
+  CH["Character reference<br/>face, outfit, body"] --> REF1["VAEEncode -> ReferenceLatent"]
+  BG --> REF2["Optional background reference<br/>VAEEncode -> ReferenceLatent"]
+
+  GUIDE --> MASK["Mask editable region<br/>chair + body + contact area"]
+  BG --> INP["Inpaint / img2img base"]
+  MASK --> INP
+  REF1 --> INP
+  REF2 --> INP
+
+  PROMPT["Prompt<br/>same character sitting naturally on the chair,<br/>same room, correct contact shadows"] --> INP
+  INP --> SAMPLE["FLUX2 sampler<br/>medium denoise"]
+  SAMPLE --> DETAIL["Face/hand/detailer pass"]
+  DETAIL --> OUT["Interaction CG"]
+```
+
+Good inputs:
+
+- Original background image, preserved outside the mask.
+- Character reference images through `ReferenceLatent`.
+- Optional rough pasted character to communicate location and scale.
+- Optional pose/depth guide if available.
+- Mask that includes the chair, pelvis/legs/torso, arms/hands, and contact
+  shadow area. Do not mask only the character; the chair must be allowed to
+  adapt around the body.
+
+Denoise guidance:
+
+| Situation | Suggested denoise |
+|---|---:|
+| Composite already looks good; only edge/shadow fix | 0.20-0.35 |
+| Character pose is close but chair contact is wrong | 0.35-0.55 |
+| Character must be redrawn into a seated pose | 0.55-0.75 |
+| Need a completely new integrated seated CG | 0.70+ or full generation |
+
+For a chair scene, low denoise is often too conservative. It preserves the
+rough pasted body, including the mistakes. Use enough denoise for FLUX2 to
+redraw the seated body and modify the chair/contact region.
+
+There are two practical lanes:
+
+```text
+Lane A: preserve background
+background image + mask around chair/character
++ character references
+-> FLUX2 inpaint
+```
+
+Use this when the exact background plate must remain mostly unchanged.
+
+```text
+Lane B: regenerate integrated scene
+background reference + character reference + prompt
++ optional rough layout guide
+-> FLUX2 img2img/generation
+```
+
+Use this for hero CGs where realism matters more than preserving every pixel of
+the background.
+
+Rule of thumb:
+
+```text
+dialogue bust in front of background -> deterministic composition
+character partially behind table/counter -> composition + foreground occlusion + harmonization
+character sitting/touching/holding/lying -> masked FLUX2 repaint or full integrated generation
+```
+
 ## 9. Workflow C: Character Reference And LoRA Dataset Creation
 
 Use a strong model for concept exploration and canonical design, then use the
