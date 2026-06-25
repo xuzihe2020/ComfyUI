@@ -1,0 +1,9 @@
+{
+    "Comfy.InstalledVersion": "1.45.15",
+    "Comfy.TutorialCompleted": true,
+    "Comfy.VueNodes.Enabled": false,
+    "Comfy.Graph.ZoomSpeed": 1.005,
+    "Comfy.Canvas.NavigationMode": "standard",
+    "Comfy.Canvas.LeftMouseClickBehavior": "select",
+    "Comfy.Canvas.MouseWheelScroll": "panning"
+}

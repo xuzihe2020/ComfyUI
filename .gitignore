@@ -34,7 +34,6 @@ __pycache__/
 /temp/
 /custom_nodes/
 !custom_nodes/example_node.py.example
-/user/
 
 # Local caches and runtime state
 /.cache/
