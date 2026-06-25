@@ -1,0 +1,207 @@
+[
+  {
+    "name": "Bob",
+    "description": "classic bob haircut, short hair, chin-length hair, straight bob",
+    "thumbnail": "bob.webp"
+  },
+  {
+    "name": "A-line Bob",
+    "description": "a-line bob cut, angled bob, short hair, longer front strands, shorter back hair",
+    "thumbnail": "a-line_bob.webp"
+  },
+  {
+    "name": "Pixie Cut",
+    "description": "pixie cut, very short hair, cropped haircut, short layered hair",
+    "thumbnail": "pixie_cut.webp"
+  },
+  {
+    "name": "Pigtails",
+    "description": "pigtails, twin tails, hair tied into two side ponytails",
+    "thumbnail": "pigtails.webp"
+  },
+  {
+    "name": "Layered Hair",
+    "description": "layered haircut, layered hair, textured layers, feathered ends",
+    "thumbnail": "layered_hair.webp"
+  },
+  {
+    "name": "Bangs",
+    "description": "bangs, fringe, hair covering forehead",
+    "thumbnail": "bangs.webp"
+  },
+  {
+    "name": "Wavy Hair",
+    "description": "wavy hair, loose waves, soft waves, natural wave texture",
+    "thumbnail": "wavy_hair.webp"
+  },
+  {
+    "name": "Straight Hair",
+    "description": "straight hair, sleek hair, smooth hair, flat straight strands",
+    "thumbnail": "straight_hair.webp"
+  },
+  {
+    "name": "Curly Hair",
+    "description": "curly hair, curls, textured curls, voluminous curly hair",
+    "thumbnail": "curly_hair.webp"
+  },
+  {
+    "name": "Ponytail",
+    "description": "ponytail, tied back hair, gathered hair, hair tied at the back",
+    "thumbnail": "ponytail.webp"
+  },
+  {
+    "name": "French Braid",
+    "description": "french braid, braided hair, woven braid, braid starting at the crown",
+    "thumbnail": "french_braid.webp"
+  },
+  {
+    "name": "Bun",
+    "description": "bun, hair bun, gathered hair, tied up hair",
+    "thumbnail": "bun.webp"
+  },
+  {
+    "name": "Shaggy Bob",
+    "description": "shaggy bob, messy bob, layered bob, textured bob haircut",
+    "thumbnail": "shaggy_bob.webp"
+  },
+  {
+    "name": "Layered Bob",
+    "description": "layered bob haircut, short layered hair, textured bob, feathered bob",
+    "thumbnail": "layered_bob.webp"
+  },
+  {
+    "name": "Lob",
+    "description": "lob, long bob, shoulder-length haircut, medium-length bob",
+    "thumbnail": "lob.webp"
+  },
+  {
+    "name": "Finger Wave",
+    "description": "finger wave, vintage waves, sculpted waves, 1920s hairstyle",
+    "thumbnail": "finger_wave.webp"
+  },
+  {
+    "name": "Afro",
+    "description": "afro hairstyle, natural afro hair, voluminous curly hair, rounded hair shape",
+    "thumbnail": "afro.webp"
+  },
+  {
+    "name": "Cornrows",
+    "description": "cornrows, braided rows, scalp braids, tight braids close to the scalp",
+    "thumbnail": "cornrows.webp"
+  },
+  {
+    "name": "Asymmetrical Bob",
+    "description": "asymmetrical bob haircut, uneven bob, one side longer, angled uneven cut",
+    "thumbnail": "asymmetrical_bob.webp"
+  },
+  {
+    "name": "Dutch Braid",
+    "description": "dutch braid, reverse french braid, raised braid, 3d braided hairstyle",
+    "thumbnail": "dutch_braid.webp"
+  },
+  {
+    "name": "Top Knot",
+    "description": "top knot, bun on top of head, high tied knot, hair gathered at the crown",
+    "thumbnail": "top_knot.webp"
+  },
+  {
+    "name": "Long Wavy Hair",
+    "description": "long wavy hair, flowing hair, loose waves, long hairstyle",
+    "thumbnail": "long_wavy_hair.webp"
+  },
+  {
+    "name": "Long Straight Hair",
+    "description": "long straight hair, sleek long hair, smooth flowing hair, long hairstyle",
+    "thumbnail": "long_straight_hair.webp"
+  },
+  {
+    "name": "Long Curly Hair",
+    "description": "long curly hair, voluminous curls, curly locks, long textured hair",
+    "thumbnail": "long_curly_hair.webp"
+  },
+  {
+    "name": "Half Up Half Down",
+    "description": "half up half down hairstyle, partially tied hair, loose hair, half tied hairstyle",
+    "thumbnail": "half_up_half_down.webp"
+  },
+  {
+    "name": "Double Bun",
+    "description": "double bun hairstyle, space buns, twin buns, two buns on the head",
+    "thumbnail": "double_bun.webp"
+  },
+  {
+    "name": "Double French Braid",
+    "description": "double french braid, twin braids, pigtail braids, two braids",
+    "thumbnail": "double_french_braid.webp"
+  },
+  {
+    "name": "Fishtail Braid",
+    "description": "fishtail braid, woven braid, intricate braid, detailed braided hairstyle",
+    "thumbnail": "fishtail_braid.webp"
+  },
+  {
+    "name": "Crown Braid",
+    "description": "crown braid, halo braid, braid wrapped around the head, braided crown hairstyle",
+    "thumbnail": "crown_braid.webp"
+  },
+  {
+    "name": "Top Bun",
+    "description": "top bun, high bun, hair gathered on top, bun on the crown",
+    "thumbnail": "top_bun.webp"
+  },
+  {
+    "name": "Messy Bun",
+    "description": "messy bun, loose bun, casual bun, slightly undone updo",
+    "thumbnail": "messy_bun.webp"
+  },
+  {
+    "name": "Dutch Fishtail Braid",
+    "description": "dutch fishtail braid, raised fishtail braid, woven braid, 3d braided hairstyle",
+    "thumbnail": "dutch_fishtail_braid.webp"
+  },
+  {
+    "name": "Side Swept Bangs",
+    "description": "side swept bangs, side fringe, angled bangs, bangs brushed to the side",
+    "thumbnail": "side_swept_bangs.webp"
+  },
+  {
+    "name": "Side Braid",
+    "description": "side braid, braid over shoulder, lateral braid, braid worn to one side",
+    "thumbnail": "side_braid.webp"
+  },
+  {
+    "name": "Side Ponytail",
+    "description": "side ponytail, ponytail over shoulder, side gathered hair, ponytail worn to one side",
+    "thumbnail": "side_ponytail.webp"
+  },
+  {
+    "name": "French Twist",
+    "description": "french twist, elegant updo, rolled hair, formal updo hairstyle",
+    "thumbnail": "french_twist.webp"
+  },
+  {
+    "name": "Victory Roll",
+    "description": "victory roll, retro 1940s hairstyle, vintage rolled hair, pin-up hairstyle",
+    "thumbnail": "victory_roll.webp"
+  },
+  {
+    "name": "Side Part",
+    "description": "side part, side parted hair, deep side part, hair parting to one side",
+    "thumbnail": "side_part.webp"
+  },
+  {
+    "name": "Blunt Cut Bangs",
+    "description": "blunt cut bangs, straight bangs, full fringe, even-cut bangs",
+    "thumbnail": "blunt_cut_bangs.webp"
+  },
+  {
+    "name": "Bouffant",
+    "description": "bouffant, voluminous hair, teased hair, raised crown volume",
+    "thumbnail": "bouffant.webp"
+  },
+  {
+    "name": "Braided Crown",
+    "description": "braided crown, milkmaid braids, crown braid, braids wrapped around the head",
+    "thumbnail": "braided_crown.webp"
+  }
+]

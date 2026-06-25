@@ -5,5 +5,7 @@
     "Comfy.Graph.ZoomSpeed": 1.005,
     "Comfy.Canvas.NavigationMode": "standard",
     "Comfy.Canvas.LeftMouseClickBehavior": "select",
-    "Comfy.Canvas.MouseWheelScroll": "panning"
+    "Comfy.Canvas.MouseWheelScroll": "panning",
+    "Comfy.RightSidePanel.IsOpen": false,
+    "Comfy.Queue.History.Expanded": false
 }

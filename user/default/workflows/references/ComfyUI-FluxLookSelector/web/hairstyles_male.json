@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Mohawk",
+    "description": "mohawk hairstyle, shaved sides, strip of hair along the center, raised top hair",
+    "thumbnail": "mohawk.webp"
+  },
+  {
+    "name": "Crew Cut",
+    "description": "crew cut, short military haircut, short top, tapered sides",
+    "thumbnail": "crew_cut.webp"
+  },
+  {
+    "name": "Undercut",
+    "description": "undercut hairstyle, long top, short shaved sides, disconnected haircut",
+    "thumbnail": "undercut.webp"
+  },
+  {
+    "name": "Fade",
+    "description": "fade haircut, tapered sides, gradual transition, short sides, blended haircut",
+    "thumbnail": "fade.webp"
+  },
+  {
+    "name": "Pompadour",
+    "description": "pompadour hairstyle, voluminous swept back hair, elevated front hair",
+    "thumbnail": "pompadour.webp"
+  },
+  {
+    "name": "Buzz Cut",
+    "description": "buzz cut, very short hair, clipper cut, uniform short length",
+    "thumbnail": "buzz_cut.webp"
+  },
+  {
+    "name": "Quiff",
+    "description": "quiff hairstyle, voluminous front hair, swept upward front section",
+    "thumbnail": "quiff.webp"
+  },
+  {
+    "name": "Slicked Back",
+    "description": "slicked back hair, combed backward hair, sleek hairstyle, wet look",
+    "thumbnail": "slicked_back.webp"
+  },
+  {
+    "name": "Afro",
+    "description": "afro hairstyle, natural curly hair, voluminous rounded shape",
+    "thumbnail": "afro.webp"
+  },
+  {
+    "name": "Comb Over",
+    "description": "comb over hairstyle, side swept hair, side part, neatly combed style",
+    "thumbnail": "comb_over.webp"
+  },
+  {
+    "name": "French Crop",
+    "description": "french crop haircut, short textured top, cropped fringe, short sides",
+    "thumbnail": "french_crop.webp"
+  },
+  {
+    "name": "Top Knot",
+    "description": "top knot hairstyle, man bun, tied hair on top of the head",
+    "thumbnail": "top_knot.webp"
+  },
+  {
+    "name": "Caesar Cut",
+    "description": "caesar cut, short straight fringe, evenly trimmed short hair",
+    "thumbnail": "caesar_cut.webp"
+  },
+  {
+    "name": "Messy Cut",
+    "description": "messy hairstyle, textured hair, tousled hair, casual unstructured haircut",
+    "thumbnail": "messy_cut.webp"
+  },
+  {
+    "name": "Bowl Cut",
+    "description": "bowl cut, rounded haircut, straight fringe, even circular shape",
+    "thumbnail": "bowl_cut.webp"
+  },
+  {
+    "name": "Faux Hawk",
+    "description": "faux hawk hairstyle, short mohawk style, raised center hair, shorter sides",
+    "thumbnail": "faux_hawk.webp"
+  },
+  {
+    "name": "High and Tight",
+    "description": "high and tight haircut, military hairstyle, very short sides, slightly longer top",
+    "thumbnail": "high_and_tight.webp"
+  },
+  {
+    "name": "Spiky Hair",
+    "description": "spiky hair, textured spikes, upright hair strands, styled spikes",
+    "thumbnail": "spiky_hair.webp"
+  },
+  {
+    "name": "Slicked Back Undercut",
+    "description": "slicked back undercut, long top, shaved sides, combed backward hair",
+    "thumbnail": "slicked_back_undercut.webp"
+  },
+  {
+    "name": "Long Hair Undercut",
+    "description": "long hair undercut, long flowing top hair, shaved sides, disconnected undercut",
+    "thumbnail": "long_hair_undercut.webp"
+  }
+]

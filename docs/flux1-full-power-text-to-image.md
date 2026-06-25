@@ -262,3 +262,359 @@ Flux model -> ModelSamplingFlux + CLIP-L/T5 prompt + FluxGuidance
         -> VAE Decode with ae.safetensors
         -> Save Image
 ```
+
+## Flux 2 text-to-image equivalent workflow
+
+Flux 2 is not a drop-in model swap for this Flux 1 workflow. A Flux 2 text-to-image graph keeps the same high-level idea, but replaces the Flux 1 text encoder, scheduler, latent, and often VAE pieces.
+
+Key changes:
+
+| Flux 1 node | Flux 2 replacement | Why |
+|---|---|---|
+| `DualCLIPLoader` | `CLIPLoader` | Flux 2 uses a Flux 2 text encoder such as `mistral_3_small_flux2_bf16.safetensors`, not CLIP-L + T5-XXL. |
+| `ModelSamplingFlux` | remove | Flux 2 templates use `Flux2Scheduler` instead of the Flux 1 model sampling patch. |
+| `BasicScheduler` | `Flux2Scheduler` | Flux 2 has its own sigma/scheduler logic. |
+| `EmptySD3LatentImage` | `EmptyFlux2LatentImage` | Flux 2 uses its own latent initialization node. |
+| `ae.safetensors` | usually `full_encoder_small_decoder.safetensors` | Flux 2 templates use a different recommended VAE. |
+
+Flux 2 still commonly uses:
+
+- `UNETLoader`
+- `CLIPTextEncode`
+- `FluxGuidance`
+- `BasicGuider`
+- `RandomNoise`
+- `KSamplerSelect`
+- `SamplerCustomAdvanced`
+- `VAEDecode`
+- `SaveImage` or `PreviewImage`
+
+```mermaid
+flowchart LR
+  %% -----------------------------
+  %% Shared parameters
+  %% -----------------------------
+  subgraph P["0. Shared parameters"]
+    direction TB
+    WIDTH["PrimitiveInt<br/>Width<br/><br/>value: 1024"]
+    HEIGHT["PrimitiveInt<br/>Height<br/><br/>value: 1024"]
+    STEPS["PrimitiveInt<br/>Steps<br/><br/>value: 20"]
+  end
+
+  %% -----------------------------
+  %% Flux 2 model loading
+  %% -----------------------------
+  subgraph M["1. Flux 2 model loading"]
+    direction TB
+    F2MODEL["UNETLoader<br/>Load Diffusion Model<br/><br/>unet_name: flux2_dev_fp8mixed.safetensors<br/>or another Flux 2 diffusion model"]
+    F2CLIP["CLIPLoader<br/><br/>clip_name: mistral_3_small_flux2_bf16.safetensors<br/>type: flux2"]
+    F2VAE["VAELoader<br/>Load VAE<br/><br/>vae_name: full_encoder_small_decoder.safetensors"]
+  end
+
+  %% -----------------------------
+  %% Flux 2 prompt conditioning
+  %% -----------------------------
+  subgraph C["2. Prompt conditioning"]
+    direction TB
+    PROMPT["Prompt text<br/><br/>Natural-language Flux prompt"]
+    ENCODE["CLIPTextEncode<br/>CLIP Text Encode (Prompt)"]
+    FG["FluxGuidance<br/><br/>guidance: model/template specific<br/>example: 4.0"]
+    GUIDER["BasicGuider<br/><br/>Flux 2 MODEL + conditioned prompt"]
+  end
+
+  %% -----------------------------
+  %% Flux 2 sampling controls
+  %% -----------------------------
+  subgraph S["3. Flux 2 sampling controls"]
+    direction TB
+    NOISE["RandomNoise<br/><br/>noise_seed: choose or randomize"]
+    SAMPLER["KSamplerSelect<br/><br/>sampler_name: euler"]
+    F2SCHED["Flux2Scheduler<br/><br/>steps/width/height from shared INT nodes"]
+    F2LATENT["EmptyFlux2LatentImage<br/><br/>width/height from shared INT nodes<br/>batch_size: 1"]
+  end
+
+  %% -----------------------------
+  %% Generation and output
+  %% -----------------------------
+  subgraph G["4. Generation and output"]
+    direction TB
+    ADV["SamplerCustomAdvanced<br/><br/>explicit Flux 2 sampling"]
+    DECODE["VAEDecode<br/>VAE Decode"]
+    SAVE["SaveImage or PreviewImage"]
+  end
+
+  F2CLIP -- "CLIP" --> ENCODE
+  PROMPT -- "text" --> ENCODE
+  ENCODE -- "CONDITIONING" --> FG
+  FG -- "CONDITIONING" --> GUIDER
+  F2MODEL -- "MODEL" --> GUIDER
+
+  STEPS -- "INT steps" --> F2SCHED
+  WIDTH -- "INT width" --> F2SCHED
+  HEIGHT -- "INT height" --> F2SCHED
+  WIDTH -- "INT width" --> F2LATENT
+  HEIGHT -- "INT height" --> F2LATENT
+
+  NOISE -- "NOISE" --> ADV
+  GUIDER -- "GUIDER" --> ADV
+  SAMPLER -- "SAMPLER" --> ADV
+  F2SCHED -- "SIGMAS" --> ADV
+  F2LATENT -- "LATENT" --> ADV
+
+  ADV -- "output LATENT" --> DECODE
+  F2VAE -- "VAE" --> DECODE
+  DECODE -- "IMAGE" --> SAVE
+```
+
+Flux 2 exact wiring checklist:
+
+```text
+CLIPLoader.CLIP
+  -> CLIPTextEncode.clip
+
+Prompt text
+  -> CLIPTextEncode.text
+
+CLIPTextEncode.CONDITIONING
+  -> FluxGuidance.conditioning
+
+FluxGuidance.CONDITIONING
+  -> BasicGuider.conditioning
+
+UNETLoader.MODEL
+  -> BasicGuider.model
+
+PrimitiveInt steps.INT
+  -> Flux2Scheduler.steps
+
+PrimitiveInt width.INT
+  -> Flux2Scheduler.width
+  -> EmptyFlux2LatentImage.width
+
+PrimitiveInt height.INT
+  -> Flux2Scheduler.height
+  -> EmptyFlux2LatentImage.height
+
+Flux2Scheduler.SIGMAS
+  -> SamplerCustomAdvanced.sigmas
+
+EmptyFlux2LatentImage.LATENT
+  -> SamplerCustomAdvanced.latent_image
+
+RandomNoise.NOISE
+  -> SamplerCustomAdvanced.noise
+
+KSamplerSelect.SAMPLER
+  -> SamplerCustomAdvanced.sampler
+
+BasicGuider.GUIDER
+  -> SamplerCustomAdvanced.guider
+
+SamplerCustomAdvanced.output
+  -> VAEDecode.samples
+
+VAELoader.VAE
+  -> VAEDecode.vae
+
+VAEDecode.IMAGE
+  -> SaveImage.images
+```
+
+Do not use the Flux 1 `DualCLIPLoader + ModelSamplingFlux + BasicScheduler + EmptySD3LatentImage` stack for Flux 2. Use the Flux 2 stack:
+
+```text
+CLIPLoader + Flux2Scheduler + EmptyFlux2LatentImage
+```
+
+## Flux 2 text-to-image with LoRA
+
+To add a LoRA to a Flux 2 workflow, put the LoRA loader after the diffusion model loader and before the guider/scheduler uses the model.
+
+For many Flux 2 LoRAs, especially model-only LoRAs, use:
+
+```text
+LoraLoaderModelOnly
+```
+
+Basic placement:
+
+```text
+UNETLoader
+  -> LoraLoaderModelOnly
+    -> BasicGuider.model
+```
+
+If your LoRA also affects the text encoder, use the normal:
+
+```text
+LoraLoader
+```
+
+and wire both:
+
+```text
+UNETLoader.MODEL -> LoraLoader.model
+CLIPLoader.CLIP  -> LoraLoader.clip
+
+LoraLoader.MODEL -> BasicGuider.model
+LoraLoader.CLIP  -> CLIPTextEncode.clip
+```
+
+For Flux 2 Klein community LoRAs, start by trying `LoraLoaderModelOnly` unless the LoRA page explicitly says it needs CLIP/text-encoder LoRA loading.
+
+```mermaid
+flowchart LR
+  %% -----------------------------
+  %% Shared parameters
+  %% -----------------------------
+  subgraph P["0. Shared parameters"]
+    direction TB
+    WIDTH["PrimitiveInt<br/>Width"]
+    HEIGHT["PrimitiveInt<br/>Height"]
+    STEPS["PrimitiveInt<br/>Steps"]
+  end
+
+  %% -----------------------------
+  %% Model + LoRA loading
+  %% -----------------------------
+  subgraph M["1. Flux 2 model + LoRA"]
+    direction TB
+    F2MODEL["UNETLoader<br/>Load Diffusion Model<br/><br/>Flux 2 checkpoint"]
+    LORA["LoraLoaderModelOnly<br/><br/>lora_name: your_lora.safetensors<br/>strength_model: 0.4 - 0.8"]
+    F2CLIP["CLIPLoader<br/><br/>clip_name: qwen_3_8b_fp8mixed.safetensors<br/>type: flux2"]
+    F2VAE["VAELoader<br/><br/>vae_name: full_encoder_small_decoder.safetensors"]
+  end
+
+  %% -----------------------------
+  %% Prompt conditioning
+  %% -----------------------------
+  subgraph C["2. Prompt conditioning"]
+    direction TB
+    PROMPT["Prompt text<br/><br/>Include the LoRA concept naturally"]
+    ENCODE["CLIPTextEncode"]
+    FG["FluxGuidance<br/><br/>guidance / CFG equivalent"]
+    GUIDER["BasicGuider"]
+  end
+
+  %% -----------------------------
+  %% Sampling
+  %% -----------------------------
+  subgraph S["3. Flux 2 sampling"]
+    direction TB
+    NOISE["RandomNoise"]
+    SAMPLER["KSamplerSelect<br/><br/>sampler_name: euler"]
+    F2SCHED["Flux2Scheduler"]
+    F2LATENT["EmptyFlux2LatentImage"]
+  end
+
+  %% -----------------------------
+  %% Output
+  %% -----------------------------
+  subgraph G["4. Decode and save"]
+    direction TB
+    ADV["SamplerCustomAdvanced"]
+    DECODE["VAEDecode"]
+    SAVE["SaveImage or PreviewImage"]
+  end
+
+  F2MODEL -- "MODEL" --> LORA
+  LORA -- "LoRA patched MODEL" --> GUIDER
+
+  F2CLIP -- "CLIP" --> ENCODE
+  PROMPT -- "text" --> ENCODE
+  ENCODE -- "CONDITIONING" --> FG
+  FG -- "CONDITIONING" --> GUIDER
+
+  STEPS -- "INT steps" --> F2SCHED
+  WIDTH -- "INT width" --> F2SCHED
+  HEIGHT -- "INT height" --> F2SCHED
+  WIDTH -- "INT width" --> F2LATENT
+  HEIGHT -- "INT height" --> F2LATENT
+
+  NOISE -- "NOISE" --> ADV
+  GUIDER -- "GUIDER" --> ADV
+  SAMPLER -- "SAMPLER" --> ADV
+  F2SCHED -- "SIGMAS" --> ADV
+  F2LATENT -- "LATENT" --> ADV
+
+  ADV -- "output LATENT" --> DECODE
+  F2VAE -- "VAE" --> DECODE
+  DECODE -- "IMAGE" --> SAVE
+```
+
+Flux 2 + LoRA wiring checklist:
+
+```text
+UNETLoader.MODEL
+  -> LoraLoaderModelOnly.model
+
+LoraLoaderModelOnly.MODEL
+  -> BasicGuider.model
+
+CLIPLoader.CLIP
+  -> CLIPTextEncode.clip
+
+Prompt text
+  -> CLIPTextEncode.text
+
+CLIPTextEncode.CONDITIONING
+  -> FluxGuidance.conditioning
+
+FluxGuidance.CONDITIONING
+  -> BasicGuider.conditioning
+
+BasicGuider.GUIDER
+  -> SamplerCustomAdvanced.guider
+
+RandomNoise.NOISE
+  -> SamplerCustomAdvanced.noise
+
+KSamplerSelect.SAMPLER
+  -> SamplerCustomAdvanced.sampler
+
+Flux2Scheduler.SIGMAS
+  -> SamplerCustomAdvanced.sigmas
+
+EmptyFlux2LatentImage.LATENT
+  -> SamplerCustomAdvanced.latent_image
+
+SamplerCustomAdvanced.output
+  -> VAEDecode.samples
+
+VAELoader.VAE
+  -> VAEDecode.vae
+```
+
+Suggested LoRA strength starting points:
+
+```text
+Character identity LoRA:
+  0.6 - 0.9
+
+Clothing/outfit LoRA:
+  0.5 - 0.8
+
+Pose/concept LoRA:
+  0.4 - 0.8
+
+Style LoRA:
+  0.3 - 0.7
+```
+
+If the LoRA overpowers the character identity or breaks anatomy, lower the strength. If the LoRA concept is too weak, raise it gradually.
+
+Example for your current Flux 2 concept LoRA:
+
+```text
+LoraLoaderModelOnly:
+  lora_name: breast_grab_from_behind_concept__flux_9b.safetensors
+  strength_model: 0.6
+```
+
+Use it with a Flux 2 Klein 9B-compatible checkpoint and the normal Flux 2 text encoder:
+
+```text
+CLIPLoader:
+  clip_name: qwen_3_8b_fp8mixed.safetensors
+  type: flux2
+```

@@ -1,0 +1,137 @@
+[
+  {
+    "name": "Clean Shaven",
+    "description": "clean shaven face, no facial hair, smooth face, hairless cheeks and chin",
+    "thumbnail": "clean_shaven.webp"
+  },
+  {
+    "name": "Short Stubble",
+    "description": "short stubble, light facial hair, subtle beard shadow, lightly unshaven look",
+    "thumbnail": "short_stubble.webp"
+  },
+  {
+    "name": "Medium Stubble",
+    "description": "medium stubble, visible facial hair, rugged beard shadow, medium beard growth",
+    "thumbnail": "medium_stubble.webp"
+  },
+  {
+    "name": "Long Stubble",
+    "description": "long stubble, heavy beard shadow, thick stubble, rugged facial hair",
+    "thumbnail": "long_stubble.webp"
+  },
+  {
+    "name": "Stubble",
+    "description": "heavy stubble, short facial hair, rugged unshaven look, beard shadow",
+    "thumbnail": "stubble.webp"
+  },
+  {
+    "name": "Full Beard",
+    "description": "full beard, thick facial hair, beard covering cheeks and chin, dense beard",
+    "thumbnail": "full_beard.webp"
+  },
+  {
+    "name": "French Fork",
+    "description": "french fork beard, long beard split into two points, forked beard, divided beard tip",
+    "thumbnail": "french_fork.webp"
+  },
+  {
+    "name": "Ducktail",
+    "description": "ducktail beard, tapered beard, pointed beard shape, narrow chin beard",
+    "thumbnail": "ducktail.webp"
+  },
+  {
+    "name": "Circle Beard",
+    "description": "circle beard, connecting mustache and goatee, rounded facial hair, connected beard style",
+    "thumbnail": "circle_beard.webp"
+  },
+  {
+    "name": "Goatee",
+    "description": "goatee beard, chin beard, facial hair on the chin, clean shaven cheeks",
+    "thumbnail": "goatee.webp"
+  },
+  {
+    "name": "Extended Goatee",
+    "description": "extended goatee, goatee connected to jawline, chin beard with extended sides, connected facial hair",
+    "thumbnail": "extended_goatee.webp"
+  },
+  {
+    "name": "Imperial",
+    "description": "imperial beard, curled mustache, small chin beard, elegant facial hair",
+    "thumbnail": "imperial.webp"
+  },
+  {
+    "name": "Van Dyke",
+    "description": "van dyke beard, pointed goatee, separated mustache, pointed chin beard",
+    "thumbnail": "van_dyke.webp"
+  },
+  {
+    "name": "Anchor",
+    "description": "anchor beard, anchor shaped facial hair, pointed chin beard, connected jawline beard",
+    "thumbnail": "anchor.webp"
+  },
+  {
+    "name": "Balbo",
+    "description": "balbo beard, detached mustache, separated chin beard, trimmed facial hair",
+    "thumbnail": "balbo.webp"
+  },
+  {
+    "name": "Chin Strap",
+    "description": "chin strap beard, thin beard along jawline, connected facial hair outline, sharp jawline beard",
+    "thumbnail": "chin_strap.webp"
+  },
+  {
+    "name": "Mutton Chops",
+    "description": "mutton chops, thick sideburns, facial hair along cheeks, sideburns connected to mustache",
+    "thumbnail": "mutton_chops.webp"
+  },
+  {
+    "name": "Friendly Mutton Chops",
+    "description": "friendly mutton chops, thick sideburns connected through mustache, clean shaven chin",
+    "thumbnail": "friendly_mutton_chops.webp"
+  },
+  {
+    "name": "Verdi",
+    "description": "verdi beard, rounded beard, styled mustache, short full beard",
+    "thumbnail": "verdi.webp"
+  },
+  {
+    "name": "Garibaldi",
+    "description": "garibaldi beard, large rounded beard, full natural beard, wide beard shape",
+    "thumbnail": "garibaldi.webp"
+  },
+  {
+    "name": "Dutch",
+    "description": "dutch beard, large full beard, beard without mustache, wide facial hair",
+    "thumbnail": "dutch.webp"
+  },
+  {
+    "name": "Bandholz",
+    "description": "bandholz beard, very long beard, full natural beard, thick long facial hair",
+    "thumbnail": "bandholz.webp"
+  },
+  {
+    "name": "Mustache Only",
+    "description": "mustache only, facial hair on upper lip, clean shaven cheeks and chin",
+    "thumbnail": "mustache.webp"
+  },
+  {
+    "name": "Handlebar Mustache",
+    "description": "handlebar mustache, curled mustache ends, styled upper lip facial hair",
+    "thumbnail": "handlebar_mustache.webp"
+  },
+  {
+    "name": "Chevron Mustache",
+    "description": "chevron mustache, thick mustache, full upper lip facial hair",
+    "thumbnail": "chevron_mustache.webp"
+  },
+  {
+    "name": "Pencil Mustache",
+    "description": "pencil mustache, thin narrow mustache, fine upper lip facial hair",
+    "thumbnail": "pencil_mustache.webp"
+  },
+  {
+    "name": "Soul Patch",
+    "description": "soul patch, small patch of hair below lower lip, no beard",
+    "thumbnail": "soul_patch.webp"
+  }
+]
