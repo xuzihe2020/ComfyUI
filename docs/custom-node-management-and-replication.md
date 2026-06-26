@@ -18,6 +18,7 @@ The current manifest installs:
 - `ComfyUI-EasyOCR`
 - `ComfyUI_essentials`
 - `was-node-suite-comfyui`
+- `comfyui-fast-mosaic-detector`
 
 The node folders remain local machine state under `custom_nodes/`, which is
 ignored by git.
@@ -92,6 +93,7 @@ nodes appear in the import-time list:
 - `ComfyUI-EasyOCR`
 - `ComfyUI_essentials`
 - `was-node-suite-comfyui`
+- `comfyui-fast-mosaic-detector`
 
 Warnings about missing CUDA on CPU machines, ComfyRegistry connectivity, or macOS
 OpenCV/AV duplicate classes may appear and are not necessarily fatal. Treat a

@@ -24,6 +24,12 @@
       "folder": "was-node-suite-comfyui",
       "repo": "https://github.com/WASasquatch/was-node-suite-comfyui",
       "reason": "Provides Masks Combine Batch to union EasyOCR's batched text masks."
+    },
+    {
+      "name": "comfyui-fast-mosaic-detector",
+      "folder": "comfyui-fast-mosaic-detector",
+      "repo": "https://github.com/yano/comfyui-fast-mosaic-detector",
+      "reason": "Detects mosaic/pixel-block regions and outputs a binary mask for auto mosaic inpaint workflows."
     }
   ]
 }
