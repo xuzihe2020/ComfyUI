@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "manager": {
+    "name": "ComfyUI-Manager",
+    "folder": "ComfyUI-Manager",
+    "repo": "https://github.com/Comfy-Org/ComfyUI-Manager",
+    "reason": "CLI and UI management for custom node installation, updates, snapshots, and dependency fixes."
+  },
+  "nodes": [
+    {
+      "name": "ComfyUI-EasyOCR",
+      "folder": "ComfyUI-EasyOCR",
+      "repo": "https://github.com/prodogape/ComfyUI-EasyOCR",
+      "reason": "Detect text and produce OCR masks for text/watermark removal workflows."
+    },
+    {
+      "name": "ComfyUI_essentials",
+      "folder": "ComfyUI_essentials",
+      "repo": "https://github.com/cubiq/ComfyUI_essentials",
+      "reason": "Provides MaskBoundingBox+ for padded bbox crops around detected OCR masks."
+    },
+    {
+      "name": "was-node-suite-comfyui",
+      "folder": "was-node-suite-comfyui",
+      "repo": "https://github.com/WASasquatch/was-node-suite-comfyui",
+      "reason": "Provides Masks Combine Batch to union EasyOCR's batched text masks."
+    }
+  ]
+}

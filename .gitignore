@@ -59,6 +59,7 @@ test_images/
 /.env.*
 !/.env.example
 user/cache
+user/__manager/cache/
 
 # IDE and OS metadata
 /.vs

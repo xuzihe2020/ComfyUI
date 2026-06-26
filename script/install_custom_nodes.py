@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+"""Install the ComfyUI custom nodes listed in custom_nodes.manifest.json."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_MANIFEST = REPO_ROOT / "custom_nodes.manifest.json"
+CUSTOM_NODES_DIR = REPO_ROOT / "custom_nodes"
+
+
+def run(cmd: list[str], *, cwd: Path = REPO_ROOT, env: dict[str, str] | None = None) -> None:
+    print("+ " + " ".join(cmd), flush=True)
+    subprocess.run(cmd, cwd=cwd, env=env, check=True)
+
+
+def load_manifest(path: Path) -> dict:
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def comfy_python() -> str:
+    if os.name == "nt":
+        candidate = REPO_ROOT / ".venv" / "Scripts" / "python.exe"
+    else:
+        candidate = REPO_ROOT / ".venv" / "bin" / "python"
+    if candidate.exists():
+        return str(candidate)
+    return sys.executable
+
+
+def clone_repo(repo: str, target: Path) -> None:
+    if target.exists():
+        if not (target / ".git").exists():
+            raise SystemExit(f"{target} exists but is not a git repository")
+        print(f"{target} already exists; leaving clone in place")
+        return
+    target.parent.mkdir(parents=True, exist_ok=True)
+    run(["git", "clone", repo, str(target)])
+
+
+def install_manager(manifest: dict, python_bin: str) -> Path:
+    manager = manifest["manager"]
+    manager_dir = CUSTOM_NODES_DIR / manager["folder"]
+    clone_repo(manager["repo"], manager_dir)
+
+    requirements = manager_dir / "requirements.txt"
+    if requirements.exists():
+        run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
+
+    return manager_dir / "cm-cli.py"
+
+
+def manager_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env["COMFYUI_PATH"] = str(REPO_ROOT)
+    return env
+
+
+def manager_install_node(
+    *,
+    python_bin: str,
+    manager_cli: Path,
+    node: dict,
+    no_deps: bool,
+    fix_existing: bool,
+) -> None:
+    folder = CUSTOM_NODES_DIR / node["folder"]
+    repo = node["repo"]
+    name = node["name"]
+
+    base_cmd = [python_bin, str(manager_cli)]
+    if folder.exists():
+        print(f"{folder} already exists", flush=True)
+        if not fix_existing:
+            return
+        run(base_cmd + ["fix", name, "--mode", "local"], env=manager_env())
+        return
+
+    cmd = base_cmd + ["install", repo, "--mode", "local", "--exit-on-fail"]
+    if no_deps:
+        cmd.append("--no-deps")
+    run(cmd, env=manager_env())
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=DEFAULT_MANIFEST,
+        help="Path to the custom node manifest.",
+    )
+    parser.add_argument(
+        "--no-deps",
+        action="store_true",
+        help="Ask ComfyUI-Manager to skip dependency installation for missing nodes.",
+    )
+    parser.add_argument(
+        "--fix-existing",
+        action="store_true",
+        help="Run Manager's dependency fix for nodes whose folders already exist.",
+    )
+    args = parser.parse_args()
+
+    manifest = load_manifest(args.manifest)
+    python_bin = comfy_python()
+    manager_cli = install_manager(manifest, python_bin)
+
+    for node in manifest["nodes"]:
+        manager_install_node(
+            python_bin=python_bin,
+            manager_cli=manager_cli,
+            node=node,
+            no_deps=args.no_deps,
+            fix_existing=args.fix_existing,
+        )
+
+
+if __name__ == "__main__":
+    main()
