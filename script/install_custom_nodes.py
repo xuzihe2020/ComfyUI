@@ -90,6 +90,16 @@ def manager_install_node(
     run(cmd, env=manager_env())
 
 
+def apply_post_install_fixes() -> None:
+    easyocr_docs = CUSTOM_NODES_DIR / "ComfyUI-EasyOCR" / "docs"
+    source_font = easyocr_docs / "PingFangRegular.ttf"
+    expected_font = easyocr_docs / "PingFang Regular.ttf"
+
+    if source_font.exists() and not expected_font.exists():
+        expected_font.write_bytes(source_font.read_bytes())
+        print(f"Created EasyOCR expected font resource: {expected_font}", flush=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -122,6 +132,8 @@ def main() -> None:
             no_deps=args.no_deps,
             fix_existing=args.fix_existing,
         )
+
+    apply_post_install_fixes()
 
 
 if __name__ == "__main__":
