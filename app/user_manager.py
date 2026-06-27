@@ -32,6 +32,19 @@ def get_file_info(path: str, relative_to: str) -> FileInfo:
     }
 
 
+def format_workflow_json_body(path: str, user_path: str, body: bytes) -> bytes:
+    rel_path = os.path.relpath(path, user_path).replace(os.sep, '/')
+    if not rel_path.startswith("workflows/") or not rel_path.endswith(".json"):
+        return body
+
+    try:
+        data = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return body
+
+    return (json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+
+
 class UserManager():
     def __init__(self):
         user_directory = folder_paths.get_user_directory()
@@ -376,6 +389,8 @@ class UserManager():
 
             try:
                 body = await request.read()
+                user_path = self.get_request_user_filepath(request, None)
+                body = format_workflow_json_body(path, user_path, body)
 
                 dir_name = os.path.dirname(path)
                 fd, tmp_path = tempfile.mkstemp(dir=dir_name)
@@ -393,7 +408,6 @@ class UserManager():
                     reason="Invalid filename. Please avoid special characters like :\\/*?\"<>|"
                 )
 
-            user_path = self.get_request_user_filepath(request, None)
             if full_info:
                 resp = get_file_info(path, user_path)
             else:
