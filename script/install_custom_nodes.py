@@ -70,7 +70,7 @@ def manager_install_node(
     manager_cli: Path,
     node: dict,
     no_deps: bool,
-    fix_existing: bool,
+    manager_fix_existing: bool,
 ) -> None:
     folder = CUSTOM_NODES_DIR / node["folder"]
     repo = node["repo"]
@@ -79,9 +79,11 @@ def manager_install_node(
     base_cmd = [python_bin, str(manager_cli)]
     if folder.exists():
         print(f"{folder} already exists", flush=True)
-        if not fix_existing:
-            return
-        run(base_cmd + ["fix", name, "--mode", "local"], env=manager_env())
+        requirements = folder / "requirements.txt"
+        if requirements.exists() and not no_deps:
+            run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
+        if manager_fix_existing:
+            run(base_cmd + ["fix", name, "--mode", "local"], env=manager_env())
         return
 
     cmd = base_cmd + ["install", repo, "--mode", "local", "--exit-on-fail"]
@@ -114,9 +116,9 @@ def main() -> None:
         help="Ask ComfyUI-Manager to skip dependency installation for missing nodes.",
     )
     parser.add_argument(
-        "--fix-existing",
+        "--manager-fix-existing",
         action="store_true",
-        help="Run Manager's dependency fix for nodes whose folders already exist.",
+        help="Also run Manager's slower dependency fix for nodes whose folders already exist.",
     )
     args = parser.parse_args()
 
@@ -130,7 +132,7 @@ def main() -> None:
             manager_cli=manager_cli,
             node=node,
             no_deps=args.no_deps,
-            fix_existing=args.fix_existing,
+            manager_fix_existing=args.manager_fix_existing,
         )
 
     apply_post_install_fixes()
