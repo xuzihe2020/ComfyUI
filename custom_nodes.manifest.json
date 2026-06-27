@@ -30,6 +30,18 @@
       "folder": "comfyui-fast-mosaic-detector",
       "repo": "https://github.com/yano/comfyui-fast-mosaic-detector",
       "reason": "Detects mosaic/pixel-block regions and outputs a binary mask for auto mosaic inpaint workflows."
+    },
+    {
+      "name": "ComfyUI-Impact-Pack",
+      "folder": "comfyui-impact-pack",
+      "repo": "https://github.com/ltdrdata/ComfyUI-Impact-Pack",
+      "reason": "Provides YOLO/SAM face mask utilities such as BboxDetectorForEach, SAMLoader, SAMDetectorCombined, SegsToCombinedMask, ImpactDilateMask, and mask conversion helpers."
+    },
+    {
+      "name": "ComfyUI-Impact-Subpack",
+      "folder": "comfyui-impact-subpack",
+      "repo": "https://github.com/ltdrdata/ComfyUI-Impact-Subpack",
+      "reason": "Provides UltralyticsDetectorProvider for YOLO face detection used to generate automatic face masks."
     }
   ]
 }
