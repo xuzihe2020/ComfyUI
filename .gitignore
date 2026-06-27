@@ -60,6 +60,7 @@ test_images/
 !/.env.example
 user/cache
 user/__manager/cache/
+user/__manager/startup-scripts/
 
 # IDE and OS metadata
 /.vs
