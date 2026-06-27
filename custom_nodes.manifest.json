@@ -36,6 +36,18 @@
       "folder": "ComfyUI-Olm-DragCrop",
       "repo": "https://github.com/o-l-l-i/ComfyUI-Olm-DragCrop",
       "reason": "Adds an interactive drag-crop image node for explicit manual box selection in workflows."
+    },
+    {
+      "name": "ComfyUI-Impact-Pack",
+      "folder": "comfyui-impact-pack",
+      "repo": "https://github.com/ltdrdata/ComfyUI-Impact-Pack",
+      "reason": "Provides YOLO/SAM face mask utilities such as BboxDetectorForEach, SAMLoader, SAMDetectorCombined, SegsToCombinedMask, ImpactDilateMask, and mask conversion helpers."
+    },
+    {
+      "name": "ComfyUI-Impact-Subpack",
+      "folder": "comfyui-impact-subpack",
+      "repo": "https://github.com/ltdrdata/ComfyUI-Impact-Subpack",
+      "reason": "Provides UltralyticsDetectorProvider for YOLO face detection used to generate automatic face masks."
     }
   ]
 }
