@@ -1,2325 +1,2756 @@
 {
-  "id": "cac2e308-4646-4140-8308-9c18a99a0f92",
-  "revision": 0,
-  "last_node_id": 53,
-  "last_link_id": 56,
-  "nodes": [
-    {
-      "id": 4,
-      "type": "MaskPreview",
-      "pos": [
-        186.62856372089232,
-        554.3570652663994
-      ],
-      "size": [
-        330,
-        260
-      ],
-      "flags": {},
-      "order": 13,
-      "mode": 0,
-      "inputs": [
+    "id": "cac2e308-4646-4140-8308-9c18a99a0f92",
+    "revision": 0,
+    "last_node_id": 57,
+    "last_link_id": 68,
+    "nodes": [
         {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 6
-        }
-      ],
-      "outputs": [],
-      "title": "Built-in mask preview",
-      "properties": {
-        "Node name for S&R": "MaskPreview"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 18,
-      "type": "GetImageSize",
-      "pos": [
-        186.62856372089232,
-        124.35706526639922
-      ],
-      "size": [
-        160,
-        110
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "IMAGE",
-          "link": 2
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "width",
-          "name": "width",
-          "type": "INT",
-          "links": [
-            55
-          ]
+            "id": 18,
+            "type": "GetImageSize",
+            "pos": [
+                186.62856372089232,
+                124.35706526639922
+            ],
+            "size": [
+                160,
+                124
+            ],
+            "flags": {},
+            "order": 10,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "image",
+                    "name": "image",
+                    "type": "IMAGE",
+                    "link": 2
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "width",
+                    "name": "width",
+                    "type": "INT",
+                    "links": [
+                        55,
+                        63
+                    ]
+                },
+                {
+                    "localized_name": "height",
+                    "name": "height",
+                    "type": "INT",
+                    "links": [
+                        56,
+                        64
+                    ]
+                },
+                {
+                    "localized_name": "batch_size",
+                    "name": "batch_size",
+                    "type": "INT",
+                    "links": null
+                }
+            ],
+            "properties": {
+                "Node name for S&R": "GetImageSize"
+            },
+            "widgets_values": []
         },
         {
-          "localized_name": "height",
-          "name": "height",
-          "type": "INT",
-          "links": [
-            56
-          ]
+            "id": 45,
+            "type": "VAEDecode",
+            "pos": [
+                3355.032869217676,
+                61.127924813445084
+            ],
+            "size": [
+                160,
+                70
+            ],
+            "flags": {},
+            "order": 30,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "samples",
+                    "name": "samples",
+                    "type": "LATENT",
+                    "link": 47
+                },
+                {
+                    "localized_name": "vae",
+                    "name": "vae",
+                    "type": "VAE",
+                    "link": 19
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "IMAGE",
+                    "name": "IMAGE",
+                    "type": "IMAGE",
+                    "links": [
+                        48,
+                        49,
+                        52
+                    ]
+                }
+            ],
+            "title": "B decode",
+            "properties": {
+                "Node name for S&R": "VAEDecode"
+            },
+            "widgets_values": []
         },
         {
-          "localized_name": "batch_size",
-          "name": "batch_size",
-          "type": "INT",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "GetImageSize"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 45,
-      "type": "VAEDecode",
-      "pos": [
-        3355.032869217676,
-        61.127924813445084
-      ],
-      "size": [
-        160,
-        70
-      ],
-      "flags": {},
-      "order": 27,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "samples",
-          "name": "samples",
-          "type": "LATENT",
-          "link": 47
+            "id": 48,
+            "type": "ImageBatch",
+            "pos": [
+                3355.032869217676,
+                591.1279248134443
+            ],
+            "size": [
+                260,
+                90
+            ],
+            "flags": {},
+            "order": 37,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "image1",
+                    "name": "image1",
+                    "type": "IMAGE",
+                    "link": 4
+                },
+                {
+                    "localized_name": "image2",
+                    "name": "image2",
+                    "type": "IMAGE",
+                    "link": 50
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "IMAGE",
+                    "name": "IMAGE",
+                    "type": "IMAGE",
+                    "links": [
+                        51
+                    ]
+                }
+            ],
+            "title": "Batch: original + A",
+            "properties": {
+                "Node name for S&R": "ImageBatch"
+            },
+            "widgets_values": []
         },
         {
-          "localized_name": "vae",
-          "name": "vae",
-          "type": "VAE",
-          "link": 19
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            48,
-            49,
-            52
-          ]
-        }
-      ],
-      "title": "B decode",
-      "properties": {
-        "Node name for S&R": "VAEDecode"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 48,
-      "type": "ImageBatch",
-      "pos": [
-        3355.032869217676,
-        591.1279248134443
-      ],
-      "size": [
-        260,
-        90
-      ],
-      "flags": {},
-      "order": 34,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image1",
-          "name": "image1",
-          "type": "IMAGE",
-          "link": 4
+            "id": 49,
+            "type": "ImageBatch",
+            "pos": [
+                3675.032869217667,
+                591.1279248134443
+            ],
+            "size": [
+                260,
+                90
+            ],
+            "flags": {},
+            "order": 38,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "image1",
+                    "name": "image1",
+                    "type": "IMAGE",
+                    "link": 51
+                },
+                {
+                    "localized_name": "image2",
+                    "name": "image2",
+                    "type": "IMAGE",
+                    "link": 52
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "IMAGE",
+                    "name": "IMAGE",
+                    "type": "IMAGE",
+                    "links": [
+                        53,
+                        54
+                    ]
+                }
+            ],
+            "title": "Batch: original + A + B",
+            "properties": {
+                "Node name for S&R": "ImageBatch"
+            },
+            "widgets_values": []
         },
         {
-          "localized_name": "image2",
-          "name": "image2",
-          "type": "IMAGE",
-          "link": 50
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            51
-          ]
-        }
-      ],
-      "title": "Batch: original + A",
-      "properties": {
-        "Node name for S&R": "ImageBatch"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 49,
-      "type": "ImageBatch",
-      "pos": [
-        3675.032869217667,
-        591.1279248134443
-      ],
-      "size": [
-        260,
-        90
-      ],
-      "flags": {},
-      "order": 35,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image1",
-          "name": "image1",
-          "type": "IMAGE",
-          "link": 51
+            "id": 50,
+            "type": "PreviewImage",
+            "pos": [
+                3975.032869217661,
+                491.12792481344496
+            ],
+            "size": [
+                520,
+                430
+            ],
+            "flags": {},
+            "order": 39,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "images",
+                    "name": "images",
+                    "type": "IMAGE",
+                    "link": 53
+                }
+            ],
+            "outputs": [],
+            "title": "Compare preview: original / A / B",
+            "properties": {
+                "Node name for S&R": "PreviewImage"
+            },
+            "widgets_values": []
         },
         {
-          "localized_name": "image2",
-          "name": "image2",
-          "type": "IMAGE",
-          "link": 52
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            53,
-            54
-          ]
-        }
-      ],
-      "title": "Batch: original + A + B",
-      "properties": {
-        "Node name for S&R": "ImageBatch"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 50,
-      "type": "PreviewImage",
-      "pos": [
-        3975.032869217661,
-        491.12792481344496
-      ],
-      "size": [
-        520,
-        430
-      ],
-      "flags": {},
-      "order": 36,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 53
-        }
-      ],
-      "outputs": [],
-      "title": "Compare preview: original / A / B",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 51,
-      "type": "SaveImage",
-      "pos": [
-        4515.03286921765,
-        491.12792481344496
-      ],
-      "size": [
-        430,
-        360
-      ],
-      "flags": {},
-      "order": 37,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 54
+            "id": 1,
+            "type": "MarkdownNote",
+            "pos": [
+                -847.2095037880637,
+                -245.72214280920628
+            ],
+            "size": [
+                560,
+                650
+            ],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "inputs": [],
+            "outputs": [],
+            "properties": {},
+            "widgets_values": [
+                "## Chest / upper torso masked inpaint A/B test\n\nShared upstream:\n\n- Same original image.\n- The edit region is selected with `Olm Drag Crop: draw crop box here`.\n- `Olm Crop Info -> Values` converts that crop box to pixel coordinates.\n- `WAS Mask Rect Area Advanced` turns those coordinates into a full-size white rectangle mask.\n- Same FLUX2 model, CLIP, VAE, prompt, seed, sampler, scheduler, and image reference latent.\n\nHow to create the mask:\n\n1. Run once after loading/changing the image so DragCrop receives the preview and image size.\n2. On `Olm Drag Crop: draw crop box here`, drag/resize the crop box around the chest / upper torso / shirt area.\n3. Run again. The crop box becomes the white inpaint mask.\n4. Check `Generated crop-rectangle mask preview` before trusting the A/B output.\n\nMask rules:\n\n- White = editable crop rectangle.\n- Black = protected.\n- Keep face, hair, and neck outside the crop rectangle if possible.\n- Make the box slightly larger than the exact target so fabric has context.\n\nBranch A tests `InpaintModelConditioning`.\nBranch B tests `SetLatentNoiseMask` + `ReferenceLatent`.\n\nThe outputs are saved separately and batched as original, A, B."
+            ],
+            "color": "#432",
+            "bgcolor": "#653"
         },
         {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
-          "widget": {
-            "name": "filename_prefix"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "title": "Save A/B comparison",
-      "properties": {
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "vn/chest_mask_ab/compare_original_A_B"
-      ]
-    },
-    {
-      "id": 52,
-      "type": "PreviewImage",
-      "pos": [
-        186.62856372089232,
-        874.3570652663994
-      ],
-      "size": [
-        420,
-        360
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 5
-        }
-      ],
-      "outputs": [],
-      "title": "Original preview",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 2,
-      "type": "LoadImage",
-      "pos": [
-        -197.33854996781713,
-        165.51200275545935
-      ],
-      "size": [
-        320,
-        314
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "COMBO",
-          "widget": {
-            "name": "image"
-          },
-          "link": null
+            "id": 11,
+            "type": "VAEEncode",
+            "pos": [
+                728.9929407355097,
+                78.66471845458241
+            ],
+            "size": [
+                291.9751953125,
+                90
+            ],
+            "flags": {},
+            "order": 9,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "pixels",
+                    "name": "pixels",
+                    "type": "IMAGE",
+                    "link": 1
+                },
+                {
+                    "localized_name": "vae",
+                    "name": "vae",
+                    "type": "VAE",
+                    "link": 16
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "LATENT",
+                    "name": "LATENT",
+                    "type": "LATENT",
+                    "links": [
+                        22,
+                        23,
+                        24,
+                        25
+                    ]
+                }
+            ],
+            "title": "Shared original image latent reference",
+            "properties": {
+                "Node name for S&R": "VAEEncode"
+            },
+            "widgets_values": []
         },
         {
-          "localized_name": "choose file to upload",
-          "name": "upload",
-          "type": "IMAGEUPLOAD",
-          "widget": {
-            "name": "upload"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
+            "id": 32,
+            "type": "InpaintModelConditioning",
+            "pos": [
+                2218.7271950898044,
+                -555.1795006827535
+            ],
+            "size": [
+                320,
+                190
+            ],
+            "flags": {},
+            "order": 27,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "positive",
+                    "name": "positive",
+                    "type": "CONDITIONING",
+                    "link": 27
+                },
+                {
+                    "localized_name": "negative",
+                    "name": "negative",
+                    "type": "CONDITIONING",
+                    "link": 14
+                },
+                {
+                    "localized_name": "vae",
+                    "name": "vae",
+                    "type": "VAE",
+                    "link": 17
+                },
+                {
+                    "localized_name": "pixels",
+                    "name": "pixels",
+                    "type": "IMAGE",
+                    "link": 3
+                },
+                {
+                    "localized_name": "mask",
+                    "name": "mask",
+                    "type": "MASK",
+                    "link": 66
+                },
+                {
+                    "localized_name": "noise_mask",
+                    "name": "noise_mask",
+                    "type": "BOOLEAN",
+                    "widget": {
+                        "name": "noise_mask"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "positive",
+                    "name": "positive",
+                    "type": "CONDITIONING",
+                    "links": [
+                        28
+                    ]
+                },
+                {
+                    "localized_name": "negative",
+                    "name": "negative",
+                    "type": "CONDITIONING",
+                    "links": [
+                        29
+                    ]
+                },
+                {
+                    "localized_name": "latent",
+                    "name": "latent",
+                    "type": "LATENT",
+                    "links": [
+                        30
+                    ]
+                }
+            ],
+            "title": "A masked inpaint conditioning",
+            "properties": {
+                "Node name for S&R": "InpaintModelConditioning"
+            },
+            "widgets_values": [
+                true
+            ]
+        },
         {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
+            "id": 30,
+            "type": "ReferenceLatent",
+            "pos": [
+                1839.5551203598823,
+                -425.58639671379103
+            ],
+            "size": [
+                300,
+                70
+            ],
+            "flags": {},
+            "order": 18,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "conditioning",
+                    "name": "conditioning",
+                    "type": "CONDITIONING",
+                    "link": 12
+                },
+                {
+                    "localized_name": "latent",
+                    "name": "latent",
+                    "shape": 7,
+                    "type": "LATENT",
+                    "link": 22
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "CONDITIONING",
+                    "name": "CONDITIONING",
+                    "type": "CONDITIONING",
+                    "links": [
+                        26
+                    ]
+                }
+            ],
+            "title": "A reference: original image",
+            "properties": {
+                "Node name for S&R": "ReferenceLatent"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 31,
+            "type": "FluxKontextMultiReferenceLatentMethod",
+            "pos": [
+                1832.8217886793343,
+                -291.2120307770473
+            ],
+            "size": [
+                330,
+                70
+            ],
+            "flags": {},
+            "order": 23,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "conditioning",
+                    "name": "conditioning",
+                    "type": "CONDITIONING",
+                    "link": 26
+                },
+                {
+                    "localized_name": "reference_latents_method",
+                    "name": "reference_latents_method",
+                    "type": "COMBO",
+                    "widget": {
+                        "name": "reference_latents_method"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "CONDITIONING",
+                    "name": "CONDITIONING",
+                    "type": "CONDITIONING",
+                    "links": [
+                        27
+                    ]
+                }
+            ],
+            "title": "A FLUX reference method",
+            "properties": {
+                "Node name for S&R": "FluxKontextMultiReferenceLatentMethod"
+            },
+            "widgets_values": [
+                "index"
+            ]
+        },
+        {
+            "id": 7,
+            "type": "VAELoader",
+            "pos": [
+                178.78817525502583,
+                -145.79319817758727
+            ],
+            "size": [
+                320,
+                58
+            ],
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "vae_name",
+                    "name": "vae_name",
+                    "type": "COMBO",
+                    "widget": {
+                        "name": "vae_name"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "VAE",
+                    "name": "VAE",
+                    "type": "VAE",
+                    "links": [
+                        16,
+                        17,
+                        18,
+                        19
+                    ]
+                }
+            ],
+            "properties": {
+                "Node name for S&R": "VAELoader"
+            },
+            "widgets_values": [
+                "flux2\\full_encoder_small_decoder.safetensors"
+            ]
+        },
+        {
+            "id": 6,
+            "type": "CLIPLoader",
+            "pos": [
+                180.6029395743333,
+                -340.3293258363866
+            ],
+            "size": [
+                320,
+                106
+            ],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "clip_name",
+                    "name": "clip_name",
+                    "type": "COMBO",
+                    "widget": {
+                        "name": "clip_name"
+                    },
+                    "link": null
+                },
+                {
+                    "localized_name": "type",
+                    "name": "type",
+                    "type": "COMBO",
+                    "widget": {
+                        "name": "type"
+                    },
+                    "link": null
+                },
+                {
+                    "localized_name": "device",
+                    "name": "device",
+                    "shape": 7,
+                    "type": "COMBO",
+                    "widget": {
+                        "name": "device"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "CLIP",
+                    "name": "CLIP",
+                    "type": "CLIP",
+                    "links": [
+                        9,
+                        10
+                    ]
+                }
+            ],
+            "properties": {
+                "Node name for S&R": "CLIPLoader"
+            },
+            "widgets_values": [
+                "flux2\\qwen_3_8b_fp8mixed.safetensors",
+                "flux2",
+                "default"
+            ]
+        },
+        {
+            "id": 17,
+            "type": "KSamplerSelect",
+            "pos": [
+                1293.1305729879277,
+                -292.22728642720375
+            ],
+            "size": [
+                300,
+                58
+            ],
+            "flags": {},
+            "order": 3,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "sampler_name",
+                    "name": "sampler_name",
+                    "type": "COMBO",
+                    "widget": {
+                        "name": "sampler_name"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "SAMPLER",
+                    "name": "SAMPLER",
+                    "type": "SAMPLER",
+                    "links": [
+                        35,
+                        46
+                    ]
+                }
+            ],
+            "title": "Shared sampler",
+            "properties": {
+                "Node name for S&R": "KSamplerSelect"
+            },
+            "widgets_values": [
+                "euler"
+            ]
+        },
+        {
+            "id": 40,
+            "type": "ReferenceLatent",
+            "pos": [
+                1841.7843990919537,
+                67.03407158148883
+            ],
+            "size": [
+                300,
+                70
+            ],
+            "flags": {},
+            "order": 14,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "conditioning",
+                    "name": "conditioning",
+                    "type": "CONDITIONING",
+                    "link": 15
+                },
+                {
+                    "localized_name": "latent",
+                    "name": "latent",
+                    "shape": 7,
+                    "type": "LATENT",
+                    "link": 24
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "CONDITIONING",
+                    "name": "CONDITIONING",
+                    "type": "CONDITIONING",
+                    "links": [
+                        40
+                    ]
+                }
+            ],
+            "title": "B negative + original reference",
+            "properties": {
+                "Node name for S&R": "ReferenceLatent"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 41,
+            "type": "SetLatentNoiseMask",
+            "pos": [
+                2213.58115030692,
+                -74.48372622673678
+            ],
+            "size": [
+                300,
+                90
+            ],
+            "flags": {},
+            "order": 26,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "samples",
+                    "name": "samples",
+                    "type": "LATENT",
+                    "link": 25
+                },
+                {
+                    "localized_name": "mask",
+                    "name": "mask",
+                    "type": "MASK",
+                    "link": 67
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "LATENT",
+                    "name": "LATENT",
+                    "type": "LATENT",
+                    "links": [
+                        41
+                    ]
+                }
+            ],
+            "title": "B set latent noise mask",
+            "properties": {
+                "Node name for S&R": "SetLatentNoiseMask"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 44,
+            "type": "SamplerCustomAdvanced",
+            "pos": [
+                2936.828701966574,
+                -70.51376459513101
+            ],
+            "size": [
+                330,
+                130
+            ],
+            "flags": {},
+            "order": 28,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "noise",
+                    "name": "noise",
+                    "type": "NOISE",
+                    "link": 45
+                },
+                {
+                    "localized_name": "guider",
+                    "name": "guider",
+                    "type": "GUIDER",
+                    "link": 42
+                },
+                {
+                    "localized_name": "sampler",
+                    "name": "sampler",
+                    "type": "SAMPLER",
+                    "link": 46
+                },
+                {
+                    "localized_name": "sigmas",
+                    "name": "sigmas",
+                    "type": "SIGMAS",
+                    "link": 44
+                },
+                {
+                    "localized_name": "latent_image",
+                    "name": "latent_image",
+                    "type": "LATENT",
+                    "link": 41
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "output",
+                    "name": "output",
+                    "type": "LATENT",
+                    "links": [
+                        47
+                    ]
+                },
+                {
+                    "localized_name": "denoised_output",
+                    "name": "denoised_output",
+                    "type": "LATENT",
+                    "links": null
+                }
+            ],
+            "title": "B sampler",
+            "properties": {
+                "Node name for S&R": "SamplerCustomAdvanced"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 35,
+            "type": "SamplerCustomAdvanced",
+            "pos": [
+                2916.055463822377,
+                -545.4117555241182
+            ],
+            "size": [
+                330,
+                130
+            ],
+            "flags": {},
+            "order": 31,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "noise",
+                    "name": "noise",
+                    "type": "NOISE",
+                    "link": 34
+                },
+                {
+                    "localized_name": "guider",
+                    "name": "guider",
+                    "type": "GUIDER",
+                    "link": 31
+                },
+                {
+                    "localized_name": "sampler",
+                    "name": "sampler",
+                    "type": "SAMPLER",
+                    "link": 35
+                },
+                {
+                    "localized_name": "sigmas",
+                    "name": "sigmas",
+                    "type": "SIGMAS",
+                    "link": 33
+                },
+                {
+                    "localized_name": "latent_image",
+                    "name": "latent_image",
+                    "type": "LATENT",
+                    "link": 30
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "output",
+                    "name": "output",
+                    "type": "LATENT",
+                    "links": [
+                        36
+                    ]
+                },
+                {
+                    "localized_name": "denoised_output",
+                    "name": "denoised_output",
+                    "type": "LATENT",
+                    "links": null
+                }
+            ],
+            "title": "A sampler",
+            "properties": {
+                "Node name for S&R": "SamplerCustomAdvanced"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 36,
+            "type": "VAEDecode",
+            "pos": [
+                3366.720153636166,
+                -513.6680395922982
+            ],
+            "size": [
+                160,
+                70
+            ],
+            "flags": {},
+            "order": 34,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "samples",
+                    "name": "samples",
+                    "type": "LATENT",
+                    "link": 36
+                },
+                {
+                    "localized_name": "vae",
+                    "name": "vae",
+                    "type": "VAE",
+                    "link": 18
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "IMAGE",
+                    "name": "IMAGE",
+                    "type": "IMAGE",
+                    "links": [
+                        37,
+                        38,
+                        50
+                    ]
+                }
+            ],
+            "title": "A decode",
+            "properties": {
+                "Node name for S&R": "VAEDecode"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 37,
+            "type": "PreviewImage",
+            "pos": [
+                3597.569296170475,
+                -512.0747721938568
+            ],
+            "size": [
+                535.6049511245192,
+                440.09116907715463
+            ],
+            "flags": {},
+            "order": 35,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "images",
+                    "name": "images",
+                    "type": "IMAGE",
+                    "link": 37
+                }
+            ],
+            "outputs": [],
+            "title": "A preview: InpaintModelConditioning",
+            "properties": {
+                "Node name for S&R": "PreviewImage"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 38,
+            "type": "SaveImage",
+            "pos": [
+                4164.13631658053,
+                -511.9240460263903
+            ],
+            "size": [
+                560.2080761468605,
+                436.28140288866507
+            ],
+            "flags": {},
+            "order": 36,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "images",
+                    "name": "images",
+                    "type": "IMAGE",
+                    "link": 38
+                },
+                {
+                    "localized_name": "filename_prefix",
+                    "name": "filename_prefix",
+                    "type": "STRING",
+                    "widget": {
+                        "name": "filename_prefix"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [],
+            "title": "A save result",
+            "properties": {
+                "Node name for S&R": "SaveImage"
+            },
+            "widgets_values": [
+                "vn/chest_mask_ab/A_inpaint_model_conditioning"
+            ]
+        },
+        {
+            "id": 46,
+            "type": "PreviewImage",
+            "pos": [
+                3599.8744007097553,
+                66.31028041998812
+            ],
+            "size": [
+                527.107405662804,
+                357.6432413671113
+            ],
+            "flags": {},
+            "order": 32,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "images",
+                    "name": "images",
+                    "type": "IMAGE",
+                    "link": 48
+                }
+            ],
+            "outputs": [],
+            "title": "B preview: SetLatentNoiseMask + ReferenceLatent",
+            "properties": {
+                "Node name for S&R": "PreviewImage"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 47,
+            "type": "SaveImage",
+            "pos": [
+                4175.969692054236,
+                69.64063543660353
+            ],
+            "size": [
+                563.3118791887955,
+                365.9605492789525
+            ],
+            "flags": {},
+            "order": 33,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "images",
+                    "name": "images",
+                    "type": "IMAGE",
+                    "link": 49
+                },
+                {
+                    "localized_name": "filename_prefix",
+                    "name": "filename_prefix",
+                    "type": "STRING",
+                    "widget": {
+                        "name": "filename_prefix"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [],
+            "title": "B save result",
+            "properties": {
+                "Node name for S&R": "SaveImage"
+            },
+            "widgets_values": [
+                "vn/chest_mask_ab/B_v45_v5_masked_reference_edit"
+            ]
+        },
+        {
+            "id": 4,
+            "type": "MaskPreview",
+            "pos": [
+                721.0374892480195,
+                354.5972507446683
+            ],
+            "size": [
+                330,
+                260
+            ],
+            "flags": {},
+            "order": 25,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "mask",
+                    "name": "mask",
+                    "type": "MASK",
+                    "link": 65
+                }
+            ],
+            "outputs": [],
+            "title": "Generated crop-rectangle mask preview",
+            "properties": {
+                "Node name for S&R": "MaskPreview"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 55,
+            "type": "OlmCropInfoInterpreter",
+            "pos": [
+                319.4155439331167,
+                551.987040964602
+            ],
+            "size": [
+                260,
+                198
+            ],
+            "flags": {},
+            "order": 17,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "crop_json",
+                    "name": "crop_json",
+                    "type": "STRING",
+                    "widget": {
+                        "name": "crop_json"
+                    },
+                    "link": 58
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "left",
+                    "name": "left",
+                    "type": "INT",
+                    "links": [
+                        59
+                    ]
+                },
+                {
+                    "localized_name": "top",
+                    "name": "top",
+                    "type": "INT",
+                    "links": [
+                        60
+                    ]
+                },
+                {
+                    "localized_name": "right",
+                    "name": "right",
+                    "type": "INT",
+                    "links": null
+                },
+                {
+                    "localized_name": "bottom",
+                    "name": "bottom",
+                    "type": "INT",
+                    "links": null
+                },
+                {
+                    "localized_name": "width",
+                    "name": "width",
+                    "type": "INT",
+                    "links": [
+                        61
+                    ]
+                },
+                {
+                    "localized_name": "height",
+                    "name": "height",
+                    "type": "INT",
+                    "links": [
+                        62
+                    ]
+                },
+                {
+                    "localized_name": "csv",
+                    "name": "csv",
+                    "type": "STRING",
+                    "links": null
+                },
+                {
+                    "localized_name": "pretty",
+                    "name": "pretty",
+                    "type": "STRING",
+                    "links": null
+                }
+            ],
+            "title": "Crop box coordinates",
+            "properties": {
+                "Node name for S&R": "OlmCropInfoInterpreter"
+            },
+            "widgets_values": [
+                ""
+            ]
+        },
+        {
+            "id": 52,
+            "type": "PreviewImage",
+            "pos": [
+                377.1211120000392,
+                1044.2558805953718
+            ],
+            "size": [
+                420,
+                360
+            ],
+            "flags": {},
+            "order": 11,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "images",
+                    "name": "images",
+                    "type": "IMAGE",
+                    "link": 5
+                }
+            ],
+            "outputs": [],
+            "title": "Original preview",
+            "properties": {
+                "Node name for S&R": "PreviewImage"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 57,
+            "type": "PreviewImage",
+            "pos": [
+                -133.4977704262629,
+                1502.2397010331013
+            ],
+            "size": [
+                420,
+                320
+            ],
+            "flags": {},
+            "order": 16,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "images",
+                    "name": "images",
+                    "type": "IMAGE",
+                    "link": 68
+                }
+            ],
+            "outputs": [],
+            "title": "DragCrop cropped preview",
+            "properties": {
+                "Node name for S&R": "PreviewImage"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 2,
+            "type": "LoadImage",
+            "pos": [
+                -175.71509580413195,
+                170.66045327600423
+            ],
+            "size": [
+                320,
+                314.0000000000001
+            ],
+            "flags": {},
+            "order": 4,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "image",
+                    "name": "image",
+                    "type": "COMBO",
+                    "widget": {
+                        "name": "image"
+                    },
+                    "link": null
+                },
+                {
+                    "localized_name": "choose file to upload",
+                    "name": "upload",
+                    "type": "IMAGEUPLOAD",
+                    "widget": {
+                        "name": "upload"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "IMAGE",
+                    "name": "IMAGE",
+                    "type": "IMAGE",
+                    "links": [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        57
+                    ]
+                },
+                {
+                    "localized_name": "MASK",
+                    "name": "MASK",
+                    "type": "MASK",
+                    "links": null
+                }
+            ],
+            "title": "Original image (feeds DragCrop)",
+            "properties": {
+                "Node name for S&R": "LoadImage"
+            },
+            "widgets_values": [
+                "char_01.jpg",
+                "image"
+            ]
+        },
+        {
+            "id": 5,
+            "type": "UNETLoader",
+            "pos": [
+                183.84322906925289,
+                -503.11134982164873
+            ],
+            "size": [
+                320,
+                82
+            ],
+            "flags": {},
+            "order": 5,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "unet_name",
+                    "name": "unet_name",
+                    "type": "COMBO",
+                    "widget": {
+                        "name": "unet_name"
+                    },
+                    "link": null
+                },
+                {
+                    "localized_name": "weight_dtype",
+                    "name": "weight_dtype",
+                    "type": "COMBO",
+                    "widget": {
+                        "name": "weight_dtype"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "MODEL",
+                    "name": "MODEL",
+                    "type": "MODEL",
+                    "links": [
+                        20,
+                        21
+                    ]
+                }
+            ],
+            "properties": {
+                "Node name for S&R": "UNETLoader"
+            },
+            "widgets_values": [
+                "flux2\\flux_2_klein_9b.safetensors",
+                "default"
+            ]
+        },
+        {
+            "id": 10,
+            "type": "FluxGuidance",
+            "pos": [
+                1844.4939079363805,
+                -546.2639520333953
+            ],
+            "size": [
+                280,
+                58
+            ],
+            "flags": {},
+            "order": 13,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "conditioning",
+                    "name": "conditioning",
+                    "type": "CONDITIONING",
+                    "link": 11
+                },
+                {
+                    "localized_name": "guidance",
+                    "name": "guidance",
+                    "type": "FLOAT",
+                    "widget": {
+                        "name": "guidance"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "CONDITIONING",
+                    "name": "CONDITIONING",
+                    "type": "CONDITIONING",
+                    "links": [
+                        12,
+                        13
+                    ]
+                }
+            ],
+            "properties": {
+                "Node name for S&R": "FluxGuidance"
+            },
+            "widgets_values": [
+                1.1
+            ]
+        },
+        {
+            "id": 16,
+            "type": "RandomNoise",
+            "pos": [
+                1289.774017255282,
+                -435.17327924543883
+            ],
+            "size": [
+                300,
+                82
+            ],
+            "flags": {},
+            "order": 6,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "noise_seed",
+                    "name": "noise_seed",
+                    "type": "INT",
+                    "widget": {
+                        "name": "noise_seed"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "NOISE",
+                    "name": "NOISE",
+                    "type": "NOISE",
+                    "links": [
+                        34,
+                        45
+                    ]
+                }
+            ],
+            "title": "Shared seed / noise",
+            "properties": {
+                "Node name for S&R": "RandomNoise"
+            },
+            "widgets_values": [
+                477666063652253,
+                "randomize"
+            ]
+        },
+        {
+            "id": 39,
+            "type": "ReferenceLatent",
+            "pos": [
+                1840.3234885396428,
+                -72.3863416173129
+            ],
+            "size": [
+                300,
+                70
+            ],
+            "flags": {},
+            "order": 19,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "conditioning",
+                    "name": "conditioning",
+                    "type": "CONDITIONING",
+                    "link": 13
+                },
+                {
+                    "localized_name": "latent",
+                    "name": "latent",
+                    "shape": 7,
+                    "type": "LATENT",
+                    "link": 23
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "CONDITIONING",
+                    "name": "CONDITIONING",
+                    "type": "CONDITIONING",
+                    "links": [
+                        39
+                    ]
+                }
+            ],
+            "title": "B positive + original reference",
+            "properties": {
+                "Node name for S&R": "ReferenceLatent"
+            },
+            "widgets_values": []
+        },
+        {
+            "id": 56,
+            "type": "Mask Rect Area (Advanced)",
+            "pos": [
+                738.4992884112493,
+                685.0760836241273
+            ],
+            "size": [
+                320,
+                220
+            ],
+            "flags": {},
+            "order": 22,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "x",
+                    "name": "x",
+                    "type": "INT",
+                    "widget": {
+                        "name": "x"
+                    },
+                    "link": 59
+                },
+                {
+                    "localized_name": "y",
+                    "name": "y",
+                    "type": "INT",
+                    "widget": {
+                        "name": "y"
+                    },
+                    "link": 60
+                },
+                {
+                    "localized_name": "width",
+                    "name": "width",
+                    "type": "INT",
+                    "widget": {
+                        "name": "width"
+                    },
+                    "link": 61
+                },
+                {
+                    "localized_name": "height",
+                    "name": "height",
+                    "type": "INT",
+                    "widget": {
+                        "name": "height"
+                    },
+                    "link": 62
+                },
+                {
+                    "localized_name": "image_width",
+                    "name": "image_width",
+                    "type": "INT",
+                    "widget": {
+                        "name": "image_width"
+                    },
+                    "link": 63
+                },
+                {
+                    "localized_name": "image_height",
+                    "name": "image_height",
+                    "type": "INT",
+                    "widget": {
+                        "name": "image_height"
+                    },
+                    "link": 64
+                },
+                {
+                    "localized_name": "blur_radius",
+                    "name": "blur_radius",
+                    "type": "INT",
+                    "widget": {
+                        "name": "blur_radius"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "MASKS",
+                    "name": "MASKS",
+                    "type": "MASK",
+                    "links": [
+                        65,
+                        66,
+                        67
+                    ]
+                }
+            ],
+            "title": "Crop box -> full-size white mask",
+            "properties": {
+                "Node name for S&R": "Mask Rect Area (Advanced)"
+            },
+            "widgets_values": [
+                0,
+                0,
+                256,
+                256,
+                512,
+                512,
+                24
+            ]
+        },
+        {
+            "id": 51,
+            "type": "SaveImage",
+            "pos": [
+                4515.03286921765,
+                491.12792481344496
+            ],
+            "size": [
+                540.2740020516912,
+                407.9451588022157
+            ],
+            "flags": {},
+            "order": 40,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "images",
+                    "name": "images",
+                    "type": "IMAGE",
+                    "link": 54
+                },
+                {
+                    "localized_name": "filename_prefix",
+                    "name": "filename_prefix",
+                    "type": "STRING",
+                    "widget": {
+                        "name": "filename_prefix"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [],
+            "title": "Save A/B comparison",
+            "properties": {
+                "Node name for S&R": "SaveImage"
+            },
+            "widgets_values": [
+                "vn/chest_mask_ab/compare_original_A_B"
+            ]
+        },
+        {
+            "id": 9,
+            "type": "CLIPTextEncode",
+            "pos": [
+                727.2438921157873,
+                -169.351956062803
+            ],
+            "size": [
+                520,
+                180
+            ],
+            "flags": {},
+            "order": 8,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "clip",
+                    "name": "clip",
+                    "type": "CLIP",
+                    "link": 10
+                },
+                {
+                    "localized_name": "text",
+                    "name": "text",
+                    "type": "STRING",
+                    "widget": {
+                        "name": "text"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "CONDITIONING",
+                    "name": "CONDITIONING",
+                    "type": "CONDITIONING",
+                    "links": [
+                        14,
+                        15
+                    ]
+                }
+            ],
+            "title": "Negative: outfit drift",
+            "properties": {
+                "Node name for S&R": "CLIPTextEncode"
+            },
+            "widgets_values": [
+                "different shirt color, changed outfit, new shirt, exposed skin, cleavage, low neckline, open shirt, changed collar, changed blazer, changed fabric texture, new wrinkles everywhere, plastic skin, changed face, changed hair, changed pose, different lighting, overexposed background, color shift, pink tint, washed out shirt"
+            ]
+        },
+        {
+            "id": 19,
+            "type": "Flux2Scheduler",
+            "pos": [
+                1300.384575211345,
+                -148.22478736179386
+            ],
+            "size": [
+                300,
+                106
+            ],
+            "flags": {},
+            "order": 15,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "steps",
+                    "name": "steps",
+                    "type": "INT",
+                    "widget": {
+                        "name": "steps"
+                    },
+                    "link": null
+                },
+                {
+                    "localized_name": "width",
+                    "name": "width",
+                    "type": "INT",
+                    "widget": {
+                        "name": "width"
+                    },
+                    "link": 55
+                },
+                {
+                    "localized_name": "height",
+                    "name": "height",
+                    "type": "INT",
+                    "widget": {
+                        "name": "height"
+                    },
+                    "link": 56
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "SIGMAS",
+                    "name": "SIGMAS",
+                    "type": "SIGMAS",
+                    "links": [
+                        32,
+                        43
+                    ]
+                }
+            ],
+            "title": "Shared FLUX2 scheduler",
+            "properties": {
+                "Node name for S&R": "Flux2Scheduler"
+            },
+            "widgets_values": [
+                12,
+                1024,
+                1024
+            ]
+        },
+        {
+            "id": 8,
+            "type": "CLIPTextEncode",
+            "pos": [
+                728.6744723452132,
+                -445.9892417208831
+            ],
+            "size": [
+                520,
+                220
+            ],
+            "flags": {},
+            "order": 7,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "clip",
+                    "name": "clip",
+                    "type": "CLIP",
+                    "link": 9
+                },
+                {
+                    "localized_name": "text",
+                    "name": "text",
+                    "type": "STRING",
+                    "widget": {
+                        "name": "text"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "CONDITIONING",
+                    "name": "CONDITIONING",
+                    "type": "CONDITIONING",
+                    "links": [
+                        11
+                    ]
+                }
+            ],
+            "title": "Positive: same outfit, chest/torso shape edit",
+            "properties": {
+                "Node name for S&R": "CLIPTextEncode"
+            },
+            "widgets_values": [
+                "same person, same face, same hair, same pose, same camera angle, same lighting, same blazer, same pink shirt, preserve exact shirt color, preserve exact shirt fabric texture, preserve neckline and collar, preserve buttons and seams, preserve shadows and folds outside the mask, only increase the chest volume under the existing shirt, fuller bust shape under fabric, natural fabric tension over the chest,   subtle stretched shirt fabric, realistic cloth deformation, unchanged outfit design"
+            ]
+        },
+        {
+            "id": 54,
+            "type": "OlmDragCrop",
+            "pos": [
+                -197.33854996781713,
+                535.5120027554594
+            ],
+            "size": [
+                360,
+                833.5964912280701
+            ],
+            "flags": {},
+            "order": 12,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "image",
+                    "name": "image",
+                    "type": "IMAGE",
+                    "link": 57
+                },
+                {
+                    "localized_name": "mask",
+                    "name": "mask",
+                    "shape": 7,
+                    "type": "MASK",
+                    "link": null
+                },
+                {
+                    "localized_name": "crop_left",
+                    "name": "crop_left",
+                    "type": "INT",
+                    "widget": {
+                        "name": "crop_left"
+                    },
+                    "link": null
+                },
+                {
+                    "localized_name": "crop_right",
+                    "name": "crop_right",
+                    "type": "INT",
+                    "widget": {
+                        "name": "crop_right"
+                    },
+                    "link": null
+                },
+                {
+                    "localized_name": "crop_top",
+                    "name": "crop_top",
+                    "type": "INT",
+                    "widget": {
+                        "name": "crop_top"
+                    },
+                    "link": null
+                },
+                {
+                    "localized_name": "crop_bottom",
+                    "name": "crop_bottom",
+                    "type": "INT",
+                    "widget": {
+                        "name": "crop_bottom"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "IMAGE",
+                    "name": "IMAGE",
+                    "type": "IMAGE",
+                    "links": [
+                        68
+                    ]
+                },
+                {
+                    "localized_name": "MASK",
+                    "name": "MASK",
+                    "type": "MASK",
+                    "links": null
+                },
+                {
+                    "localized_name": "CROP_JSON",
+                    "name": "CROP_JSON",
+                    "type": "STRING",
+                    "links": [
+                        58
+                    ]
+                }
+            ],
+            "title": "Olm Drag Crop: draw crop box here",
+            "properties": {
+                "Node name for S&R": "OlmDragCrop",
+                "dragStart": [
+                    120,
+                    188.42105263157893
+                ],
+                "dragEnd": [
+                    252.63157894736844,
+                    280.3508771929824
+                ],
+                "actualImageWidth": 912,
+                "actualImageHeight": 1136,
+                "crop_left": 342,
+                "crop_right": 192,
+                "crop_top": 537,
+                "crop_bottom": 337,
+                "crop_width": 378.67280928004527,
+                "crop_height": 261.5262992037383,
+                "snapValue": "none",
+                "aspectRatioString": "Use values like 0.5 or 16:9",
+                "aspectLockEnabled": false,
+                "infoDisplayEnabled": true,
+                "box_color": "#d5ff6b",
+                "lastResolution": "912x1136"
+            },
+            "widgets_values": [
+                1782533764040,
+                342,
+                192,
+                537,
+                337,
+                379,
+                262,
+                912,
+                1136,
+                "none",
+                "Use values like 0.5 or 16:9",
+                false,
+                "set_ratio",
+                "refresh",
+                null,
+                "Lime",
+                "reset"
+            ]
+        },
+        {
+            "id": 33,
+            "type": "CFGGuider",
+            "pos": [
+                2586.444517876694,
+                -564.1522212030065
+            ],
+            "size": [
+                260,
+                126
+            ],
+            "flags": {},
+            "order": 29,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "model",
+                    "name": "model",
+                    "type": "MODEL",
+                    "link": 20
+                },
+                {
+                    "localized_name": "positive",
+                    "name": "positive",
+                    "type": "CONDITIONING",
+                    "link": 28
+                },
+                {
+                    "localized_name": "negative",
+                    "name": "negative",
+                    "type": "CONDITIONING",
+                    "link": 29
+                },
+                {
+                    "localized_name": "cfg",
+                    "name": "cfg",
+                    "type": "FLOAT",
+                    "widget": {
+                        "name": "cfg"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "GUIDER",
+                    "name": "GUIDER",
+                    "type": "GUIDER",
+                    "links": [
+                        31
+                    ]
+                }
+            ],
+            "title": "A low CFG",
+            "properties": {
+                "Node name for S&R": "CFGGuider"
+            },
+            "widgets_values": [
+                1.2
+            ]
+        },
+        {
+            "id": 42,
+            "type": "CFGGuider",
+            "pos": [
+                2585.802526042287,
+                -81.60896688538048
+            ],
+            "size": [
+                260,
+                126
+            ],
+            "flags": {},
+            "order": 24,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "model",
+                    "name": "model",
+                    "type": "MODEL",
+                    "link": 21
+                },
+                {
+                    "localized_name": "positive",
+                    "name": "positive",
+                    "type": "CONDITIONING",
+                    "link": 39
+                },
+                {
+                    "localized_name": "negative",
+                    "name": "negative",
+                    "type": "CONDITIONING",
+                    "link": 40
+                },
+                {
+                    "localized_name": "cfg",
+                    "name": "cfg",
+                    "type": "FLOAT",
+                    "widget": {
+                        "name": "cfg"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "GUIDER",
+                    "name": "GUIDER",
+                    "type": "GUIDER",
+                    "links": [
+                        42
+                    ]
+                }
+            ],
+            "title": "B low CFG",
+            "properties": {
+                "Node name for S&R": "CFGGuider"
+            },
+            "widgets_values": [
+                1.2
+            ]
+        },
+        {
+            "id": 34,
+            "type": "SplitSigmasDenoise",
+            "pos": [
+                2584.5994232344988,
+                -387.55427241998166
+            ],
+            "size": [
+                300,
+                82
+            ],
+            "flags": {},
+            "order": 20,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "sigmas",
+                    "name": "sigmas",
+                    "type": "SIGMAS",
+                    "link": 32
+                },
+                {
+                    "localized_name": "denoise",
+                    "name": "denoise",
+                    "type": "FLOAT",
+                    "widget": {
+                        "name": "denoise"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "high_sigmas",
+                    "name": "high_sigmas",
+                    "type": "SIGMAS",
+                    "links": null
+                },
+                {
+                    "localized_name": "low_sigmas",
+                    "name": "low_sigmas",
+                    "type": "SIGMAS",
+                    "links": [
+                        33
+                    ]
+                }
+            ],
+            "title": "A denoise: classic inpaint",
+            "properties": {
+                "Node name for S&R": "SplitSigmasDenoise"
+            },
+            "widgets_values": [
+                0.8
+            ]
+        },
+        {
+            "id": 43,
+            "type": "SplitSigmasDenoise",
+            "pos": [
+                2586.3333066927785,
+                110.63437345267721
+            ],
+            "size": [
+                300,
+                82
+            ],
+            "flags": {},
+            "order": 21,
+            "mode": 0,
+            "inputs": [
+                {
+                    "localized_name": "sigmas",
+                    "name": "sigmas",
+                    "type": "SIGMAS",
+                    "link": 43
+                },
+                {
+                    "localized_name": "denoise",
+                    "name": "denoise",
+                    "type": "FLOAT",
+                    "widget": {
+                        "name": "denoise"
+                    },
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "localized_name": "high_sigmas",
+                    "name": "high_sigmas",
+                    "type": "SIGMAS",
+                    "links": null
+                },
+                {
+                    "localized_name": "low_sigmas",
+                    "name": "low_sigmas",
+                    "type": "SIGMAS",
+                    "links": [
+                        44
+                    ]
+                }
+            ],
+            "title": "B denoise: v4.5/v5 reference mask",
+            "properties": {
+                "Node name for S&R": "SplitSigmasDenoise"
+            },
+            "widgets_values": [
+                0.8
+            ]
+        }
+    ],
+    "links": [
+        [
             1,
             2,
-            3,
-            4,
-            5
-          ]
-        },
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            6,
-            7,
-            8
-          ]
-        }
-      ],
-      "title": "Original image + built-in mask editor",
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "example.png",
-        "image"
-      ]
-    },
-    {
-      "id": 1,
-      "type": "MarkdownNote",
-      "pos": [
-        -847.2095037880637,
-        -245.72214280920628
-      ],
-      "size": [
-        560,
-        650
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {},
-      "widgets_values": [
-        "## Chest / upper torso masked inpaint A/B test\n\nShared upstream:\n\n- Same original image.\n- Mask is painted directly on the original `LoadImage` node with ComfyUI's built-in Mask Editor.\n- Same FLUX2 model, CLIP, VAE, prompt, seed, sampler, scheduler, and image reference latent.\n\nHow to create the mask:\n\n1. Right-click `Original image + built-in mask editor`.\n2. Choose `Open in Mask Editor`.\n3. Paint the chest / upper torso area.\n4. Save the mask.\n5. The node's `MASK` output feeds both A/B branches.\n\nBranch A tests the classic ComfyUI path:\n\n`InpaintModelConditioning` -> masked latent -> sampler.\n\nBranch B tests the DA v4.5/v5-style path:\n\n`VAEEncode original` -> `SetLatentNoiseMask` -> `ReferenceLatent` on positive/negative -> sampler.\n\nMask rules:\n\n- White = editable chest / upper torso / shirt region.\n- Black = protected.\n- Keep face, hair, and neck black if possible.\n- Include enough surrounding shirt / torso context for fabric tension.\n\nThe outputs are saved separately and batched as original, A, B."
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
-      "id": 11,
-      "type": "VAEEncode",
-      "pos": [
-        728.9929407355097,
-        78.66471845458241
-      ],
-      "size": [
-        291.9751953125,
-        90
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "pixels",
-          "name": "pixels",
-          "type": "IMAGE",
-          "link": 1
-        },
-        {
-          "localized_name": "vae",
-          "name": "vae",
-          "type": "VAE",
-          "link": 16
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "LATENT",
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            22,
-            23,
-            24,
-            25
-          ]
-        }
-      ],
-      "title": "Shared original image latent reference",
-      "properties": {
-        "Node name for S&R": "VAEEncode"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 9,
-      "type": "CLIPTextEncode",
-      "pos": [
-        727.2438921157873,
-        -169.351956062803
-      ],
-      "size": [
-        520,
-        180
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 10
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            14,
-            15
-          ]
-        }
-      ],
-      "title": "Negative: outfit drift",
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "different outfit, changed shirt, new neckline, new sleeves, logo, pattern, buttons, exposed skin, changed face, changed hair, changed pose, changed camera angle, distorted anatomy, broken fabric, melted clothing"
-      ]
-    },
-    {
-      "id": 8,
-      "type": "CLIPTextEncode",
-      "pos": [
-        728.6744723452132,
-        -445.9892417208831
-      ],
-      "size": [
-        520,
-        220
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 9
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            11
-          ]
-        }
-      ],
-      "title": "Positive: same outfit, chest/torso shape edit",
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "same person, same face, same hair, same pose, same camera angle, same lighting, same white shirt, same shirt fabric, same neckline, same sleeves, preserve clothing design, preserve outfit texture, adjust only the chest and upper torso shape under the shirt, natural fabric tension, realistic folds, consistent body proportions"
-      ]
-    },
-    {
-      "id": 33,
-      "type": "CFGGuider",
-      "pos": [
-        2586.444517876694,
-        -564.1522212030065
-      ],
-      "size": [
-        260,
-        126
-      ],
-      "flags": {},
-      "order": 26,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 20
-        },
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 28
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 29
-        },
-        {
-          "localized_name": "cfg",
-          "name": "cfg",
-          "type": "FLOAT",
-          "widget": {
-            "name": "cfg"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "GUIDER",
-          "name": "GUIDER",
-          "type": "GUIDER",
-          "links": [
-            31
-          ]
-        }
-      ],
-      "title": "A low CFG",
-      "properties": {
-        "Node name for S&R": "CFGGuider"
-      },
-      "widgets_values": [
-        1.25
-      ]
-    },
-    {
-      "id": 32,
-      "type": "InpaintModelConditioning",
-      "pos": [
-        2218.7271950898044,
-        -555.1795006827535
-      ],
-      "size": [
-        320,
-        190
-      ],
-      "flags": {},
-      "order": 24,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 27
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 14
-        },
-        {
-          "localized_name": "vae",
-          "name": "vae",
-          "type": "VAE",
-          "link": 17
-        },
-        {
-          "localized_name": "pixels",
-          "name": "pixels",
-          "type": "IMAGE",
-          "link": 3
-        },
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 7
-        },
-        {
-          "localized_name": "noise_mask",
-          "name": "noise_mask",
-          "type": "BOOLEAN",
-          "widget": {
-            "name": "noise_mask"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "links": [
-            28
-          ]
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "links": [
-            29
-          ]
-        },
-        {
-          "localized_name": "latent",
-          "name": "latent",
-          "type": "LATENT",
-          "links": [
-            30
-          ]
-        }
-      ],
-      "title": "A masked inpaint conditioning",
-      "properties": {
-        "Node name for S&R": "InpaintModelConditioning"
-      },
-      "widgets_values": [
-        true
-      ]
-    },
-    {
-      "id": 34,
-      "type": "SplitSigmasDenoise",
-      "pos": [
-        2584.5994232344988,
-        -387.55427241998166
-      ],
-      "size": [
-        300,
-        82
-      ],
-      "flags": {},
-      "order": 20,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "sigmas",
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 32
-        },
-        {
-          "localized_name": "denoise",
-          "name": "denoise",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "high_sigmas",
-          "name": "high_sigmas",
-          "type": "SIGMAS",
-          "links": [
-            33
-          ]
-        },
-        {
-          "localized_name": "low_sigmas",
-          "name": "low_sigmas",
-          "type": "SIGMAS",
-          "links": null
-        }
-      ],
-      "title": "A denoise: classic inpaint",
-      "properties": {
-        "Node name for S&R": "SplitSigmasDenoise"
-      },
-      "widgets_values": [
-        0.65
-      ]
-    },
-    {
-      "id": 10,
-      "type": "FluxGuidance",
-      "pos": [
-        1844.4939079363805,
-        -546.2639520333953
-      ],
-      "size": [
-        280,
-        58
-      ],
-      "flags": {},
-      "order": 14,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "conditioning",
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 11
-        },
-        {
-          "localized_name": "guidance",
-          "name": "guidance",
-          "type": "FLOAT",
-          "widget": {
-            "name": "guidance"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            12,
-            13
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "FluxGuidance"
-      },
-      "widgets_values": [
-        1.1
-      ]
-    },
-    {
-      "id": 30,
-      "type": "ReferenceLatent",
-      "pos": [
-        1839.5551203598823,
-        -425.58639671379103
-      ],
-      "size": [
-        300,
-        70
-      ],
-      "flags": {},
-      "order": 18,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "conditioning",
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 12
-        },
-        {
-          "localized_name": "latent",
-          "name": "latent",
-          "shape": 7,
-          "type": "LATENT",
-          "link": 22
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            26
-          ]
-        }
-      ],
-      "title": "A reference: original image",
-      "properties": {
-        "Node name for S&R": "ReferenceLatent"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 31,
-      "type": "FluxKontextMultiReferenceLatentMethod",
-      "pos": [
-        1832.8217886793343,
-        -291.2120307770473
-      ],
-      "size": [
-        330,
-        70
-      ],
-      "flags": {},
-      "order": 22,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "conditioning",
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 26
-        },
-        {
-          "localized_name": "reference_latents_method",
-          "name": "reference_latents_method",
-          "type": "COMBO",
-          "widget": {
-            "name": "reference_latents_method"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            27
-          ]
-        }
-      ],
-      "title": "A FLUX reference method",
-      "properties": {
-        "Node name for S&R": "FluxKontextMultiReferenceLatentMethod"
-      },
-      "widgets_values": [
-        "index"
-      ]
-    },
-    {
-      "id": 39,
-      "type": "ReferenceLatent",
-      "pos": [
-        1840.3234885396428,
-        -72.3863416173129
-      ],
-      "size": [
-        300,
-        70
-      ],
-      "flags": {},
-      "order": 19,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "conditioning",
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 13
-        },
-        {
-          "localized_name": "latent",
-          "name": "latent",
-          "shape": 7,
-          "type": "LATENT",
-          "link": 23
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            39
-          ]
-        }
-      ],
-      "title": "B positive + original reference",
-      "properties": {
-        "Node name for S&R": "ReferenceLatent"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 7,
-      "type": "VAELoader",
-      "pos": [
-        178.78817525502583,
-        -145.79319817758727
-      ],
-      "size": [
-        320,
-        58
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "vae_name",
-          "name": "vae_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "vae_name"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "VAE",
-          "name": "VAE",
-          "type": "VAE",
-          "links": [
-            16,
-            17,
+            0,
+            11,
+            0,
+            "IMAGE"
+        ],
+        [
+            2,
+            2,
+            0,
             18,
-            19
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VAELoader"
-      },
-      "widgets_values": [
-        "flux2\\full_encoder_small_decoder.safetensors"
-      ]
-    },
-    {
-      "id": 6,
-      "type": "CLIPLoader",
-      "pos": [
-        180.6029395743333,
-        -340.3293258363866
-      ],
-      "size": [
-        320,
-        106
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip_name",
-          "name": "clip_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "clip_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "type",
-          "name": "type",
-          "type": "COMBO",
-          "widget": {
-            "name": "type"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "device",
-          "name": "device",
-          "shape": 7,
-          "type": "COMBO",
-          "widget": {
-            "name": "device"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CLIP",
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            9,
-            10
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CLIPLoader"
-      },
-      "widgets_values": [
-        "flux2\\qwen_3_8b_fp8mixed.safetensors",
-        "flux2",
-        "default"
-      ]
-    },
-    {
-      "id": 5,
-      "type": "UNETLoader",
-      "pos": [
-        183.84322906925289,
-        -503.11134982164873
-      ],
-      "size": [
-        320,
-        82
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "unet_name",
-          "name": "unet_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "unet_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "weight_dtype",
-          "name": "weight_dtype",
-          "type": "COMBO",
-          "widget": {
-            "name": "weight_dtype"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            20,
-            21
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "UNETLoader"
-      },
-      "widgets_values": [
-        "flux2\\kleinova_nsfw_generation_22_bf16.safetensors",
-        "default"
-      ]
-    },
-    {
-      "id": 16,
-      "type": "RandomNoise",
-      "pos": [
-        1289.774017255282,
-        -435.17327924543883
-      ],
-      "size": [
-        300,
-        82
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "noise_seed",
-          "name": "noise_seed",
-          "type": "INT",
-          "widget": {
-            "name": "noise_seed"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "NOISE",
-          "name": "NOISE",
-          "type": "NOISE",
-          "links": [
-            34,
-            45
-          ]
-        }
-      ],
-      "title": "Shared seed / noise",
-      "properties": {
-        "Node name for S&R": "RandomNoise"
-      },
-      "widgets_values": [
-        123456789,
-        "randomize"
-      ]
-    },
-    {
-      "id": 17,
-      "type": "KSamplerSelect",
-      "pos": [
-        1293.1305729879277,
-        -292.22728642720375
-      ],
-      "size": [
-        300,
-        58
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "sampler_name",
-          "name": "sampler_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "sampler_name"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "SAMPLER",
-          "name": "SAMPLER",
-          "type": "SAMPLER",
-          "links": [
-            35,
-            46
-          ]
-        }
-      ],
-      "title": "Shared sampler",
-      "properties": {
-        "Node name for S&R": "KSamplerSelect"
-      },
-      "widgets_values": [
-        "euler"
-      ]
-    },
-    {
-      "id": 19,
-      "type": "Flux2Scheduler",
-      "pos": [
-        1300.384575211345,
-        -148.22478736179386
-      ],
-      "size": [
-        300,
-        106
-      ],
-      "flags": {},
-      "order": 17,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "steps",
-          "name": "steps",
-          "type": "INT",
-          "widget": {
-            "name": "steps"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "width",
-          "name": "width",
-          "type": "INT",
-          "widget": {
-            "name": "width"
-          },
-          "link": 55
-        },
-        {
-          "localized_name": "height",
-          "name": "height",
-          "type": "INT",
-          "widget": {
-            "name": "height"
-          },
-          "link": 56
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "SIGMAS",
-          "name": "SIGMAS",
-          "type": "SIGMAS",
-          "links": [
+            0,
+            "IMAGE"
+        ],
+        [
+            3,
+            2,
+            0,
             32,
-            43
-          ]
-        }
-      ],
-      "title": "Shared FLUX2 scheduler",
-      "properties": {
-        "Node name for S&R": "Flux2Scheduler"
-      },
-      "widgets_values": [
-        12,
-        1024,
-        1024
-      ]
-    },
-    {
-      "id": 40,
-      "type": "ReferenceLatent",
-      "pos": [
-        1841.7843990919537,
-        67.03407158148883
-      ],
-      "size": [
-        300,
-        70
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "conditioning",
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 15
-        },
-        {
-          "localized_name": "latent",
-          "name": "latent",
-          "shape": 7,
-          "type": "LATENT",
-          "link": 24
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            40
-          ]
-        }
-      ],
-      "title": "B negative + original reference",
-      "properties": {
-        "Node name for S&R": "ReferenceLatent"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 41,
-      "type": "SetLatentNoiseMask",
-      "pos": [
-        2213.58115030692,
-        -74.48372622673678
-      ],
-      "size": [
-        300,
-        90
-      ],
-      "flags": {},
-      "order": 16,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "samples",
-          "name": "samples",
-          "type": "LATENT",
-          "link": 25
-        },
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 8
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "LATENT",
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            41
-          ]
-        }
-      ],
-      "title": "B set latent noise mask",
-      "properties": {
-        "Node name for S&R": "SetLatentNoiseMask"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 42,
-      "type": "CFGGuider",
-      "pos": [
-        2585.802526042287,
-        -81.60896688538048
-      ],
-      "size": [
-        260,
-        126
-      ],
-      "flags": {},
-      "order": 23,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 21
-        },
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 39
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 40
-        },
-        {
-          "localized_name": "cfg",
-          "name": "cfg",
-          "type": "FLOAT",
-          "widget": {
-            "name": "cfg"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "GUIDER",
-          "name": "GUIDER",
-          "type": "GUIDER",
-          "links": [
-            42
-          ]
-        }
-      ],
-      "title": "B low CFG",
-      "properties": {
-        "Node name for S&R": "CFGGuider"
-      },
-      "widgets_values": [
-        1.25
-      ]
-    },
-    {
-      "id": 43,
-      "type": "SplitSigmasDenoise",
-      "pos": [
-        2586.3333066927785,
-        110.63437345267721
-      ],
-      "size": [
-        300,
-        82
-      ],
-      "flags": {},
-      "order": 21,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "sigmas",
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 43
-        },
-        {
-          "localized_name": "denoise",
-          "name": "denoise",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "high_sigmas",
-          "name": "high_sigmas",
-          "type": "SIGMAS",
-          "links": [
-            44
-          ]
-        },
-        {
-          "localized_name": "low_sigmas",
-          "name": "low_sigmas",
-          "type": "SIGMAS",
-          "links": null
-        }
-      ],
-      "title": "B denoise: v4.5/v5 reference mask",
-      "properties": {
-        "Node name for S&R": "SplitSigmasDenoise"
-      },
-      "widgets_values": [
-        1
-      ]
-    },
-    {
-      "id": 44,
-      "type": "SamplerCustomAdvanced",
-      "pos": [
-        2936.828701966574,
-        -70.51376459513101
-      ],
-      "size": [
-        330,
-        130
-      ],
-      "flags": {},
-      "order": 25,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "noise",
-          "name": "noise",
-          "type": "NOISE",
-          "link": 45
-        },
-        {
-          "localized_name": "guider",
-          "name": "guider",
-          "type": "GUIDER",
-          "link": 42
-        },
-        {
-          "localized_name": "sampler",
-          "name": "sampler",
-          "type": "SAMPLER",
-          "link": 46
-        },
-        {
-          "localized_name": "sigmas",
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 44
-        },
-        {
-          "localized_name": "latent_image",
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 41
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "output",
-          "name": "output",
-          "type": "LATENT",
-          "links": [
-            47
-          ]
-        },
-        {
-          "localized_name": "denoised_output",
-          "name": "denoised_output",
-          "type": "LATENT",
-          "links": null
-        }
-      ],
-      "title": "B sampler",
-      "properties": {
-        "Node name for S&R": "SamplerCustomAdvanced"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 35,
-      "type": "SamplerCustomAdvanced",
-      "pos": [
-        2916.055463822377,
-        -545.4117555241182
-      ],
-      "size": [
-        330,
-        130
-      ],
-      "flags": {},
-      "order": 28,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "noise",
-          "name": "noise",
-          "type": "NOISE",
-          "link": 34
-        },
-        {
-          "localized_name": "guider",
-          "name": "guider",
-          "type": "GUIDER",
-          "link": 31
-        },
-        {
-          "localized_name": "sampler",
-          "name": "sampler",
-          "type": "SAMPLER",
-          "link": 35
-        },
-        {
-          "localized_name": "sigmas",
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 33
-        },
-        {
-          "localized_name": "latent_image",
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 30
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "output",
-          "name": "output",
-          "type": "LATENT",
-          "links": [
-            36
-          ]
-        },
-        {
-          "localized_name": "denoised_output",
-          "name": "denoised_output",
-          "type": "LATENT",
-          "links": null
-        }
-      ],
-      "title": "A sampler",
-      "properties": {
-        "Node name for S&R": "SamplerCustomAdvanced"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 36,
-      "type": "VAEDecode",
-      "pos": [
-        3366.720153636166,
-        -513.6680395922982
-      ],
-      "size": [
-        160,
-        70
-      ],
-      "flags": {},
-      "order": 31,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "samples",
-          "name": "samples",
-          "type": "LATENT",
-          "link": 36
-        },
-        {
-          "localized_name": "vae",
-          "name": "vae",
-          "type": "VAE",
-          "link": 18
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
+            3,
+            "IMAGE"
+        ],
+        [
+            4,
+            2,
+            0,
+            48,
+            0,
+            "IMAGE"
+        ],
+        [
+            5,
+            2,
+            0,
+            52,
+            0,
+            "IMAGE"
+        ],
+        [
+            9,
+            6,
+            0,
+            8,
+            0,
+            "CLIP"
+        ],
+        [
+            10,
+            6,
+            0,
+            9,
+            0,
+            "CLIP"
+        ],
+        [
+            11,
+            8,
+            0,
+            10,
+            0,
+            "CONDITIONING"
+        ],
+        [
+            12,
+            10,
+            0,
+            30,
+            0,
+            "CONDITIONING"
+        ],
+        [
+            13,
+            10,
+            0,
+            39,
+            0,
+            "CONDITIONING"
+        ],
+        [
+            14,
+            9,
+            0,
+            32,
+            1,
+            "CONDITIONING"
+        ],
+        [
+            15,
+            9,
+            0,
+            40,
+            0,
+            "CONDITIONING"
+        ],
+        [
+            16,
+            7,
+            0,
+            11,
+            1,
+            "VAE"
+        ],
+        [
+            17,
+            7,
+            0,
+            32,
+            2,
+            "VAE"
+        ],
+        [
+            18,
+            7,
+            0,
+            36,
+            1,
+            "VAE"
+        ],
+        [
+            19,
+            7,
+            0,
+            45,
+            1,
+            "VAE"
+        ],
+        [
+            20,
+            5,
+            0,
+            33,
+            0,
+            "MODEL"
+        ],
+        [
+            21,
+            5,
+            0,
+            42,
+            0,
+            "MODEL"
+        ],
+        [
+            22,
+            11,
+            0,
+            30,
+            1,
+            "LATENT"
+        ],
+        [
+            23,
+            11,
+            0,
+            39,
+            1,
+            "LATENT"
+        ],
+        [
+            24,
+            11,
+            0,
+            40,
+            1,
+            "LATENT"
+        ],
+        [
+            25,
+            11,
+            0,
+            41,
+            0,
+            "LATENT"
+        ],
+        [
+            26,
+            30,
+            0,
+            31,
+            0,
+            "CONDITIONING"
+        ],
+        [
+            27,
+            31,
+            0,
+            32,
+            0,
+            "CONDITIONING"
+        ],
+        [
+            28,
+            32,
+            0,
+            33,
+            1,
+            "CONDITIONING"
+        ],
+        [
+            29,
+            32,
+            1,
+            33,
+            2,
+            "CONDITIONING"
+        ],
+        [
+            30,
+            32,
+            2,
+            35,
+            4,
+            "LATENT"
+        ],
+        [
+            31,
+            33,
+            0,
+            35,
+            1,
+            "GUIDER"
+        ],
+        [
+            32,
+            19,
+            0,
+            34,
+            0,
+            "SIGMAS"
+        ],
+        [
+            33,
+            34,
+            1,
+            35,
+            3,
+            "SIGMAS"
+        ],
+        [
+            34,
+            16,
+            0,
+            35,
+            0,
+            "NOISE"
+        ],
+        [
+            35,
+            17,
+            0,
+            35,
+            2,
+            "SAMPLER"
+        ],
+        [
+            36,
+            35,
+            0,
+            36,
+            0,
+            "LATENT"
+        ],
+        [
             37,
+            36,
+            0,
+            37,
+            0,
+            "IMAGE"
+        ],
+        [
             38,
-            50
-          ]
-        }
-      ],
-      "title": "A decode",
-      "properties": {
-        "Node name for S&R": "VAEDecode"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 37,
-      "type": "PreviewImage",
-      "pos": [
-        3597.569296170475,
-        -512.0747721938568
-      ],
-      "size": [
-        535.6049511245192,
-        440.09116907715463
-      ],
-      "flags": {},
-      "order": 32,
-      "mode": 0,
-      "inputs": [
+            36,
+            0,
+            38,
+            0,
+            "IMAGE"
+        ],
+        [
+            39,
+            39,
+            0,
+            42,
+            1,
+            "CONDITIONING"
+        ],
+        [
+            40,
+            40,
+            0,
+            42,
+            2,
+            "CONDITIONING"
+        ],
+        [
+            41,
+            41,
+            0,
+            44,
+            4,
+            "LATENT"
+        ],
+        [
+            42,
+            42,
+            0,
+            44,
+            1,
+            "GUIDER"
+        ],
+        [
+            43,
+            19,
+            0,
+            43,
+            0,
+            "SIGMAS"
+        ],
+        [
+            44,
+            43,
+            1,
+            44,
+            3,
+            "SIGMAS"
+        ],
+        [
+            45,
+            16,
+            0,
+            44,
+            0,
+            "NOISE"
+        ],
+        [
+            46,
+            17,
+            0,
+            44,
+            2,
+            "SAMPLER"
+        ],
+        [
+            47,
+            44,
+            0,
+            45,
+            0,
+            "LATENT"
+        ],
+        [
+            48,
+            45,
+            0,
+            46,
+            0,
+            "IMAGE"
+        ],
+        [
+            49,
+            45,
+            0,
+            47,
+            0,
+            "IMAGE"
+        ],
+        [
+            50,
+            36,
+            0,
+            48,
+            1,
+            "IMAGE"
+        ],
+        [
+            51,
+            48,
+            0,
+            49,
+            0,
+            "IMAGE"
+        ],
+        [
+            52,
+            45,
+            0,
+            49,
+            1,
+            "IMAGE"
+        ],
+        [
+            53,
+            49,
+            0,
+            50,
+            0,
+            "IMAGE"
+        ],
+        [
+            54,
+            49,
+            0,
+            51,
+            0,
+            "IMAGE"
+        ],
+        [
+            55,
+            18,
+            0,
+            19,
+            1,
+            "INT"
+        ],
+        [
+            56,
+            18,
+            1,
+            19,
+            2,
+            "INT"
+        ],
+        [
+            57,
+            2,
+            0,
+            54,
+            0,
+            "IMAGE"
+        ],
+        [
+            58,
+            54,
+            2,
+            55,
+            0,
+            "STRING"
+        ],
+        [
+            59,
+            55,
+            0,
+            56,
+            0,
+            "INT"
+        ],
+        [
+            60,
+            55,
+            1,
+            56,
+            1,
+            "INT"
+        ],
+        [
+            61,
+            55,
+            4,
+            56,
+            2,
+            "INT"
+        ],
+        [
+            62,
+            55,
+            5,
+            56,
+            3,
+            "INT"
+        ],
+        [
+            63,
+            18,
+            0,
+            56,
+            4,
+            "INT"
+        ],
+        [
+            64,
+            18,
+            1,
+            56,
+            5,
+            "INT"
+        ],
+        [
+            65,
+            56,
+            0,
+            4,
+            0,
+            "MASK"
+        ],
+        [
+            66,
+            56,
+            0,
+            32,
+            4,
+            "MASK"
+        ],
+        [
+            67,
+            56,
+            0,
+            41,
+            1,
+            "MASK"
+        ],
+        [
+            68,
+            54,
+            0,
+            57,
+            0,
+            "IMAGE"
+        ]
+    ],
+    "groups": [
         {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 37
-        }
-      ],
-      "outputs": [],
-      "title": "A preview: InpaintModelConditioning",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 38,
-      "type": "SaveImage",
-      "pos": [
-        4164.13631658053,
-        -511.9240460263903
-      ],
-      "size": [
-        560.2080761468605,
-        436.28140288866507
-      ],
-      "flags": {},
-      "order": 33,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 38
+            "id": 1,
+            "title": "1. Shared original image + DragCrop rectangle mask",
+            "bounding": [
+                -223.3714362791078,
+                44.3570652663994,
+                880,
+                1410
+            ],
+            "color": "#3f789e",
+            "flags": {}
         },
         {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
-          "widget": {
-            "name": "filename_prefix"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "title": "A save result",
-      "properties": {
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "vn/chest_mask_ab/A_inpaint_model_conditioning"
-      ]
-    },
-    {
-      "id": 46,
-      "type": "PreviewImage",
-      "pos": [
-        3599.8744007097553,
-        66.31028041998812
-      ],
-      "size": [
-        527.107405662804,
-        357.6432413671113
-      ],
-      "flags": {},
-      "order": 29,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 48
-        }
-      ],
-      "outputs": [],
-      "title": "B preview: SetLatentNoiseMask + ReferenceLatent",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 47,
-      "type": "SaveImage",
-      "pos": [
-        4175.969692054236,
-        69.64063543660353
-      ],
-      "size": [
-        563.3118791887955,
-        365.9605492789525
-      ],
-      "flags": {},
-      "order": 30,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 49
+            "id": 2,
+            "title": "2. Shared FLUX2 model stack",
+            "bounding": [
+                116.69869364231243,
+                -591.4084375182327,
+                464.444673966663,
+                563.4501100292179
+            ],
+            "color": "#b58b2a",
+            "flags": {}
         },
         {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
-          "widget": {
-            "name": "filename_prefix"
-          },
-          "link": null
+            "id": 3,
+            "title": "3. Shared prompt + original latent reference + infra",
+            "bounding": [
+                717.2438921157873,
+                -515.9892417208831,
+                893.1406830955577,
+                694.6539601754655
+            ],
+            "color": "#8A8",
+            "flags": {}
+        },
+        {
+            "id": 4,
+            "title": "4A. Approach A: InpaintModelConditioning",
+            "bounding": [
+                1822.8217886793343,
+                -634.1522212030065,
+                1433.2336751430428,
+                422.94019042595926
+            ],
+            "color": "#A88",
+            "flags": {}
+        },
+        {
+            "id": 5,
+            "title": "4B. Approach B: v4.5/v5 masked reference edit",
+            "bounding": [
+                1830.3234885396428,
+                -151.60896688538045,
+                1446.5052134269295,
+                354.2433403380577
+            ],
+            "color": "#6f62d2",
+            "flags": {}
+        },
+        {
+            "id": 6,
+            "title": "5. Result previews and original / A / B comparison",
+            "bounding": [
+                3325.0328692176768,
+                -628.8720751865554,
+                1660,
+                1580
+            ],
+            "color": "#3f789e",
+            "flags": {}
         }
-      ],
-      "outputs": [],
-      "title": "B save result",
-      "properties": {
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "vn/chest_mask_ab/B_v45_v5_masked_reference_edit"
-      ]
-    }
-  ],
-  "links": [
-    [
-      1,
-      2,
-      0,
-      11,
-      0,
-      "IMAGE"
     ],
-    [
-      2,
-      2,
-      0,
-      18,
-      0,
-      "IMAGE"
-    ],
-    [
-      3,
-      2,
-      0,
-      32,
-      3,
-      "IMAGE"
-    ],
-    [
-      4,
-      2,
-      0,
-      48,
-      0,
-      "IMAGE"
-    ],
-    [
-      5,
-      2,
-      0,
-      52,
-      0,
-      "IMAGE"
-    ],
-    [
-      6,
-      2,
-      1,
-      4,
-      0,
-      "MASK"
-    ],
-    [
-      7,
-      2,
-      1,
-      32,
-      4,
-      "MASK"
-    ],
-    [
-      8,
-      2,
-      1,
-      41,
-      1,
-      "MASK"
-    ],
-    [
-      9,
-      6,
-      0,
-      8,
-      0,
-      "CLIP"
-    ],
-    [
-      10,
-      6,
-      0,
-      9,
-      0,
-      "CLIP"
-    ],
-    [
-      11,
-      8,
-      0,
-      10,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      12,
-      10,
-      0,
-      30,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      13,
-      10,
-      0,
-      39,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      14,
-      9,
-      0,
-      32,
-      1,
-      "CONDITIONING"
-    ],
-    [
-      15,
-      9,
-      0,
-      40,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      16,
-      7,
-      0,
-      11,
-      1,
-      "VAE"
-    ],
-    [
-      17,
-      7,
-      0,
-      32,
-      2,
-      "VAE"
-    ],
-    [
-      18,
-      7,
-      0,
-      36,
-      1,
-      "VAE"
-    ],
-    [
-      19,
-      7,
-      0,
-      45,
-      1,
-      "VAE"
-    ],
-    [
-      20,
-      5,
-      0,
-      33,
-      0,
-      "MODEL"
-    ],
-    [
-      21,
-      5,
-      0,
-      42,
-      0,
-      "MODEL"
-    ],
-    [
-      22,
-      11,
-      0,
-      30,
-      1,
-      "LATENT"
-    ],
-    [
-      23,
-      11,
-      0,
-      39,
-      1,
-      "LATENT"
-    ],
-    [
-      24,
-      11,
-      0,
-      40,
-      1,
-      "LATENT"
-    ],
-    [
-      25,
-      11,
-      0,
-      41,
-      0,
-      "LATENT"
-    ],
-    [
-      26,
-      30,
-      0,
-      31,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      27,
-      31,
-      0,
-      32,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      28,
-      32,
-      0,
-      33,
-      1,
-      "CONDITIONING"
-    ],
-    [
-      29,
-      32,
-      1,
-      33,
-      2,
-      "CONDITIONING"
-    ],
-    [
-      30,
-      32,
-      2,
-      35,
-      4,
-      "LATENT"
-    ],
-    [
-      31,
-      33,
-      0,
-      35,
-      1,
-      "GUIDER"
-    ],
-    [
-      32,
-      19,
-      0,
-      34,
-      0,
-      "SIGMAS"
-    ],
-    [
-      33,
-      34,
-      0,
-      35,
-      3,
-      "SIGMAS"
-    ],
-    [
-      34,
-      16,
-      0,
-      35,
-      0,
-      "NOISE"
-    ],
-    [
-      35,
-      17,
-      0,
-      35,
-      2,
-      "SAMPLER"
-    ],
-    [
-      36,
-      35,
-      0,
-      36,
-      0,
-      "LATENT"
-    ],
-    [
-      37,
-      36,
-      0,
-      37,
-      0,
-      "IMAGE"
-    ],
-    [
-      38,
-      36,
-      0,
-      38,
-      0,
-      "IMAGE"
-    ],
-    [
-      39,
-      39,
-      0,
-      42,
-      1,
-      "CONDITIONING"
-    ],
-    [
-      40,
-      40,
-      0,
-      42,
-      2,
-      "CONDITIONING"
-    ],
-    [
-      41,
-      41,
-      0,
-      44,
-      4,
-      "LATENT"
-    ],
-    [
-      42,
-      42,
-      0,
-      44,
-      1,
-      "GUIDER"
-    ],
-    [
-      43,
-      19,
-      0,
-      43,
-      0,
-      "SIGMAS"
-    ],
-    [
-      44,
-      43,
-      0,
-      44,
-      3,
-      "SIGMAS"
-    ],
-    [
-      45,
-      16,
-      0,
-      44,
-      0,
-      "NOISE"
-    ],
-    [
-      46,
-      17,
-      0,
-      44,
-      2,
-      "SAMPLER"
-    ],
-    [
-      47,
-      44,
-      0,
-      45,
-      0,
-      "LATENT"
-    ],
-    [
-      48,
-      45,
-      0,
-      46,
-      0,
-      "IMAGE"
-    ],
-    [
-      49,
-      45,
-      0,
-      47,
-      0,
-      "IMAGE"
-    ],
-    [
-      50,
-      36,
-      0,
-      48,
-      1,
-      "IMAGE"
-    ],
-    [
-      51,
-      48,
-      0,
-      49,
-      0,
-      "IMAGE"
-    ],
-    [
-      52,
-      45,
-      0,
-      49,
-      1,
-      "IMAGE"
-    ],
-    [
-      53,
-      49,
-      0,
-      50,
-      0,
-      "IMAGE"
-    ],
-    [
-      54,
-      49,
-      0,
-      51,
-      0,
-      "IMAGE"
-    ],
-    [
-      55,
-      18,
-      0,
-      19,
-      1,
-      "INT"
-    ],
-    [
-      56,
-      18,
-      1,
-      19,
-      2,
-      "INT"
-    ]
-  ],
-  "groups": [
-    {
-      "id": 1,
-      "title": "1. Shared original image + built-in Mask Editor",
-      "bounding": [
-        -223.3714362791078,
-        44.3570652663994,
-        860,
-        1220
-      ],
-      "color": "#3f789e",
-      "flags": {}
+    "config": {},
+    "extra": {
+        "ds": {
+            "scale": 0.9869749943253651,
+            "offset": [
+                -1531.551923223628,
+                878.7697438683659
+            ]
+        }
     },
-    {
-      "id": 2,
-      "title": "2. Shared FLUX2 model stack",
-      "bounding": [
-        116.69869364231243,
-        -591.4084375182327,
-        464.444673966663,
-        563.4501100292179
-      ],
-      "color": "#b58b2a",
-      "flags": {}
-    },
-    {
-      "id": 3,
-      "title": "3. Shared prompt + original latent reference + infra",
-      "bounding": [
-        717.2438921157873,
-        -515.9892417208831,
-        893.1406830955577,
-        694.6539601754655
-      ],
-      "color": "#8A8",
-      "flags": {}
-    },
-    {
-      "id": 4,
-      "title": "4A. Approach A: InpaintModelConditioning",
-      "bounding": [
-        1822.8217886793343,
-        -634.1522212030065,
-        1433.2336751430428,
-        422.94019042595926
-      ],
-      "color": "#A88",
-      "flags": {}
-    },
-    {
-      "id": 5,
-      "title": "4B. Approach B: v4.5/v5 masked reference edit",
-      "bounding": [
-        1830.3234885396428,
-        -151.60896688538045,
-        1446.5052134269295,
-        354.2433403380577
-      ],
-      "color": "#6f62d2",
-      "flags": {}
-    },
-    {
-      "id": 6,
-      "title": "5. Result previews and original / A / B comparison",
-      "bounding": [
-        3325.0328692176768,
-        -628.8720751865554,
-        1660,
-        1580
-      ],
-      "color": "#3f789e",
-      "flags": {}
-    }
-  ],
-  "config": {},
-  "extra": {
-    "ds": {
-      "scale": 0.7727415263129661,
-      "offset": [
-        -3397.3340661515645,
-        335.7704899501031
-      ]
-    }
-  },
-  "version": 0.4
+    "version": 0.4
 }

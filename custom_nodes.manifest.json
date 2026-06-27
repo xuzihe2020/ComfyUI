@@ -30,6 +30,12 @@
       "folder": "comfyui-fast-mosaic-detector",
       "repo": "https://github.com/yano/comfyui-fast-mosaic-detector",
       "reason": "Detects mosaic/pixel-block regions and outputs a binary mask for auto mosaic inpaint workflows."
+    },
+    {
+      "name": "ComfyUI-Olm-DragCrop",
+      "folder": "ComfyUI-Olm-DragCrop",
+      "repo": "https://github.com/o-l-l-i/ComfyUI-Olm-DragCrop",
+      "reason": "Adds an interactive drag-crop image node for explicit manual box selection in workflows."
     }
   ]
 }
