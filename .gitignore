@@ -42,6 +42,7 @@ __pycache__/
 *.db-journal
 *.db-shm
 *.db-wal
+user/comfyui.db.lock
 *.sqlite-journal
 *.sqlite-shm
 *.sqlite-wal
