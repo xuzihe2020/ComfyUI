@@ -5,32 +5,6 @@
   "last_link_id": 48,
   "nodes": [
     {
-      "id": 1,
-      "type": "Note",
-      "pos": [
-        -900,
-        -720
-      ],
-      "size": [
-        760,
-        260
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "title": "Workflow notes",
-      "properties": {
-        "Node name for S&R": "Note"
-      },
-      "widgets_values": [
-        "FLUX2 native face reference inpaint.\n\nDetection only decides WHERE:\nLoad original image -> YOLO face bbox -> SAM refined face mask -> dilate/blur so cheeks, jaw, chin, and face width can change.\n\nFLUX2 decides WHAT:\nOriginal image latent + face mask -> SetLatentNoiseMask -> SamplerCustomAdvanced.\nPrompt + original image reference + up to 3 face reference images -> ReferenceLatent chain -> FluxKontextMultiReferenceLatentMethod -> FluxGuidance.\n\nUse face/head-focused references. Keep denoise low/medium for subtle detail correction; raise it if face width/fullness must move more. If using fewer than 3 face refs, bypass extra ReferenceLatent nodes or point them at the strongest reference image."
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
       "id": 2,
       "type": "LoadImage",
       "pos": [
@@ -177,57 +151,6 @@
       "widgets_values": []
     },
     {
-      "id": 5,
-      "type": "UltralyticsDetectorProvider",
-      "pos": [
-        -918.0164683948865,
-        844.2975408380681
-      ],
-      "size": [
-        320,
-        78
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model_name",
-          "name": "model_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "model_name"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "BBOX_DETECTOR",
-          "name": "BBOX_DETECTOR",
-          "type": "BBOX_DETECTOR",
-          "links": [
-            6
-          ]
-        },
-        {
-          "localized_name": "SEGM_DETECTOR",
-          "name": "SEGM_DETECTOR",
-          "type": "SEGM_DETECTOR",
-          "links": null
-        }
-      ],
-      "title": "YOLO face detector",
-      "properties": {
-        "Node name for S&R": "UltralyticsDetectorProvider"
-      },
-      "widgets_values": [
-        "bbox/face_yolov8m.pt"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
       "id": 6,
       "type": "BboxDetectorForEach",
       "pos": [
@@ -312,61 +235,6 @@
         1.8,
         10,
         "all"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 7,
-      "type": "SAMLoader",
-      "pos": [
-        -918.0164683948865,
-        1044.2975408380673
-      ],
-      "size": [
-        320,
-        82
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model_name",
-          "name": "model_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "model_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "device_mode",
-          "name": "device_mode",
-          "type": "COMBO",
-          "widget": {
-            "name": "device_mode"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "SAM_MODEL",
-          "name": "SAM_MODEL",
-          "type": "SAM_MODEL",
-          "links": [
-            8
-          ]
-        }
-      ],
-      "title": "SAM model",
-      "properties": {
-        "Node name for S&R": "SAMLoader"
-      },
-      "widgets_values": [
-        "sam_vit_b_01ec64.pth",
-        "AUTO"
       ],
       "color": "#223",
       "bgcolor": "#335"
@@ -1118,8 +986,8 @@
       "id": 26,
       "type": "ReferenceLatent",
       "pos": [
-        1420,
-        -570
+        2285.7245196291806,
+        -709.4842389743736
       ],
       "size": [
         300,
@@ -1163,8 +1031,8 @@
       "id": 27,
       "type": "ReferenceLatent",
       "pos": [
-        1420,
-        -450
+        2285.7245196291806,
+        -589.4842389743737
       ],
       "size": [
         300,
@@ -1208,8 +1076,8 @@
       "id": 28,
       "type": "ReferenceLatent",
       "pos": [
-        1420,
-        -330
+        2285.7245196291806,
+        -469.4842389743732
       ],
       "size": [
         300,
@@ -1253,8 +1121,8 @@
       "id": 29,
       "type": "FluxKontextMultiReferenceLatentMethod",
       "pos": [
-        1780,
-        -600
+        2645.7245196291806,
+        -739.4842389743736
       ],
       "size": [
         320,
@@ -1304,8 +1172,8 @@
       "id": 30,
       "type": "FluxGuidance",
       "pos": [
-        1780,
-        -490
+        2645.7245196291806,
+        -629.4842389743736
       ],
       "size": [
         300,
@@ -1353,8 +1221,8 @@
       "id": 31,
       "type": "CFGGuider",
       "pos": [
-        2150,
-        -595
+        3015.7245196291806,
+        -734.4842389743736
       ],
       "size": [
         280,
@@ -1414,15 +1282,15 @@
       "id": 32,
       "type": "RandomNoise",
       "pos": [
-        1780,
-        -220
+        2645.7245196291806,
+        -359.48423897437306
       ],
       "size": [
         300,
         82
       ],
       "flags": {},
-      "order": 10,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
@@ -1458,15 +1326,15 @@
       "id": 33,
       "type": "KSamplerSelect",
       "pos": [
-        1780,
-        -90
+        2645.7245196291806,
+        -229.48423897437294
       ],
       "size": [
         300,
         58
       ],
       "flags": {},
-      "order": 11,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -1501,8 +1369,8 @@
       "id": 34,
       "type": "Flux2Scheduler",
       "pos": [
-        1780,
-        40
+        2645.7245196291806,
+        -99.48423897437289
       ],
       "size": [
         300,
@@ -1564,8 +1432,8 @@
       "id": 35,
       "type": "SplitSigmasDenoise",
       "pos": [
-        2150,
-        35
+        2921.1979120695273,
+        500.7159239592821
       ],
       "size": [
         300,
@@ -1619,8 +1487,8 @@
       "id": 36,
       "type": "SetLatentNoiseMask",
       "pos": [
-        1420,
-        35
+        2285.7245196291806,
+        -104.48423897437289
       ],
       "size": [
         300,
@@ -1663,8 +1531,8 @@
       "id": 37,
       "type": "SamplerCustomAdvanced",
       "pos": [
-        2500,
-        -260
+        3271.1979120695273,
+        205.71592395928178
       ],
       "size": [
         340,
@@ -1731,8 +1599,8 @@
       "id": 38,
       "type": "VAEDecode",
       "pos": [
-        2910,
-        -250
+        2815.4733924403467,
+        355.20016293365484
       ],
       "size": [
         180,
@@ -1776,8 +1644,8 @@
       "id": 39,
       "type": "PreviewImage",
       "pos": [
-        3160,
-        -390
+        3065.4733924403467,
+        215.20016293365478
       ],
       "size": [
         560,
@@ -1805,8 +1673,8 @@
       "id": 40,
       "type": "SaveImage",
       "pos": [
-        3160,
-        90
+        3065.4733924403467,
+        695.2001629336553
       ],
       "size": [
         360,
@@ -1853,7 +1721,7 @@
         314
       ],
       "flags": {},
-      "order": 8,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -2020,7 +1888,7 @@
         314.00000000000006
       ],
       "flags": {},
-      "order": 9,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -2068,6 +1936,138 @@
       ],
       "color": "#232",
       "bgcolor": "#353"
+    },
+    {
+      "id": 5,
+      "type": "UltralyticsDetectorProvider",
+      "pos": [
+        -918.6186611757861,
+        870.7941040587455
+      ],
+      "size": [
+        320,
+        78
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model_name",
+          "name": "model_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "model_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "BBOX_DETECTOR",
+          "name": "BBOX_DETECTOR",
+          "type": "BBOX_DETECTOR",
+          "links": [
+            6
+          ]
+        },
+        {
+          "localized_name": "SEGM_DETECTOR",
+          "name": "SEGM_DETECTOR",
+          "type": "SEGM_DETECTOR",
+          "links": null
+        }
+      ],
+      "title": "YOLO face detector",
+      "properties": {
+        "Node name for S&R": "UltralyticsDetectorProvider"
+      },
+      "widgets_values": [
+        null
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 7,
+      "type": "SAMLoader",
+      "pos": [
+        -916.8120828330873,
+        1032.8558173551544
+      ],
+      "size": [
+        320,
+        82
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model_name",
+          "name": "model_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "model_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "device_mode",
+          "name": "device_mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "device_mode"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "SAM_MODEL",
+          "name": "SAM_MODEL",
+          "type": "SAM_MODEL",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "title": "SAM model",
+      "properties": {
+        "Node name for S&R": "SAMLoader"
+      },
+      "widgets_values": [
+        "sam_vit_b_01ec64.pth",
+        "AUTO"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 1,
+      "type": "Note",
+      "pos": [
+        -923.9511848473838,
+        -1180.279991708459
+      ],
+      "size": [
+        1045.3319988900612,
+        250.62777595504463
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Workflow notes",
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "FLUX2 native face reference inpaint.\n\nDetection only decides WHERE:\nLoad original image -> YOLO face bbox -> SAM refined face mask -> dilate/blur so cheeks, jaw, chin, and face width can change.\n\nFLUX2 decides WHAT:\nOriginal image latent + face mask -> SetLatentNoiseMask -> SamplerCustomAdvanced.\nPrompt + original image reference + up to 3 face reference images -> ReferenceLatent chain -> FluxKontextMultiReferenceLatentMethod -> FluxGuidance.\n\nUse face/head-focused references. Keep denoise low/medium for subtle detail correction; raise it if face width/fullness must move more. If using fewer than 3 face refs, bypass extra ReferenceLatent nodes or point them at the strongest reference image."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
     }
   ],
   "links": [
@@ -2497,8 +2497,8 @@
       "id": 4,
       "title": "FLUX2 native masked reference edit",
       "bounding": [
-        1360,
-        -650,
+        2225.7245196291806,
+        -789.4842389743736,
         1540,
         820
       ],
@@ -2509,8 +2509,8 @@
       "id": 5,
       "title": "Preview and save",
       "bounding": [
-        2860,
-        -430,
+        2765.4733924403467,
+        175.2001629336549,
         900,
         840
       ],
@@ -2521,10 +2521,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.55,
+      "scale": 0.872986357477514,
       "offset": [
-        1666.363525390625,
-        694.7108043323865
+        1557.1013930412446,
+        1317.9006542083682
       ]
     },
     "frontendVersion": "1.42.15",

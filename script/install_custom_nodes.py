@@ -17,7 +17,14 @@ DEFAULT_EXTRA_MODEL_PATHS = REPO_ROOT / "extra_model_paths.yaml"
 CUSTOM_NODES_DIR = REPO_ROOT / "custom_nodes"
 ALWAYS_FIX_DEPENDENCIES = {
     "ComfyUI-EasyOCR",
+    "ComfyUI-Watermark-Detection",
     "ComfyUI-qwenmultiangle",
+}
+EXTRA_PIP_DEPENDENCIES = {
+    "ComfyUI-Watermark-Detection": [
+        "ultralytics",
+        "huggingface_hub",
+    ],
 }
 
 
@@ -106,6 +113,7 @@ def manager_install_node(
     repo = node["repo"]
     name = node["name"]
     always_fix_deps = name in ALWAYS_FIX_DEPENDENCIES or node["folder"] in ALWAYS_FIX_DEPENDENCIES
+    extra_dependencies = EXTRA_PIP_DEPENDENCIES.get(name, []) + EXTRA_PIP_DEPENDENCIES.get(node["folder"], [])
 
     base_cmd = [python_bin, str(manager_cli)]
     if folder.exists():
@@ -113,6 +121,8 @@ def manager_install_node(
         requirements = folder / "requirements.txt"
         if requirements.exists() and (always_fix_deps or not no_deps):
             run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
+        if extra_dependencies and (always_fix_deps or not no_deps):
+            run([python_bin, "-m", "pip", "install", *extra_dependencies])
         if manager_fix_existing or always_fix_deps:
             run(base_cmd + ["fix", name, "--mode", "local"], env=manager_env())
         return
@@ -121,6 +131,8 @@ def manager_install_node(
     if no_deps and not always_fix_deps:
         cmd.append("--no-deps")
     run(cmd, env=manager_env())
+    if extra_dependencies and (always_fix_deps or not no_deps):
+        run([python_bin, "-m", "pip", "install", *extra_dependencies])
 
 
 def apply_post_install_fixes() -> None:

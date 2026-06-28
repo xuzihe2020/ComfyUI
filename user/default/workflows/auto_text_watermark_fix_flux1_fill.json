@@ -443,240 +443,6 @@
       ]
     },
     {
-      "id": 5,
-      "type": "Masks Combine Batch",
-      "pos": [
-        193.85105238939758,
-        298.4741433809155
-      ],
-      "size": [
-        421.606152324541,
-        67.81011008469636
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "masks",
-          "name": "masks",
-          "type": "MASK",
-          "link": 4
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            5
-          ]
-        }
-      ],
-      "title": "Union all OCR text boxes",
-      "properties": {
-        "Node name for S&R": "Masks Combine Batch",
-        "cnr_id": "was-node-suite-comfyui"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 6,
-      "type": "MaskFix+",
-      "pos": [
-        654.94645596619,
-        296.5036430851643
-      ],
-      "size": [
-        405.1096829669,
-        223.8687174415138
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 5
-        },
-        {
-          "localized_name": "erode_dilate",
-          "name": "erode_dilate",
-          "type": "INT",
-          "widget": {
-            "name": "erode_dilate"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "fill_holes",
-          "name": "fill_holes",
-          "type": "INT",
-          "widget": {
-            "name": "fill_holes"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "remove_isolated_pixels",
-          "name": "remove_isolated_pixels",
-          "type": "INT",
-          "widget": {
-            "name": "remove_isolated_pixels"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "smooth",
-          "name": "smooth",
-          "type": "INT",
-          "widget": {
-            "name": "smooth"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "blur",
-          "name": "blur",
-          "type": "INT",
-          "widget": {
-            "name": "blur"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            6,
-            7
-          ]
-        }
-      ],
-      "title": "Grow OCR mask margin",
-      "properties": {
-        "Node name for S&R": "MaskFix+"
-      },
-      "widgets_values": [
-        12,
-        8,
-        0,
-        3,
-        1
-      ]
-    },
-    {
-      "id": 8,
-      "type": "MaskBoundingBox+",
-      "pos": [
-        1158.5961521540764,
-        33.7290436162342
-      ],
-      "size": [
-        330,
-        190
-      ],
-      "flags": {},
-      "order": 13,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 7
-        },
-        {
-          "localized_name": "image_optional",
-          "name": "image_optional",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 8
-        },
-        {
-          "localized_name": "padding",
-          "name": "padding",
-          "type": "INT",
-          "widget": {
-            "name": "padding"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "blur",
-          "name": "blur",
-          "type": "INT",
-          "widget": {
-            "name": "blur"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            10,
-            11,
-            22
-          ]
-        },
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            9,
-            21
-          ]
-        },
-        {
-          "localized_name": "x",
-          "name": "x",
-          "type": "INT",
-          "links": [
-            31
-          ]
-        },
-        {
-          "localized_name": "y",
-          "name": "y",
-          "type": "INT",
-          "links": [
-            32
-          ]
-        },
-        {
-          "localized_name": "width",
-          "name": "width",
-          "type": "INT",
-          "links": null
-        },
-        {
-          "localized_name": "height",
-          "name": "height",
-          "type": "INT",
-          "links": null
-        }
-      ],
-      "title": "Padded crop around OCR mask",
-      "properties": {
-        "Node name for S&R": "MaskBoundingBox+"
-      },
-      "widgets_values": [
-        256,
-        0
-      ]
-    },
-    {
       "id": 9,
       "type": "PreviewImage",
       "pos": [
@@ -729,35 +495,6 @@
       ],
       "outputs": [],
       "title": "Crop generation mask preview",
-      "properties": {
-        "Node name for S&R": "MaskPreview"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 12,
-      "type": "MaskPreview",
-      "pos": [
-        1939.9832285004145,
-        99.78850532041118
-      ],
-      "size": [
-        371.386997935997,
-        310.2190759782079
-      ],
-      "flags": {},
-      "order": 18,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 12
-        }
-      ],
-      "outputs": [],
-      "title": "Soft paste-back mask preview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -1332,33 +1069,66 @@
       "widgets_values": []
     },
     {
-      "id": 4,
-      "type": "PreviewImage",
+      "id": 1,
+      "type": "LoadImage",
       "pos": [
-        191.51536529449214,
-        -242.40216053191608
+        -973.8695325837053,
+        -235.6211529270888
       ],
       "size": [
-        421.89806032509046,
-        482.04430428095657
+        614.3073161741934,
+        739.1105765194277
       ],
       "flags": {},
-      "order": 9,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 3
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
         }
       ],
-      "outputs": [],
-      "title": "OCR boxes preview",
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2,
+            8,
+            29,
+            36
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "title": "Original image",
       "properties": {
-        "Node name for S&R": "PreviewImage"
+        "Node name for S&R": "LoadImage"
       },
-      "widgets_values": []
+      "widgets_values": [
+        "watermark_test_image.jpeg",
+        "image"
+      ]
     },
     {
       "id": 3,
@@ -1465,66 +1235,296 @@
       ]
     },
     {
-      "id": 1,
-      "type": "LoadImage",
+      "id": 4,
+      "type": "PreviewImage",
       "pos": [
-        -973.8695325837053,
-        -235.6211529270888
+        191.51536529449214,
+        -242.40216053191608
       ],
       "size": [
-        614.3073161741934,
-        739.1105765194277
+        421.89806032509046,
+        482.04430428095657
       ],
       "flags": {},
-      "order": 3,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "image",
-          "name": "image",
-          "type": "COMBO",
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 3
+        }
+      ],
+      "outputs": [],
+      "title": "OCR boxes preview",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 5,
+      "type": "Masks Combine Batch",
+      "pos": [
+        193.85105238939758,
+        298.4741433809155
+      ],
+      "size": [
+        421.606152324541,
+        67.81011008469636
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "masks",
+          "name": "masks",
+          "type": "MASK",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "title": "Union all OCR text boxes",
+      "properties": {
+        "Node name for S&R": "Masks Combine Batch",
+        "cnr_id": "was-node-suite-comfyui"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 6,
+      "type": "MaskFix+",
+      "pos": [
+        654.94645596619,
+        296.5036430851643
+      ],
+      "size": [
+        405.1096829669,
+        223.8687174415138
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 5
+        },
+        {
+          "localized_name": "erode_dilate",
+          "name": "erode_dilate",
+          "type": "INT",
           "widget": {
-            "name": "image"
+            "name": "erode_dilate"
           },
           "link": null
         },
         {
-          "localized_name": "choose file to upload",
-          "name": "upload",
-          "type": "IMAGEUPLOAD",
+          "localized_name": "fill_holes",
+          "name": "fill_holes",
+          "type": "INT",
           "widget": {
-            "name": "upload"
+            "name": "fill_holes"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "remove_isolated_pixels",
+          "name": "remove_isolated_pixels",
+          "type": "INT",
+          "widget": {
+            "name": "remove_isolated_pixels"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "smooth",
+          "name": "smooth",
+          "type": "INT",
+          "widget": {
+            "name": "smooth"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "blur",
+          "name": "blur",
+          "type": "INT",
+          "widget": {
+            "name": "blur"
           },
           "link": null
         }
       ],
       "outputs": [
         {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
           "links": [
-            2,
-            8,
-            29,
-            36
+            6,
+            7
           ]
+        }
+      ],
+      "title": "Grow OCR mask margin",
+      "properties": {
+        "Node name for S&R": "MaskFix+"
+      },
+      "widgets_values": [
+        12,
+        8,
+        0,
+        3,
+        1
+      ]
+    },
+    {
+      "id": 8,
+      "type": "MaskBoundingBox+",
+      "pos": [
+        1158.5961521540764,
+        33.7290436162342
+      ],
+      "size": [
+        330,
+        190
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 7
         },
+        {
+          "localized_name": "image_optional",
+          "name": "image_optional",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 8
+        },
+        {
+          "localized_name": "padding",
+          "name": "padding",
+          "type": "INT",
+          "widget": {
+            "name": "padding"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "blur",
+          "name": "blur",
+          "type": "INT",
+          "widget": {
+            "name": "blur"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
         {
           "localized_name": "MASK",
           "name": "MASK",
           "type": "MASK",
+          "links": [
+            10,
+            11,
+            22
+          ]
+        },
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            9,
+            21
+          ]
+        },
+        {
+          "localized_name": "x",
+          "name": "x",
+          "type": "INT",
+          "links": [
+            31
+          ]
+        },
+        {
+          "localized_name": "y",
+          "name": "y",
+          "type": "INT",
+          "links": [
+            32
+          ]
+        },
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
           "links": null
         }
       ],
-      "title": "Original image",
+      "title": "Padded crop around OCR mask",
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "MaskBoundingBox+"
       },
       "widgets_values": [
-        "watermark_test_image.jpeg",
-        "image"
+        256,
+        0
       ]
+    },
+    {
+      "id": 12,
+      "type": "MaskPreview",
+      "pos": [
+        1939.9832285004145,
+        99.05022569940417
+      ],
+      "size": [
+        371.386997935997,
+        310.2190759782079
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 12
+        }
+      ],
+      "outputs": [],
+      "title": "Soft paste-back mask preview",
+      "properties": {
+        "Node name for S&R": "MaskPreview"
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -1898,10 +1898,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.2976181587789006,
+      "scale": 1.2314015265702594,
       "offset": [
-        1148.7482454869235,
-        2052.3120014192964
+        -762.8500628781728,
+        433.70728244290973
       ]
     }
   },

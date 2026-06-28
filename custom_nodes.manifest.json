@@ -20,6 +20,12 @@
       "reason": "Adds Qwen multi-angle camera prompt controls. Uses the fork and is always dependency-checked by the installer."
     },
     {
+      "name": "ComfyUI-Watermark-Detection",
+      "folder": "ComfyUI-Watermark-Detection",
+      "repo": "https://github.com/lrzjason/ComfyUI-Watermark-Detection",
+      "reason": "YOLO watermark detector that outputs a binary mask for watermark removal workflows."
+    },
+    {
       "name": "ComfyUI_essentials",
       "folder": "ComfyUI_essentials",
       "repo": "https://github.com/cubiq/ComfyUI_essentials",
