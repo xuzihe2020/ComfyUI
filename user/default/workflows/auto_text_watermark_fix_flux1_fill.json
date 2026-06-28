@@ -184,11 +184,11 @@
         "Node name for S&R": "MaskFix+"
       },
       "widgets_values": [
-        18,
         12,
+        8,
         0,
-        5,
-        0
+        3,
+        1
       ]
     },
     {
@@ -321,7 +321,7 @@
         "Node name for S&R": "MaskBoundingBox+"
       },
       "widgets_values": [
-        96,
+        256,
         0
       ]
     },
@@ -439,7 +439,7 @@
         "Node name for S&R": "MaskBlur+"
       },
       "widgets_values": [
-        13,
+        5,
         "auto"
       ]
     },
@@ -568,7 +568,7 @@
         "Node name for S&R": "CLIPTextEncode"
       },
       "widgets_values": [
-        "Remove text, watermark, logo, caption, signature, stamp, or visible lettering in the masked area. Reconstruct the masked region as a natural continuation of the original image using the surrounding unmasked pixels as reference for texture, lighting, color, perspective, material, and structure. Preserve everything outside the mask."
+        "A clean natural continuation of the original photo in the masked area, matching the surrounding texture, lighting, color, perspective, material, and structure. Preserve the scene exactly outside the masked area."
       ]
     },
     {
@@ -617,7 +617,7 @@
         "Node name for S&R": "FluxGuidance"
       },
       "widgets_values": [
-        30
+        3.5
       ]
     },
     {
@@ -666,7 +666,7 @@
         "Node name for S&R": "CLIPTextEncode"
       },
       "widgets_values": [
-        "text, words, letters, watermark, logo, caption, signature, stamp, symbols, blocky pixels, blur patch, artifacts, seams, mismatched texture, changed background, low quality"
+        "text, words, letters, typography, numbers, watermark, logo, caption, signature, stamp, symbols, glyphs, random characters, gibberish, blocky pixels, blur patch, artifacts, seams, mismatched texture, changed background, low quality"
       ]
     },
     {
@@ -755,7 +755,7 @@
         "Node name for S&R": "InpaintModelConditioning"
       },
       "widgets_values": [
-        false
+        true
       ]
     },
     {
@@ -867,10 +867,10 @@
         "Node name for S&R": "KSampler"
       },
       "widgets_values": [
-        490806010801344,
+        247264753658,
         "randomize",
-        20,
-        2,
+        24,
+        1,
         "euler",
         "normal",
         1
@@ -1038,8 +1038,8 @@
       "id": 25,
       "type": "PreviewImage",
       "pos": [
-        3670,
-        -500
+        3745.6847674820933,
+        -502.910945078635
       ],
       "size": [
         360,
@@ -1064,51 +1064,11 @@
       "widgets_values": []
     },
     {
-      "id": 26,
-      "type": "SaveImage",
-      "pos": [
-        3670,
-        -130
-      ],
-      "size": [
-        340,
-        110
-      ],
-      "flags": {},
-      "order": 25,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 35
-        },
-        {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
-          "widget": {
-            "name": "filename_prefix"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "title": "Save final image",
-      "properties": {
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "text_watermark_fix/flux1_fill_result"
-      ]
-    },
-    {
       "id": 27,
       "type": "ImageBatch",
       "pos": [
-        3670,
-        90
+        3745.6847674820933,
+        87.08905492136492
       ],
       "size": [
         300,
@@ -1147,75 +1107,6 @@
         "Node name for S&R": "ImageBatch"
       },
       "widgets_values": []
-    },
-    {
-      "id": 28,
-      "type": "PreviewImage",
-      "pos": [
-        4020,
-        -160
-      ],
-      "size": [
-        380,
-        320
-      ],
-      "flags": {},
-      "order": 27,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 38
-        }
-      ],
-      "outputs": [],
-      "title": "Compare: original / final",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 29,
-      "type": "SaveImage",
-      "pos": [
-        4020,
-        230
-      ],
-      "size": [
-        340,
-        110
-      ],
-      "flags": {},
-      "order": 28,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 39
-        },
-        {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
-          "widget": {
-            "name": "filename_prefix"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "title": "Save original/final comparison",
-      "properties": {
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "text_watermark_fix/compare_original_final"
-      ]
     },
     {
       "id": 16,
@@ -1390,98 +1281,113 @@
       ]
     },
     {
-      "id": 3,
-      "type": "Apply EasyOCR",
+      "id": 26,
+      "type": "SaveImage",
       "pos": [
-        -210,
-        -130.8889038943981
+        3745.6847674820933,
+        -158.2585752933076
       ],
       "size": [
-        360,
-        146
+        340,
+        270
       ],
       "flags": {},
-      "order": 8,
+      "order": 25,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "image",
-          "name": "image",
+          "localized_name": "images",
+          "name": "images",
           "type": "IMAGE",
-          "link": 2
+          "link": 35
         },
         {
-          "localized_name": "gpu",
-          "name": "gpu",
-          "type": "BOOLEAN",
-          "widget": {
-            "name": "gpu"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "detect",
-          "name": "detect",
-          "type": "COMBO",
-          "widget": {
-            "name": "detect"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "language_list",
-          "name": "language_list",
-          "type": "COMBO",
-          "widget": {
-            "name": "language_list"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "language_name",
-          "name": "language_name",
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
           "type": "STRING",
           "widget": {
-            "name": "language_name"
+            "name": "filename_prefix"
           },
           "link": null
         }
       ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            3
-          ]
-        },
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            4
-          ]
-        },
-        {
-          "localized_name": "JSON",
-          "name": "JSON",
-          "type": "JSON",
-          "links": null
-        }
-      ],
-      "title": "Detect text/watermark with EasyOCR",
+      "outputs": [],
+      "title": "Save final image",
       "properties": {
-        "Node name for S&R": "Apply EasyOCR",
-        "cnr_id": "ComfyUI-EasyOCR"
+        "Node name for S&R": "SaveImage"
       },
       "widgets_values": [
-        false,
-        "input",
-        "English",
-        "ch_sim,en"
+        "text_watermark_fix/flux1_fill_result"
       ]
+    },
+    {
+      "id": 29,
+      "type": "SaveImage",
+      "pos": [
+        3722.195201063462,
+        272.09404855937066
+      ],
+      "size": [
+        340,
+        270
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 39
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [],
+      "title": "Save original/final comparison",
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "text_watermark_fix/compare_original_final"
+      ]
+    },
+    {
+      "id": 28,
+      "type": "PreviewImage",
+      "pos": [
+        4098.271304483356,
+        -159.8071545097654
+      ],
+      "size": [
+        610.7151828852593,
+        567.268686278247
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 38
+        }
+      ],
+      "outputs": [],
+      "title": "Compare: original / final",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
     },
     {
       "id": 1,
@@ -1542,8 +1448,112 @@
         "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "cafe_store_000.jpg",
+        "@guanguanpuppy_1749817232111325187_1.jpg",
         "image"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "Apply EasyOCR",
+      "pos": [
+        -210,
+        -130.8889038943981
+      ],
+      "size": [
+        360,
+        146
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "localized_name": "gpu",
+          "name": "gpu",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "gpu"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "detect",
+          "name": "detect",
+          "type": "COMBO",
+          "widget": {
+            "name": "detect"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "language_list",
+          "name": "language_list",
+          "type": "COMBO",
+          "widget": {
+            "name": "language_list"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "language_name",
+          "name": "language_name",
+          "type": "STRING",
+          "widget": {
+            "name": "language_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sensitivity",
+          "name": "sensitivity",
+          "type": "COMBO",
+          "widget": {
+            "name": "sensitivity"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            3
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            4
+          ]
+        },
+        {
+          "localized_name": "JSON",
+          "name": "JSON",
+          "type": "JSON",
+          "links": null
+        }
+      ],
+      "title": "Detect text/watermark with EasyOCR",
+      "properties": {
+        "Node name for S&R": "Apply EasyOCR",
+        "cnr_id": "ComfyUI-EasyOCR"
+      },
+      "widgets_values": [
+        true,
+        "input",
+        "English",
+        "ch_sim,en",
+        "default"
       ]
     }
   ],
@@ -1914,8 +1924,8 @@
       "id": 5,
       "title": "5. Save and compare",
       "bounding": [
-        3630,
-        -560,
+        3705.6847674820933,
+        -562.910945078635,
         830,
         940
       ],
@@ -1926,10 +1936,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.5928520307206352,
+      "scale": 2.321191073218403,
       "offset": [
-        974.5507350905267,
-        1012.4303082167079
+        424.4284840480042,
+        303.69282576357074
       ]
     }
   },

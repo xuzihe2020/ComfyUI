@@ -1730,55 +1730,6 @@
       ]
     },
     {
-      "id": 8,
-      "type": "CLIPTextEncode",
-      "pos": [
-        728.6744723452132,
-        -445.9892417208831
-      ],
-      "size": [
-        520,
-        220
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 9
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            11
-          ]
-        }
-      ],
-      "title": "Positive: same outfit, chest/torso shape edit",
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "same person, same face, same hair, same pose, same camera angle, same lighting, same blazer, same pink shirt, preserve exact shirt color, preserve exact shirt fabric texture, preserve neckline and collar, preserve buttons and seams, preserve shadows and folds outside the mask, only increase the chest volume under the existing shirt, fuller bust shape under fabric, natural fabric tension over the chest,   subtle stretched shirt fabric, realistic cloth deformation, unchanged outfit design"
-      ]
-    },
-    {
       "id": 54,
       "type": "OlmDragCrop",
       "pos": [
@@ -1894,7 +1845,7 @@
         "lastResolution": "912x1136"
       },
       "widgets_values": [
-        1782534536014,
+        1782536277168,
         342,
         192,
         537,
@@ -2036,11 +1987,60 @@
       ]
     },
     {
+      "id": 8,
+      "type": "CLIPTextEncode",
+      "pos": [
+        737.4047463485615,
+        -438.2290524340395
+      ],
+      "size": [
+        520,
+        220
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 9
+        },
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "title": "Positive: same outfit, chest/torso shape edit",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "same person, same face, same hair, same pose, same camera angle, same lighting, same blazer, same pink shirt, preserve exact shirt color, preserve exact shirt fabric texture, preserve neckline and collar, preserve buttons and seams, preserve shadows and folds outside the mask, only increase the chest volume under the existing shirt, fuller bust shape under fabric, natural fabric tension over the chest,   subtle stretched shirt fabric, realistic cloth deformation, unchanged outfit design"
+      ]
+    },
+    {
       "id": 34,
       "type": "SplitSigmasDenoise",
       "pos": [
         2584.5994232344988,
-        -387.55427241998166
+        -388.28189595236597
       ],
       "size": [
         300,
@@ -2095,7 +2095,7 @@
       "type": "SplitSigmasDenoise",
       "pos": [
         2586.3333066927785,
-        110.63437345267721
+        109.90674992029292
       ],
       "size": [
         300,
@@ -2745,10 +2745,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.9869749943253651,
+      "scale": 1.249435472990725,
       "offset": [
-        -1531.551923223628,
-        878.7697438683659
+        -1887.8046079958115,
+        603.4638109151183
       ]
     }
   },

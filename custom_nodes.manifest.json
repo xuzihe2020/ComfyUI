@@ -10,8 +10,14 @@
     {
       "name": "ComfyUI-EasyOCR",
       "folder": "ComfyUI-EasyOCR",
-      "repo": "https://github.com/prodogape/ComfyUI-EasyOCR",
-      "reason": "Detect text and produce OCR masks for text/watermark removal workflows."
+      "repo": "https://github.com/xuzihe2020/ComfyUI-EasyOCR",
+      "reason": "Detect text and produce OCR masks for text/watermark removal workflows. Uses the fork with robust OCR box handling and sensitivity presets."
+    },
+    {
+      "name": "ComfyUI-qwenmultiangle",
+      "folder": "ComfyUI-qwenmultiangle",
+      "repo": "https://github.com/xuzihe2020/ComfyUI-qwenmultiangle",
+      "reason": "Adds Qwen multi-angle camera prompt controls. Uses the fork and is always dependency-checked by the installer."
     },
     {
       "name": "ComfyUI_essentials",

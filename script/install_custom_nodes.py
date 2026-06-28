@@ -14,6 +14,10 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = REPO_ROOT / "custom_nodes.manifest.json"
 CUSTOM_NODES_DIR = REPO_ROOT / "custom_nodes"
+ALWAYS_FIX_DEPENDENCIES = {
+    "ComfyUI-EasyOCR",
+    "ComfyUI-qwenmultiangle",
+}
 
 
 def run(cmd: list[str], *, cwd: Path = REPO_ROOT, env: dict[str, str] | None = None) -> None:
@@ -75,19 +79,20 @@ def manager_install_node(
     folder = CUSTOM_NODES_DIR / node["folder"]
     repo = node["repo"]
     name = node["name"]
+    always_fix_deps = name in ALWAYS_FIX_DEPENDENCIES or node["folder"] in ALWAYS_FIX_DEPENDENCIES
 
     base_cmd = [python_bin, str(manager_cli)]
     if folder.exists():
         print(f"{folder} already exists", flush=True)
         requirements = folder / "requirements.txt"
-        if requirements.exists() and not no_deps:
+        if requirements.exists() and (always_fix_deps or not no_deps):
             run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
-        if manager_fix_existing:
+        if manager_fix_existing or always_fix_deps:
             run(base_cmd + ["fix", name, "--mode", "local"], env=manager_env())
         return
 
     cmd = base_cmd + ["install", repo, "--mode", "local", "--exit-on-fail"]
-    if no_deps:
+    if no_deps and not always_fix_deps:
         cmd.append("--no-deps")
     run(cmd, env=manager_env())
 
