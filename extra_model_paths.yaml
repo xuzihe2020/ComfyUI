@@ -7,3 +7,9 @@ external_comfyui_models:
   loras: lora
   text_encoders: text_encoders
   vae: vae
+  download_model_base: .
+  sams: sams
+  ultralytics: ultralytics
+  ultralytics_bbox: ultralytics/bbox
+  ultralytics_segm: ultralytics/segm
+  yolo: yolo

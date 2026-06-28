@@ -13,6 +13,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = REPO_ROOT / "custom_nodes.manifest.json"
+DEFAULT_EXTRA_MODEL_PATHS = REPO_ROOT / "extra_model_paths.yaml"
 CUSTOM_NODES_DIR = REPO_ROOT / "custom_nodes"
 ALWAYS_FIX_DEPENDENCIES = {
     "ComfyUI-EasyOCR",
@@ -28,6 +29,28 @@ def run(cmd: list[str], *, cwd: Path = REPO_ROOT, env: dict[str, str] | None = N
 def load_manifest(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def external_model_base(path: Path = DEFAULT_EXTRA_MODEL_PATHS) -> Path | None:
+    if not path.exists():
+        return None
+
+    base_path = None
+    has_download_model_base = False
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.split("#", 1)[0].strip()
+            if not line:
+                continue
+            if line.startswith("base_path:"):
+                base_path = line.split(":", 1)[1].strip().strip("'\"")
+            elif line.startswith("download_model_base:"):
+                has_download_model_base = True
+
+    if base_path and has_download_model_base:
+        return Path(base_path).expanduser().resolve()
+
+    return None
 
 
 def comfy_python() -> str:
@@ -65,6 +88,9 @@ def install_manager(manifest: dict, python_bin: str) -> Path:
 def manager_env() -> dict[str, str]:
     env = os.environ.copy()
     env["COMFYUI_PATH"] = str(REPO_ROOT)
+    model_base = external_model_base()
+    if model_base is not None:
+        env["COMFYUI_MODEL_PATH"] = str(model_base)
     return env
 
 
