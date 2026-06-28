@@ -58,7 +58,7 @@
           "links": null
         }
       ],
-      "title": "Original image to edit",
+      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -92,7 +92,7 @@
         }
       ],
       "outputs": [],
-      "title": "Preview original",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -144,7 +144,7 @@
           "links": null
         }
       ],
-      "title": "Use original size",
+      "title": "GetImageSize+",
       "properties": {
         "Node name for S&R": "GetImageSize+"
       },
@@ -152,7 +152,7 @@
     },
     {
       "id": 6,
-      "type": "BboxDetectorForEach",
+      "type": "BboxDetectorSEGS",
       "pos": [
         -538.0164683948865,
         824.2975408380681
@@ -225,9 +225,9 @@
           ]
         }
       ],
-      "title": "YOLO bbox -> face SEGS",
+      "title": "BboxDetectorSEGS",
       "properties": {
-        "Node name for S&R": "BboxDetectorForEach"
+        "Node name for S&R": "BboxDetectorSEGS"
       },
       "widgets_values": [
         0.5,
@@ -337,7 +337,7 @@
           ]
         }
       ],
-      "title": "SAM refine face mask",
+      "title": "SAMDetectorCombined",
       "properties": {
         "Node name for S&R": "SAMDetectorCombined"
       },
@@ -393,7 +393,7 @@
           ]
         }
       ],
-      "title": "Grow mask for face width",
+      "title": "ImpactDilateMask",
       "properties": {
         "Node name for S&R": "ImpactDilateMask"
       },
@@ -435,7 +435,7 @@
           ]
         }
       ],
-      "title": "Mask preview image",
+      "title": "MaskToImage",
       "properties": {
         "Node name for S&R": "MaskToImage"
       },
@@ -464,7 +464,7 @@
         }
       ],
       "outputs": [],
-      "title": "Preview editable face mask",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -514,7 +514,7 @@
           ]
         }
       ],
-      "title": "FLUX2 model",
+      "title": "UNETLoader",
       "properties": {
         "Node name for S&R": "UNETLoader"
       },
@@ -580,7 +580,7 @@
           ]
         }
       ],
-      "title": "FLUX2 text encoder",
+      "title": "CLIPLoader",
       "properties": {
         "Node name for S&R": "CLIPLoader"
       },
@@ -631,7 +631,7 @@
           ]
         }
       ],
-      "title": "FLUX2 VAE",
+      "title": "VAELoader",
       "properties": {
         "Node name for S&R": "VAELoader"
       },
@@ -680,7 +680,7 @@
           ]
         }
       ],
-      "title": "Encode original target",
+      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -736,7 +736,7 @@
           "links": null
         }
       ],
-      "title": "Face reference 1",
+      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -785,7 +785,7 @@
           ]
         }
       ],
-      "title": "Encode face ref 1",
+      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -829,7 +829,7 @@
           ]
         }
       ],
-      "title": "Encode face ref 2",
+      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -876,7 +876,7 @@
           ]
         }
       ],
-      "title": "Positive: preserve scene, refine face identity",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -927,7 +927,7 @@
           ]
         }
       ],
-      "title": "Negative: protect hair/outfit/pose",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -976,7 +976,7 @@
           ]
         }
       ],
-      "title": "Reference 0: original target",
+      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1021,7 +1021,7 @@
           ]
         }
       ],
-      "title": "Reference 1: face ref 1",
+      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1066,7 +1066,7 @@
           ]
         }
       ],
-      "title": "Reference 2: face ref 2",
+      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1111,7 +1111,7 @@
           ]
         }
       ],
-      "title": "Reference 3: face ref 3",
+      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1158,7 +1158,7 @@
           ]
         }
       ],
-      "title": "Multi-reference method",
+      "title": "FluxKontextMultiReferenceLatentMethod",
       "properties": {
         "Node name for S&R": "FluxKontextMultiReferenceLatentMethod"
       },
@@ -1209,7 +1209,7 @@
           ]
         }
       ],
-      "title": "Flux guidance",
+      "title": "FluxGuidance",
       "properties": {
         "Node name for S&R": "FluxGuidance"
       },
@@ -1270,7 +1270,7 @@
           ]
         }
       ],
-      "title": "Low CFG for Flux edit",
+      "title": "CFGGuider",
       "properties": {
         "Node name for S&R": "CFGGuider"
       },
@@ -1313,7 +1313,7 @@
           ]
         }
       ],
-      "title": "Seed / noise",
+      "title": "RandomNoise",
       "properties": {
         "Node name for S&R": "RandomNoise"
       },
@@ -1357,7 +1357,7 @@
           ]
         }
       ],
-      "title": "Sampler",
+      "title": "KSamplerSelect",
       "properties": {
         "Node name for S&R": "KSamplerSelect"
       },
@@ -1418,7 +1418,7 @@
           ]
         }
       ],
-      "title": "Flux2 schedule at original size",
+      "title": "Flux2Scheduler",
       "properties": {
         "Node name for S&R": "Flux2Scheduler"
       },
@@ -1475,7 +1475,7 @@
           ]
         }
       ],
-      "title": "Denoise strength: use low sigmas",
+      "title": "SplitSigmasDenoise",
       "properties": {
         "Node name for S&R": "SplitSigmasDenoise"
       },
@@ -1521,7 +1521,7 @@
           ]
         }
       ],
-      "title": "Apply face mask to original latent",
+      "title": "SetLatentNoiseMask",
       "properties": {
         "Node name for S&R": "SetLatentNoiseMask"
       },
@@ -1589,7 +1589,7 @@
           "links": null
         }
       ],
-      "title": "FLUX2 native masked edit",
+      "title": "SamplerCustomAdvanced",
       "properties": {
         "Node name for S&R": "SamplerCustomAdvanced"
       },
@@ -1634,7 +1634,7 @@
           ]
         }
       ],
-      "title": "Decode result",
+      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -1663,7 +1663,7 @@
         }
       ],
       "outputs": [],
-      "title": "Preview Flux2 face refiner output",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1701,7 +1701,7 @@
         }
       ],
       "outputs": [],
-      "title": "Save refined face image",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1759,7 +1759,7 @@
           "links": null
         }
       ],
-      "title": "Face reference 2",
+      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -1808,7 +1808,7 @@
           ]
         }
       ],
-      "title": "Encode face ref 3",
+      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -1865,7 +1865,7 @@
           ]
         }
       ],
-      "title": "Soft mask blend",
+      "title": "MaskBlur+",
       "properties": {
         "Node name for S&R": "MaskBlur+"
       },
@@ -1926,7 +1926,7 @@
           "links": null
         }
       ],
-      "title": "Face reference 3",
+      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -1978,7 +1978,7 @@
           "links": null
         }
       ],
-      "title": "YOLO face detector",
+      "title": "UltralyticsDetectorProvider",
       "properties": {
         "Node name for S&R": "UltralyticsDetectorProvider"
       },
@@ -2032,7 +2032,7 @@
           ]
         }
       ],
-      "title": "SAM model",
+      "title": "SAMLoader",
       "properties": {
         "Node name for S&R": "SAMLoader"
       },
@@ -2059,7 +2059,7 @@
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "title": "Workflow notes",
+      "title": "Note",
       "properties": {
         "Node name for S&R": "Note"
       },

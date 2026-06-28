@@ -55,7 +55,8 @@
       "properties": {
         "Node name for S&R": "GetImageSize"
       },
-      "widgets_values": []
+      "widgets_values": [],
+      "title": "GetImageSize"
     },
     {
       "id": 45,
@@ -97,7 +98,7 @@
           ]
         }
       ],
-      "title": "B decode",
+      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -141,7 +142,7 @@
           ]
         }
       ],
-      "title": "Batch: original + A",
+      "title": "ImageBatch",
       "properties": {
         "Node name for S&R": "ImageBatch"
       },
@@ -186,7 +187,7 @@
           ]
         }
       ],
-      "title": "Batch: original + A + B",
+      "title": "ImageBatch",
       "properties": {
         "Node name for S&R": "ImageBatch"
       },
@@ -215,7 +216,7 @@
         }
       ],
       "outputs": [],
-      "title": "Compare preview: original / A / B",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -237,12 +238,15 @@
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "properties": {},
+      "properties": {
+        "Node name for S&R": "MarkdownNote"
+      },
       "widgets_values": [
         "## Chest / upper torso masked inpaint A/B test\n\nShared upstream:\n\n- Same original image.\n- The edit region is selected with `Olm Drag Crop: draw crop box here`.\n- `Olm Crop Info -> Values` converts that crop box to pixel coordinates.\n- `WAS Mask Rect Area Advanced` turns those coordinates into a full-size white rectangle mask.\n- Same FLUX2 model, CLIP, VAE, prompt, seed, sampler, scheduler, and image reference latent.\n\nHow to create the mask:\n\n1. Run once after loading/changing the image so DragCrop receives the preview and image size.\n2. On `Olm Drag Crop: draw crop box here`, drag/resize the crop box around the chest / upper torso / shirt area.\n3. Run again. The crop box becomes the white inpaint mask.\n4. Check `Generated crop-rectangle mask preview` before trusting the A/B output.\n\nMask rules:\n\n- White = editable crop rectangle.\n- Black = protected.\n- Keep face, hair, and neck outside the crop rectangle if possible.\n- Make the box slightly larger than the exact target so fabric has context.\n\nBranch A tests `InpaintModelConditioning`.\nBranch B tests `SetLatentNoiseMask` + `ReferenceLatent`.\n\nThe outputs are saved separately and batched as original, A, B."
       ],
       "color": "#432",
-      "bgcolor": "#653"
+      "bgcolor": "#653",
+      "title": "MarkdownNote"
     },
     {
       "id": 11,
@@ -285,7 +289,7 @@
           ]
         }
       ],
-      "title": "Shared original image latent reference",
+      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -372,7 +376,7 @@
           ]
         }
       ],
-      "title": "A masked inpaint conditioning",
+      "title": "InpaintModelConditioning",
       "properties": {
         "Node name for S&R": "InpaintModelConditioning"
       },
@@ -419,7 +423,7 @@
           ]
         }
       ],
-      "title": "A reference: original image",
+      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -466,7 +470,7 @@
           ]
         }
       ],
-      "title": "A FLUX reference method",
+      "title": "FluxKontextMultiReferenceLatentMethod",
       "properties": {
         "Node name for S&R": "FluxKontextMultiReferenceLatentMethod"
       },
@@ -517,7 +521,8 @@
       },
       "widgets_values": [
         "flux2\\full_encoder_small_decoder.safetensors"
-      ]
+      ],
+      "title": "VAELoader"
     },
     {
       "id": 6,
@@ -581,7 +586,8 @@
         "flux2\\qwen_3_8b_fp8mixed.safetensors",
         "flux2",
         "default"
-      ]
+      ],
+      "title": "CLIPLoader"
     },
     {
       "id": 17,
@@ -619,7 +625,7 @@
           ]
         }
       ],
-      "title": "Shared sampler",
+      "title": "KSamplerSelect",
       "properties": {
         "Node name for S&R": "KSamplerSelect"
       },
@@ -666,7 +672,7 @@
           ]
         }
       ],
-      "title": "B negative + original reference",
+      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -710,7 +716,7 @@
           ]
         }
       ],
-      "title": "B set latent noise mask",
+      "title": "SetLatentNoiseMask",
       "properties": {
         "Node name for S&R": "SetLatentNoiseMask"
       },
@@ -778,7 +784,7 @@
           "links": null
         }
       ],
-      "title": "B sampler",
+      "title": "SamplerCustomAdvanced",
       "properties": {
         "Node name for S&R": "SamplerCustomAdvanced"
       },
@@ -846,7 +852,7 @@
           "links": null
         }
       ],
-      "title": "A sampler",
+      "title": "SamplerCustomAdvanced",
       "properties": {
         "Node name for S&R": "SamplerCustomAdvanced"
       },
@@ -892,7 +898,7 @@
           ]
         }
       ],
-      "title": "A decode",
+      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -921,7 +927,7 @@
         }
       ],
       "outputs": [],
-      "title": "A preview: InpaintModelConditioning",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -959,7 +965,7 @@
         }
       ],
       "outputs": [],
-      "title": "A save result",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -990,7 +996,7 @@
         }
       ],
       "outputs": [],
-      "title": "B preview: SetLatentNoiseMask + ReferenceLatent",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1028,7 +1034,7 @@
         }
       ],
       "outputs": [],
-      "title": "B save result",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1059,7 +1065,7 @@
         }
       ],
       "outputs": [],
-      "title": "Generated crop-rectangle mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -1148,7 +1154,7 @@
           "links": null
         }
       ],
-      "title": "Crop box coordinates",
+      "title": "OlmCropInfoInterpreter",
       "properties": {
         "Node name for S&R": "OlmCropInfoInterpreter"
       },
@@ -1179,7 +1185,7 @@
         }
       ],
       "outputs": [],
-      "title": "Original preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1208,7 +1214,7 @@
         }
       ],
       "outputs": [],
-      "title": "DragCrop cropped preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1269,7 +1275,7 @@
           "links": null
         }
       ],
-      "title": "Original image (feeds DragCrop)",
+      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -1329,7 +1335,8 @@
       "widgets_values": [
         "flux2\\flux_2_klein_9b.safetensors",
         "default"
-      ]
+      ],
+      "title": "UNETLoader"
     },
     {
       "id": 10,
@@ -1378,7 +1385,8 @@
       },
       "widgets_values": [
         1.1
-      ]
+      ],
+      "title": "FluxGuidance"
     },
     {
       "id": 16,
@@ -1416,7 +1424,7 @@
           ]
         }
       ],
-      "title": "Shared seed / noise",
+      "title": "RandomNoise",
       "properties": {
         "Node name for S&R": "RandomNoise"
       },
@@ -1464,7 +1472,7 @@
           ]
         }
       ],
-      "title": "B positive + original reference",
+      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1561,7 +1569,7 @@
           ]
         }
       ],
-      "title": "Crop box -> full-size white mask",
+      "title": "Mask Rect Area (Advanced)",
       "properties": {
         "Node name for S&R": "Mask Rect Area (Advanced)"
       },
@@ -1607,7 +1615,7 @@
         }
       ],
       "outputs": [],
-      "title": "Save A/B comparison",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1657,7 +1665,7 @@
           ]
         }
       ],
-      "title": "Negative: outfit drift",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -1719,7 +1727,7 @@
           ]
         }
       ],
-      "title": "Shared FLUX2 scheduler",
+      "title": "Flux2Scheduler",
       "properties": {
         "Node name for S&R": "Flux2Scheduler"
       },
@@ -1818,7 +1826,7 @@
           ]
         }
       ],
-      "title": "Olm Drag Crop: draw crop box here",
+      "title": "OlmDragCrop",
       "properties": {
         "Node name for S&R": "OlmDragCrop",
         "dragStart": [
@@ -1917,7 +1925,7 @@
           ]
         }
       ],
-      "title": "A low CFG",
+      "title": "CFGGuider",
       "properties": {
         "Node name for S&R": "CFGGuider"
       },
@@ -1978,7 +1986,7 @@
           ]
         }
       ],
-      "title": "B low CFG",
+      "title": "CFGGuider",
       "properties": {
         "Node name for S&R": "CFGGuider"
       },
@@ -2027,7 +2035,7 @@
           ]
         }
       ],
-      "title": "Positive: same outfit, chest/torso shape edit",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -2082,7 +2090,7 @@
           ]
         }
       ],
-      "title": "A denoise: classic inpaint",
+      "title": "SplitSigmasDenoise",
       "properties": {
         "Node name for S&R": "SplitSigmasDenoise"
       },
@@ -2137,7 +2145,7 @@
           ]
         }
       ],
-      "title": "B denoise: v4.5/v5 reference mask",
+      "title": "SplitSigmasDenoise",
       "properties": {
         "Node name for S&R": "SplitSigmasDenoise"
       },

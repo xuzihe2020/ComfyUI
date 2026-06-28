@@ -58,7 +58,7 @@
           "links": null
         }
       ],
-      "title": "Original image",
+      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -90,7 +90,7 @@
         }
       ],
       "outputs": [],
-      "title": "Original preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -378,7 +378,7 @@
           "links": null
         }
       ],
-      "title": "Detect mosaic mask",
+      "title": "MosaicDetectionNode",
       "properties": {
         "Node name for S&R": "MosaicDetectionNode",
         "cnr_id": "comfyui-fast-mosaic-detector"
@@ -436,7 +436,7 @@
         }
       ],
       "outputs": [],
-      "title": "Raw mosaic mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -520,7 +520,7 @@
           ]
         }
       ],
-      "title": "Grow and smooth generation mask",
+      "title": "MaskFix+",
       "properties": {
         "Node name for S&R": "MaskFix+"
       },
@@ -555,7 +555,7 @@
         }
       ],
       "outputs": [],
-      "title": "Expanded mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -657,7 +657,7 @@
           "links": null
         }
       ],
-      "title": "Padded crop around mosaic mask",
+      "title": "MaskBoundingBox+",
       "properties": {
         "Node name for S&R": "MaskBoundingBox+"
       },
@@ -689,7 +689,7 @@
         }
       ],
       "outputs": [],
-      "title": "Padded source crop preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -718,7 +718,7 @@
         }
       ],
       "outputs": [],
-      "title": "Crop generation mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -775,7 +775,7 @@
           ]
         }
       ],
-      "title": "Soft composite mask",
+      "title": "MaskBlur+",
       "properties": {
         "Node name for S&R": "MaskBlur+"
       },
@@ -807,7 +807,7 @@
         }
       ],
       "outputs": [],
-      "title": "Soft paste-back mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -860,7 +860,8 @@
       },
       "widgets_values": [
         1
-      ]
+      ],
+      "title": "DifferentialDiffusion"
     },
     {
       "id": 16,
@@ -903,7 +904,7 @@
           ]
         }
       ],
-      "title": "Positive prompt: what to paint in mosaic area",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -957,7 +958,8 @@
       },
       "widgets_values": [
         30
-      ]
+      ],
+      "title": "FluxGuidance"
     },
     {
       "id": 18,
@@ -1000,7 +1002,7 @@
           ]
         }
       ],
-      "title": "Negative prompt: no mosaic artifacts",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -1089,7 +1091,7 @@
           ]
         }
       ],
-      "title": "FLUX.1 Fill crop inpaint conditioning",
+      "title": "InpaintModelConditioning",
       "properties": {
         "Node name for S&R": "InpaintModelConditioning"
       },
@@ -1201,7 +1203,7 @@
           ]
         }
       ],
-      "title": "Sample repaired crop",
+      "title": "KSampler",
       "properties": {
         "Node name for S&R": "KSampler"
       },
@@ -1254,7 +1256,7 @@
           ]
         }
       ],
-      "title": "Decode repaired crop",
+      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -1283,7 +1285,7 @@
         }
       ],
       "outputs": [],
-      "title": "Repaired crop preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1363,7 +1365,7 @@
           ]
         }
       ],
-      "title": "Paste repaired crop back",
+      "title": "ImageCompositeMasked",
       "properties": {
         "Node name for S&R": "ImageCompositeMasked"
       },
@@ -1396,7 +1398,7 @@
         }
       ],
       "outputs": [],
-      "title": "Final image preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1434,7 +1436,7 @@
         }
       ],
       "outputs": [],
-      "title": "Save final image",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1481,7 +1483,7 @@
           ]
         }
       ],
-      "title": "Batch: original then final",
+      "title": "ImageBatch",
       "properties": {
         "Node name for S&R": "ImageBatch"
       },
@@ -1510,7 +1512,7 @@
         }
       ],
       "outputs": [],
-      "title": "Compare: original / final",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1548,7 +1550,7 @@
         }
       ],
       "outputs": [],
-      "title": "Save original/final comparison",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1597,7 +1599,8 @@
       },
       "widgets_values": [
         "flux1\\ae.safetensors"
-      ]
+      ],
+      "title": "VAELoader"
     },
     {
       "id": 14,
@@ -1671,7 +1674,8 @@
         "flux1\\t5xxl_fp16.safetensors",
         "flux",
         "default"
-      ]
+      ],
+      "title": "DualCLIPLoader"
     },
     {
       "id": 12,
@@ -1717,7 +1721,7 @@
           ]
         }
       ],
-      "title": "FLUX.1 Fill dev model",
+      "title": "UNETLoader",
       "properties": {
         "Node name for S&R": "UNETLoader"
       },

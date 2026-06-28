@@ -6,6 +6,14 @@ When creating or editing ComfyUI workflow JSON files, every node `type` value mu
 
 Do not invent node type names. Do not use display names. Do not use Python class names unless that class name is exactly the key registered in `NODE_CLASS_MAPPINGS`.
 
+For every node in workflow JSON, keep these values identical to the registered node type:
+
+- `type`
+- `title`
+- `properties["Node name for S&R"]` when that property exists
+
+Do not add descriptive custom node titles such as workflow steps, comments, or plain-English labels. Do not rename nodes in workflow JSON for readability. The workflow UI must show the real node type name.
+
 Before saving a workflow that uses custom nodes, verify each custom node `type` against at least one authoritative source:
 
 - An existing workflow exported by this ComfyUI install.
@@ -14,4 +22,4 @@ Before saving a workflow that uses custom nodes, verify each custom node `type` 
 
 For Impact Pack specifically, remember that some Python class names differ from workflow type names. For example, the Python class `BboxDetectorForEach` is registered for workflow JSON as `BboxDetectorSEGS`.
 
-If a workflow contains a node title or display name, do not treat it as the node type. The only valid workflow type is the actual registered `type` string.
+If a workflow contains a node title or display name from an older file, do not treat it as the node type. Replace node titles with the actual registered `type` string when editing workflows.

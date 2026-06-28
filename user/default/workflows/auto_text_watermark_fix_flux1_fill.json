@@ -46,7 +46,7 @@
           ]
         }
       ],
-      "title": "Differential diffusion",
+      "title": "DifferentialDiffusion",
       "properties": {
         "Node name for S&R": "DifferentialDiffusion"
       },
@@ -77,7 +77,7 @@
         }
       ],
       "outputs": [],
-      "title": "Final image preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -147,7 +147,7 @@
           ]
         }
       ],
-      "title": "FLUX text encoders",
+      "title": "DualCLIPLoader",
       "properties": {
         "Node name for S&R": "DualCLIPLoader"
       },
@@ -190,7 +190,7 @@
         }
       ],
       "outputs": [],
-      "title": "Save final image",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -242,7 +242,7 @@
           ]
         }
       ],
-      "title": "FLUX.1 Fill dev model",
+      "title": "UNETLoader",
       "properties": {
         "Node name for S&R": "UNETLoader"
       },
@@ -287,7 +287,7 @@
           ]
         }
       ],
-      "title": "FLUX VAE",
+      "title": "VAELoader",
       "properties": {
         "Node name for S&R": "VAELoader"
       },
@@ -336,7 +336,7 @@
           ]
         }
       ],
-      "title": "Positive prompt: remove text/watermark",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -385,7 +385,7 @@
           ]
         }
       ],
-      "title": "Negative prompt: avoid text artifacts",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -434,7 +434,7 @@
           ]
         }
       ],
-      "title": "FLUX guidance",
+      "title": "FluxGuidance",
       "properties": {
         "Node name for S&R": "FluxGuidance"
       },
@@ -465,7 +465,7 @@
         }
       ],
       "outputs": [],
-      "title": "Padded source crop preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -494,7 +494,7 @@
         }
       ],
       "outputs": [],
-      "title": "Crop generation mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -551,7 +551,7 @@
           ]
         }
       ],
-      "title": "Soft composite mask",
+      "title": "MaskBlur+",
       "properties": {
         "Node name for S&R": "MaskBlur+"
       },
@@ -641,7 +641,7 @@
           ]
         }
       ],
-      "title": "FLUX.1 Fill crop inpaint conditioning",
+      "title": "InpaintModelConditioning",
       "properties": {
         "Node name for S&R": "InpaintModelConditioning"
       },
@@ -753,7 +753,7 @@
           ]
         }
       ],
-      "title": "Sample repaired crop",
+      "title": "KSampler",
       "properties": {
         "Node name for S&R": "KSampler"
       },
@@ -806,7 +806,7 @@
           ]
         }
       ],
-      "title": "Decode repaired crop",
+      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -835,7 +835,7 @@
         }
       ],
       "outputs": [],
-      "title": "Repaired crop preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -915,7 +915,7 @@
           ]
         }
       ],
-      "title": "Paste repaired crop back",
+      "title": "ImageCompositeMasked",
       "properties": {
         "Node name for S&R": "ImageCompositeMasked"
       },
@@ -964,7 +964,7 @@
           ]
         }
       ],
-      "title": "Batch: original then final",
+      "title": "ImageBatch",
       "properties": {
         "Node name for S&R": "ImageBatch"
       },
@@ -993,7 +993,7 @@
         }
       ],
       "outputs": [],
-      "title": "Compare: original / final",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1031,7 +1031,7 @@
         }
       ],
       "outputs": [],
-      "title": "Save original/final comparison",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1062,7 +1062,7 @@
         }
       ],
       "outputs": [],
-      "title": "Expanded OCR mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -1121,7 +1121,7 @@
           "links": null
         }
       ],
-      "title": "Original image",
+      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -1221,7 +1221,7 @@
           "links": null
         }
       ],
-      "title": "Detect text/watermark with EasyOCR",
+      "title": "Apply EasyOCR",
       "properties": {
         "Node name for S&R": "Apply EasyOCR",
         "cnr_id": "ComfyUI-EasyOCR"
@@ -1257,7 +1257,7 @@
         }
       ],
       "outputs": [],
-      "title": "OCR boxes preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1295,7 +1295,7 @@
           ]
         }
       ],
-      "title": "Union all OCR text boxes",
+      "title": "Masks Combine Batch",
       "properties": {
         "Node name for S&R": "Masks Combine Batch",
         "cnr_id": "was-node-suite-comfyui"
@@ -1380,7 +1380,7 @@
           ]
         }
       ],
-      "title": "Grow OCR mask margin",
+      "title": "MaskFix+",
       "properties": {
         "Node name for S&R": "MaskFix+"
       },
@@ -1488,7 +1488,7 @@
           "links": null
         }
       ],
-      "title": "Padded crop around OCR mask",
+      "title": "MaskBoundingBox+",
       "properties": {
         "Node name for S&R": "MaskBoundingBox+"
       },
@@ -1520,7 +1520,7 @@
         }
       ],
       "outputs": [],
-      "title": "Soft paste-back mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },

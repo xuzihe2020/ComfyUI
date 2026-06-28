@@ -57,7 +57,7 @@
           "links": null
         }
       ],
-      "title": "Original image",
+      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -121,7 +121,7 @@
           ]
         }
       ],
-      "title": "Detect watermarks with YOLO",
+      "title": "WatermarkDetector",
       "properties": {
         "Node name for S&R": "WatermarkDetector",
         "cnr_id": "ComfyUI-Watermark-Detection"
@@ -153,7 +153,7 @@
         }
       ],
       "outputs": [],
-      "title": "YOLO watermark detection preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -237,7 +237,7 @@
           ]
         }
       ],
-      "title": "Grow YOLO watermark mask margin",
+      "title": "MaskFix+",
       "properties": {
         "Node name for S&R": "MaskFix+"
       },
@@ -272,7 +272,7 @@
         }
       ],
       "outputs": [],
-      "title": "Expanded YOLO watermark mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -374,7 +374,7 @@
           "links": null
         }
       ],
-      "title": "Padded crop around YOLO watermark mask",
+      "title": "MaskBoundingBox+",
       "properties": {
         "Node name for S&R": "MaskBoundingBox+"
       },
@@ -406,7 +406,7 @@
         }
       ],
       "outputs": [],
-      "title": "Padded source crop preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -435,7 +435,7 @@
         }
       ],
       "outputs": [],
-      "title": "Crop generation mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -492,7 +492,7 @@
           ]
         }
       ],
-      "title": "Soft composite mask",
+      "title": "MaskBlur+",
       "properties": {
         "Node name for S&R": "MaskBlur+"
       },
@@ -524,7 +524,7 @@
         }
       ],
       "outputs": [],
-      "title": "Soft paste-back mask preview",
+      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -574,7 +574,7 @@
           ]
         }
       ],
-      "title": "FLUX.1 Fill dev model",
+      "title": "UNETLoader",
       "properties": {
         "Node name for S&R": "UNETLoader"
       },
@@ -625,7 +625,7 @@
           ]
         }
       ],
-      "title": "Differential diffusion",
+      "title": "DifferentialDiffusion",
       "properties": {
         "Node name for S&R": "DifferentialDiffusion"
       },
@@ -697,7 +697,7 @@
           ]
         }
       ],
-      "title": "FLUX text encoders",
+      "title": "DualCLIPLoader",
       "properties": {
         "Node name for S&R": "DualCLIPLoader"
       },
@@ -744,7 +744,7 @@
           ]
         }
       ],
-      "title": "FLUX VAE",
+      "title": "VAELoader",
       "properties": {
         "Node name for S&R": "VAELoader"
       },
@@ -793,7 +793,7 @@
           ]
         }
       ],
-      "title": "Positive prompt: repair watermark area",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -842,7 +842,7 @@
           ]
         }
       ],
-      "title": "FLUX guidance",
+      "title": "FluxGuidance",
       "properties": {
         "Node name for S&R": "FluxGuidance"
       },
@@ -891,7 +891,7 @@
           ]
         }
       ],
-      "title": "Negative prompt: avoid text artifacts",
+      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -980,7 +980,7 @@
           ]
         }
       ],
-      "title": "FLUX.1 Fill crop inpaint conditioning",
+      "title": "InpaintModelConditioning",
       "properties": {
         "Node name for S&R": "InpaintModelConditioning"
       },
@@ -1092,7 +1092,7 @@
           ]
         }
       ],
-      "title": "Sample repaired crop",
+      "title": "KSampler",
       "properties": {
         "Node name for S&R": "KSampler"
       },
@@ -1145,7 +1145,7 @@
           ]
         }
       ],
-      "title": "Decode repaired crop",
+      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -1174,7 +1174,7 @@
         }
       ],
       "outputs": [],
-      "title": "Repaired crop preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1254,7 +1254,7 @@
           ]
         }
       ],
-      "title": "Paste repaired crop back",
+      "title": "ImageCompositeMasked",
       "properties": {
         "Node name for S&R": "ImageCompositeMasked"
       },
@@ -1287,7 +1287,7 @@
         }
       ],
       "outputs": [],
-      "title": "Final image preview",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1325,7 +1325,7 @@
         }
       ],
       "outputs": [],
-      "title": "Save final image",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1372,7 +1372,7 @@
           ]
         }
       ],
-      "title": "Batch: original then final",
+      "title": "ImageBatch",
       "properties": {
         "Node name for S&R": "ImageBatch"
       },
@@ -1401,7 +1401,7 @@
         }
       ],
       "outputs": [],
-      "title": "Compare: original / final",
+      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1439,7 +1439,7 @@
         }
       ],
       "outputs": [],
-      "title": "Save original/final comparison",
+      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1472,7 +1472,7 @@
           ]
         }
       ],
-      "title": "Load YOLO watermark detector",
+      "title": "WatermarkDetectorLoader",
       "properties": {
         "Node name for S&R": "WatermarkDetectorLoader",
         "cnr_id": "ComfyUI-Watermark-Detection"
