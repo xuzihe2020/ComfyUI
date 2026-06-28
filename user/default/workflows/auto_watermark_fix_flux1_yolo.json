@@ -125,7 +125,7 @@
         "cnr_id": "ComfyUI-Watermark-Detection"
       },
       "widgets_values": [
-        0.5
+        0.55
       ]
     },
     {
@@ -238,10 +238,10 @@
         "Node name for S&R": "MaskFix+"
       },
       "widgets_values": [
-        12,
-        8,
-        0,
+        6,
         3,
+        0,
+        1,
         1
       ]
     },
