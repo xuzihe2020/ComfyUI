@@ -66,6 +66,12 @@
       "folder": "comfyui_face_parsing",
       "repo": "https://github.com/Ryuukeisyou/comfyui_face_parsing",
       "reason": "Provides face parsing and bbox crop nodes for tight face-only masks that exclude hair, neck, clothing, and background."
+    },
+    {
+      "name": "ComfyUI-enricos-nodes",
+      "folder": "ComfyUI-enricos-nodes",
+      "repo": "https://github.com/erosDiffusion/ComfyUI-enricos-nodes",
+      "reason": "Provides an interactive compositor for Photoshop-like layer placement, scale, rotation, stretch, and transformed mask outputs for foundation layout workflows."
     }
   ]
 }
