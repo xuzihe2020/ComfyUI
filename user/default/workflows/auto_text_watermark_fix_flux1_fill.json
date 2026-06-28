@@ -16,7 +16,7 @@
         70
       ],
       "flags": {},
-      "order": 7,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
@@ -58,8 +58,8 @@
       "id": 25,
       "type": "PreviewImage",
       "pos": [
-        4155.89289002916,
-        -239.3526089821002
+        1535.0850629790002,
+        728.9412105645689
       ],
       "size": [
         360,
@@ -162,8 +162,8 @@
       "id": 26,
       "type": "SaveImage",
       "pos": [
-        4155.89289002916,
-        105.29976080322685
+        1535.0850629790002,
+        1073.5935803498955
       ],
       "size": [
         340,
@@ -210,7 +210,7 @@
         100.43718377721439
       ],
       "flags": {},
-      "order": 2,
+      "order": 1,
       "mode": 0,
       "inputs": [
         {
@@ -263,7 +263,7 @@
         77.17556316251984
       ],
       "flags": {},
-      "order": 3,
+      "order": 2,
       "mode": 0,
       "inputs": [
         {
@@ -443,201 +443,6 @@
       ]
     },
     {
-      "id": 1,
-      "type": "LoadImage",
-      "pos": [
-        -973.8695325837053,
-        -235.6211529270888
-      ],
-      "size": [
-        614.3073161741934,
-        739.1105765194277
-      ],
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "COMBO",
-          "widget": {
-            "name": "image"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "choose file to upload",
-          "name": "upload",
-          "type": "IMAGEUPLOAD",
-          "widget": {
-            "name": "upload"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            2,
-            8,
-            29,
-            36
-          ]
-        },
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "title": "Original image",
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "watermark_test_image.jpeg",
-        "image"
-      ]
-    },
-    {
-      "id": 4,
-      "type": "PreviewImage",
-      "pos": [
-        191.51536529449214,
-        -242.40216053191608
-      ],
-      "size": [
-        421.89806032509046,
-        482.04430428095657
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 3
-        }
-      ],
-      "outputs": [],
-      "title": "OCR boxes preview",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 3,
-      "type": "Apply EasyOCR",
-      "pos": [
-        -212.64526014757072,
-        82.54924288931885
-      ],
-      "size": [
-        360,
-        170
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "IMAGE",
-          "link": 2
-        },
-        {
-          "localized_name": "gpu",
-          "name": "gpu",
-          "type": "BOOLEAN",
-          "widget": {
-            "name": "gpu"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "detect",
-          "name": "detect",
-          "type": "COMBO",
-          "widget": {
-            "name": "detect"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "language_list",
-          "name": "language_list",
-          "type": "COMBO",
-          "widget": {
-            "name": "language_list"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "language_name",
-          "name": "language_name",
-          "type": "STRING",
-          "widget": {
-            "name": "language_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "sensitivity",
-          "name": "sensitivity",
-          "type": "COMBO",
-          "widget": {
-            "name": "sensitivity"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            3
-          ]
-        },
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            4
-          ]
-        },
-        {
-          "localized_name": "JSON",
-          "name": "JSON",
-          "type": "JSON",
-          "links": null
-        }
-      ],
-      "title": "Detect text/watermark with EasyOCR",
-      "properties": {
-        "Node name for S&R": "Apply EasyOCR",
-        "cnr_id": "ComfyUI-EasyOCR"
-      },
-      "widgets_values": [
-        true,
-        "input",
-        "English",
-        "ch_sim,en",
-        "default"
-      ]
-    },
-    {
       "id": 5,
       "type": "Masks Combine Batch",
       "pos": [
@@ -673,35 +478,6 @@
       "properties": {
         "Node name for S&R": "Masks Combine Batch",
         "cnr_id": "was-node-suite-comfyui"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 7,
-      "type": "MaskPreview",
-      "pos": [
-        644.4353935770965,
-        -238.89851227405302
-      ],
-      "size": [
-        408.75940284054195,
-        473.7232102175029
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 6
-        }
-      ],
-      "outputs": [],
-      "title": "Expanded OCR mask preview",
-      "properties": {
-        "Node name for S&R": "MaskPreview"
       },
       "widgets_values": []
     },
@@ -1051,8 +827,8 @@
       "id": 20,
       "type": "InpaintModelConditioning",
       "pos": [
-        2397.4203017835575,
-        -190.59690400377252
+        -211.1693442457205,
+        771.587825032455
       ],
       "size": [
         390,
@@ -1140,8 +916,8 @@
       "id": 21,
       "type": "KSampler",
       "pos": [
-        2837.4874275056927,
-        -211.06658399410077
+        228.89778147641442,
+        751.1181450421268
       ],
       "size": [
         360,
@@ -1245,7 +1021,7 @@
         "Node name for S&R": "KSampler"
       },
       "widgets_values": [
-        321015381698136,
+        62506362990507,
         "randomize",
         24,
         1,
@@ -1258,8 +1034,8 @@
       "id": 22,
       "type": "VAEDecode",
       "pos": [
-        3249.4740690494737,
-        -199.73780133205054
+        640.8844230201947,
+        762.446927704177
       ],
       "size": [
         260,
@@ -1303,8 +1079,8 @@
       "id": 23,
       "type": "PreviewImage",
       "pos": [
-        3583.4470853842176,
-        -239.2812862726251
+        974.8574393549378,
+        722.9034427636025
       ],
       "size": [
         415.6242293324558,
@@ -1332,8 +1108,8 @@
       "id": 24,
       "type": "ImageCompositeMasked",
       "pos": [
-        3586.4269810116775,
-        347.3230655567138
+        977.8373349823977,
+        1309.5077945929415
       ],
       "size": [
         407.8792403883617,
@@ -1416,8 +1192,8 @@
       "id": 27,
       "type": "ImageBatch",
       "pos": [
-        4156.982414955039,
-        450.88053887664836
+        1536.1745879048785,
+        1419.174358423317
       ],
       "size": [
         300,
@@ -1461,8 +1237,8 @@
       "id": 28,
       "type": "PreviewImage",
       "pos": [
-        4543.3432006001885,
-        -230.72276664794603
+        1922.535373550028,
+        737.5710528987232
       ],
       "size": [
         601.9992760663308,
@@ -1490,8 +1266,8 @@
       "id": 29,
       "type": "SaveImage",
       "pos": [
-        4545.085674623259,
-        278.0901696347964
+        1924.2778475730988,
+        1246.3839891814653
       ],
       "size": [
         604.7467302568002,
@@ -1524,6 +1300,230 @@
       },
       "widgets_values": [
         "text_watermark_fix/compare_original_final"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "MaskPreview",
+      "pos": [
+        644.4353935770965,
+        -238.89851227405302
+      ],
+      "size": [
+        408.75940284054195,
+        473.7232102175029
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 6
+        }
+      ],
+      "outputs": [],
+      "title": "Expanded OCR mask preview",
+      "properties": {
+        "Node name for S&R": "MaskPreview"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 4,
+      "type": "PreviewImage",
+      "pos": [
+        191.51536529449214,
+        -242.40216053191608
+      ],
+      "size": [
+        421.89806032509046,
+        482.04430428095657
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 3
+        }
+      ],
+      "outputs": [],
+      "title": "OCR boxes preview",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 3,
+      "type": "Apply EasyOCR",
+      "pos": [
+        -212.64526014757072,
+        81.64130938865108
+      ],
+      "size": [
+        360,
+        170
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "localized_name": "gpu",
+          "name": "gpu",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "gpu"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "detect",
+          "name": "detect",
+          "type": "COMBO",
+          "widget": {
+            "name": "detect"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "language_list",
+          "name": "language_list",
+          "type": "COMBO",
+          "widget": {
+            "name": "language_list"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "language_name",
+          "name": "language_name",
+          "type": "STRING",
+          "widget": {
+            "name": "language_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sensitivity",
+          "name": "sensitivity",
+          "type": "COMBO",
+          "widget": {
+            "name": "sensitivity"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            3
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            4
+          ]
+        },
+        {
+          "localized_name": "JSON",
+          "name": "JSON",
+          "type": "JSON",
+          "links": null
+        }
+      ],
+      "title": "Detect text/watermark with EasyOCR",
+      "properties": {
+        "Node name for S&R": "Apply EasyOCR",
+        "cnr_id": "ComfyUI-EasyOCR"
+      },
+      "widgets_values": [
+        true,
+        "input",
+        "English",
+        "ch_sim,en",
+        "less sensitive"
+      ]
+    },
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        -973.8695325837053,
+        -235.6211529270888
+      ],
+      "size": [
+        614.3073161741934,
+        739.1105765194277
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2,
+            8,
+            29,
+            36
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "title": "Original image",
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "watermark_test_image.jpeg",
+        "image"
       ]
     }
   ],
@@ -1874,8 +1874,8 @@
       "id": 4,
       "title": "4. Inpaint padded crop and soft paste-back",
       "bounding": [
-        2387.4203017835575,
-        -309.28128627262487,
+        -221.1693442457205,
+        652.9034427636027,
         1631.785264377383,
         842.8325125963908
       ],
@@ -1886,8 +1886,8 @@
       "id": 5,
       "title": "5. Save and compare",
       "bounding": [
-        4145.89289002916,
-        -309.3526089821001,
+        1525.0850629790002,
+        658.9412105645691,
         1013.9395148508993,
         1065.7303170707346
       ],
@@ -1898,10 +1898,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.4355129925921984,
+      "scale": 0.2976181587789006,
       "offset": [
-        -2242.9221330549126,
-        743.8327357481062
+        1148.7482454869235,
+        2052.3120014192964
       ]
     }
   },
