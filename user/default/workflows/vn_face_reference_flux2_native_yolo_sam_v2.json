@@ -1,9 +1,34 @@
 {
-  "id": "vn-face-reference-flux2-native-yolo-sam",
+  "id": "vn-face-reference-flux2-native-yolo-sam-v2",
   "revision": 0,
-  "last_node_id": 43,
-  "last_link_id": 52,
+  "last_node_id": 59,
+  "last_link_id": 64,
   "nodes": [
+    {
+      "id": 1,
+      "type": "Note",
+      "pos": [
+        -923.9511848473838,
+        -1180.279991708459
+      ],
+      "size": [
+        1045.3319988900612,
+        250.62777595504463
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "FLUX2 native face reference inpaint.\n\nDetection only decides WHERE:\nLoad original image -> YOLO face bbox -> SAM refined face mask -> dilate/blur so cheeks, jaw, chin, and face width can change.\n\nFLUX2 decides WHAT:\nOriginal image latent + face mask -> SetLatentNoiseMask -> SamplerCustomAdvanced.\nPrompt + original image reference + up to 3 face reference images -> ReferenceLatent chain -> FluxKontextMultiReferenceLatentMethod -> FluxGuidance.\n\nUse face/head-focused references. Keep denoise low/medium for subtle detail correction; raise it if face width/fullness must move more. If using fewer than 3 face refs, bypass extra ReferenceLatent nodes or point them at the strongest reference image."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
     {
       "id": 2,
       "type": "LoadImage",
@@ -48,7 +73,10 @@
             2,
             3,
             4,
-            5
+            5,
+            7,
+            10,
+            58
           ]
         },
         {
@@ -144,226 +172,6 @@
       ],
       "properties": {
         "Node name for S&R": "GetImageSize+"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 6,
-      "type": "ImpactSimpleDetectorSEGS",
-      "pos": [
-        -538.0164683948865,
-        824.2975408380681
-      ],
-      "size": [
-        315,
-        310
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "bbox_detector",
-          "type": "BBOX_DETECTOR",
-          "link": 6,
-          "slot_index": 0
-        },
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 3
-        },
-        {
-          "name": "sam_model_opt",
-          "type": "SAM_MODEL",
-          "shape": 7,
-          "link": 8,
-          "slot_index": 2
-        },
-        {
-          "name": "segm_detector_opt",
-          "type": "SEGM_DETECTOR",
-          "shape": 7,
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "SEGS",
-          "type": "SEGS",
-          "shape": 3,
-          "links": [
-            7
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ImpactSimpleDetectorSEGS"
-      },
-      "widgets_values": [
-        0.5,
-        0,
-        3,
-        10,
-        0.5,
-        0,
-        0,
-        0.7,
-        14
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 8,
-      "type": "SegsToCombinedMask",
-      "pos": [
-        -538.0164683948865,
-        1044.2975408380673
-      ],
-      "size": [
-        240,
-        70
-      ],
-      "flags": {},
-      "order": 22,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "segs",
-          "type": "SEGS",
-          "link": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            9
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SegsToCombinedMask"
-      },
-      "widgets_values": [],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 9,
-      "type": "ImpactDilateMask",
-      "pos": [
-        -148.01646839488632,
-        1049.2975408380673
-      ],
-      "size": [
-        220,
-        70
-      ],
-      "flags": {},
-      "order": 25,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 9
-        },
-        {
-          "localized_name": "dilation",
-          "name": "dilation",
-          "type": "INT",
-          "widget": {
-            "name": "dilation"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            10
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ImpactDilateMask"
-      },
-      "widgets_values": [
-        0
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 11,
-      "type": "MaskToImage",
-      "pos": [
-        391.9835316051137,
-        1044.2975408380673
-      ],
-      "size": [
-        175.74375,
-        60
-      ],
-      "flags": {},
-      "order": 29,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 11
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            13
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "MaskToImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 12,
-      "type": "PreviewImage",
-      "pos": [
-        611.9835316051135,
-        979.2975408380679
-      ],
-      "size": [
-        330,
-        300
-      ],
-      "flags": {},
-      "order": 32,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 13
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
       },
       "widgets_values": []
     },
@@ -569,7 +377,6 @@
           "name": "LATENT",
           "type": "LATENT",
           "links": [
-            19,
             20
           ]
         }
@@ -683,6 +490,66 @@
       "widgets_values": []
     },
     {
+      "id": 19,
+      "type": "LoadImage",
+      "pos": [
+        98.18181818181812,
+        99.2562588778411
+      ],
+      "size": [
+        300,
+        314
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            25
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "example.png",
+        "image"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
       "id": 20,
       "type": "VAEEncode",
       "pos": [
@@ -717,6 +584,109 @@
           "type": "LATENT",
           "links": [
             26
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEEncode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 21,
+      "type": "LoadImage",
+      "pos": [
+        441.98375355113615,
+        251.98358709161874
+      ],
+      "size": [
+        300,
+        314.00000000000006
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            27
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "example.png",
+        "image"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 22,
+      "type": "VAEEncode",
+      "pos": [
+        898.5125177556816,
+        159.6281294389203
+      ],
+      "size": [
+        210,
+        70
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "pixels",
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 27
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            28
           ]
         }
       ],
@@ -1538,359 +1508,6 @@
       ]
     },
     {
-      "id": 19,
-      "type": "LoadImage",
-      "pos": [
-        98.18181818181812,
-        99.2562588778411
-      ],
-      "size": [
-        300,
-        314
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "COMBO",
-          "widget": {
-            "name": "image"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "choose file to upload",
-          "name": "upload",
-          "type": "IMAGEUPLOAD",
-          "widget": {
-            "name": "upload"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            25
-          ]
-        },
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "example.png",
-        "image"
-      ],
-      "color": "#232",
-      "bgcolor": "#353"
-    },
-    {
-      "id": 22,
-      "type": "VAEEncode",
-      "pos": [
-        898.5125177556816,
-        159.6281294389203
-      ],
-      "size": [
-        210,
-        70
-      ],
-      "flags": {},
-      "order": 20,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "pixels",
-          "name": "pixels",
-          "type": "IMAGE",
-          "link": 27
-        },
-        {
-          "localized_name": "vae",
-          "name": "vae",
-          "type": "VAE",
-          "link": 17
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "LATENT",
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            28
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VAEEncode"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 10,
-      "type": "MaskBlur+",
-      "pos": [
-        123.5950816761364,
-        1024.5041725852268
-      ],
-      "size": [
-        220,
-        90
-      ],
-      "flags": {},
-      "order": 27,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 10
-        },
-        {
-          "localized_name": "amount",
-          "name": "amount",
-          "type": "INT",
-          "widget": {
-            "name": "amount"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "device",
-          "name": "device",
-          "type": "COMBO",
-          "widget": {
-            "name": "device"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            11,
-            12
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "MaskBlur+"
-      },
-      "widgets_values": [
-        7,
-        "auto"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 21,
-      "type": "LoadImage",
-      "pos": [
-        441.98375355113615,
-        251.98358709161874
-      ],
-      "size": [
-        300,
-        314.00000000000006
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "COMBO",
-          "widget": {
-            "name": "image"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "choose file to upload",
-          "name": "upload",
-          "type": "IMAGEUPLOAD",
-          "widget": {
-            "name": "upload"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            27
-          ]
-        },
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "example.png",
-        "image"
-      ],
-      "color": "#232",
-      "bgcolor": "#353"
-    },
-    {
-      "id": 5,
-      "type": "UltralyticsDetectorProvider",
-      "pos": [
-        -918.6186611757861,
-        870.7941040587455
-      ],
-      "size": [
-        320,
-        78
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model_name",
-          "name": "model_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "model_name"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "BBOX_DETECTOR",
-          "name": "BBOX_DETECTOR",
-          "type": "BBOX_DETECTOR",
-          "links": [
-            6
-          ]
-        },
-        {
-          "localized_name": "SEGM_DETECTOR",
-          "name": "SEGM_DETECTOR",
-          "type": "SEGM_DETECTOR",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "UltralyticsDetectorProvider"
-      },
-      "widgets_values": [
-        "bbox/face_yolov8m.pt"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 7,
-      "type": "SAMLoader",
-      "pos": [
-        -916.8120828330873,
-        1032.8558173551544
-      ],
-      "size": [
-        320,
-        82
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model_name",
-          "name": "model_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "model_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "device_mode",
-          "name": "device_mode",
-          "type": "COMBO",
-          "widget": {
-            "name": "device_mode"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "SAM_MODEL",
-          "name": "SAM_MODEL",
-          "type": "SAM_MODEL",
-          "links": [
-            8
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SAMLoader"
-      },
-      "widgets_values": [
-        "sam_vit_b_01ec64.pth",
-        "AUTO"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 1,
-      "type": "Note",
-      "pos": [
-        -923.9511848473838,
-        -1180.279991708459
-      ],
-      "size": [
-        1045.3319988900612,
-        250.62777595504463
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "Note"
-      },
-      "widgets_values": [
-        "FLUX2 native face reference inpaint.\n\nDetection only decides WHERE:\nLoad original image -> YOLO face bbox -> SAM refined face mask -> dilate/blur so cheeks, jaw, chin, and face width can change.\n\nFLUX2 decides WHAT:\nOriginal image latent + face mask -> SetLatentNoiseMask -> SamplerCustomAdvanced.\nPrompt + original image reference + up to 3 face reference images -> ReferenceLatent chain -> FluxKontextMultiReferenceLatentMethod -> FluxGuidance.\n\nUse face/head-focused references. Keep denoise low/medium for subtle detail correction; raise it if face width/fullness must move more. If using fewer than 3 face refs, bypass extra ReferenceLatent nodes or point them at the strongest reference image."
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
       "id": 41,
       "type": "ImageBatch",
       "pos": [
@@ -2000,6 +1617,871 @@
       "widgets_values": [
         "vn_face_refine_flux2_native/compare_original_final"
       ]
+    },
+    {
+      "id": 44,
+      "type": "BBoxDetectorLoader(FaceParsing)",
+      "pos": [
+        -900,
+        460
+      ],
+      "size": [
+        330,
+        70
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "BBoxDetectorLoader(FaceParsing)"
+      },
+      "widgets_values": [
+        "bbox/face_yolov8m.pt"
+      ],
+      "inputs": [
+        {
+          "name": "model_name",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "model_name"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "BBOX_DETECTOR",
+          "type": "BBOX_DETECTOR",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 45,
+      "type": "BBoxDetect(FaceParsing)",
+      "pos": [
+        -520,
+        420
+      ],
+      "size": [
+        330,
+        210
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "BBoxDetect(FaceParsing)"
+      },
+      "widgets_values": [
+        0.3,
+        0,
+        0.22,
+        true
+      ],
+      "inputs": [
+        {
+          "name": "bbox_detector",
+          "type": "BBOX_DETECTOR",
+          "link": 6
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 7
+        },
+        {
+          "name": "threshold",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "threshold"
+          }
+        },
+        {
+          "name": "dilation",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "dilation"
+          }
+        },
+        {
+          "name": "dilation_ratio",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "dilation_ratio"
+          }
+        },
+        {
+          "name": "by_ratio",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "by_ratio"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "BBOX_LIST",
+          "type": "BBOX_LIST",
+          "links": [
+            8
+          ]
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 46,
+      "type": "BBoxListItemSelect(FaceParsing)",
+      "pos": [
+        -140,
+        420
+      ],
+      "size": [
+        260,
+        90
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "BBoxListItemSelect(FaceParsing)"
+      },
+      "widgets_values": [
+        0
+      ],
+      "inputs": [
+        {
+          "name": "bbox_list",
+          "type": "BBOX_LIST",
+          "link": 8
+        },
+        {
+          "name": "index",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "index"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "BBOX",
+          "type": "BBOX",
+          "links": [
+            9,
+            57
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 47,
+      "type": "ImageCropWithBBox(FaceParsing)",
+      "pos": [
+        180,
+        420
+      ],
+      "size": [
+        300,
+        100
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "ImageCropWithBBox(FaceParsing)"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {
+          "name": "bbox",
+          "type": "BBOX",
+          "link": 9
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            53
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 48,
+      "type": "FaceParsingProcessorLoader(FaceParsing)",
+      "pos": [
+        180,
+        570
+      ],
+      "size": [
+        300,
+        60
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "FaceParsingProcessorLoader(FaceParsing)"
+      },
+      "widgets_values": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FACE_PARSING_PROCESSOR",
+          "type": "FACE_PARSING_PROCESSOR",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 49,
+      "type": "FaceParsingModelLoader(FaceParsing)",
+      "pos": [
+        180,
+        680
+      ],
+      "size": [
+        300,
+        80
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "FaceParsingModelLoader(FaceParsing)"
+      },
+      "widgets_values": [
+        "cuda"
+      ],
+      "inputs": [
+        {
+          "name": "device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "device"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "FACE_PARSING_MODEL",
+          "type": "FACE_PARSING_MODEL",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 50,
+      "type": "FaceParse(FaceParsing)",
+      "pos": [
+        540,
+        420
+      ],
+      "size": [
+        330,
+        150
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "FaceParse(FaceParsing)"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {
+          "name": "model",
+          "type": "FACE_PARSING_MODEL",
+          "link": 11
+        },
+        {
+          "name": "processor",
+          "type": "FACE_PARSING_PROCESSOR",
+          "link": 13
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 53
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            54
+          ]
+        },
+        {
+          "name": "FACE_PARSING_RESULT",
+          "type": "FACE_PARSING_RESULT",
+          "links": [
+            55
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 51,
+      "type": "PreviewImage",
+      "pos": [
+        540,
+        610
+      ],
+      "size": [
+        330,
+        240
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 54
+        }
+      ],
+      "outputs": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 52,
+      "type": "FaceParsingResultsParser(FaceParsing)",
+      "pos": [
+        920,
+        420
+      ],
+      "size": [
+        360,
+        470
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "FaceParsingResultsParser(FaceParsing)"
+      },
+      "widgets_values": [
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "inputs": [
+        {
+          "name": "result",
+          "type": "FACE_PARSING_RESULT",
+          "link": 55
+        },
+        {
+          "name": "background",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "background"
+          }
+        },
+        {
+          "name": "skin",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "skin"
+          }
+        },
+        {
+          "name": "nose",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "nose"
+          }
+        },
+        {
+          "name": "eye_g",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "eye_g"
+          }
+        },
+        {
+          "name": "r_eye",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "r_eye"
+          }
+        },
+        {
+          "name": "l_eye",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "l_eye"
+          }
+        },
+        {
+          "name": "r_brow",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "r_brow"
+          }
+        },
+        {
+          "name": "l_brow",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "l_brow"
+          }
+        },
+        {
+          "name": "r_ear",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "r_ear"
+          }
+        },
+        {
+          "name": "l_ear",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "l_ear"
+          }
+        },
+        {
+          "name": "mouth",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "mouth"
+          }
+        },
+        {
+          "name": "u_lip",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "u_lip"
+          }
+        },
+        {
+          "name": "l_lip",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "l_lip"
+          }
+        },
+        {
+          "name": "hair",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "hair"
+          }
+        },
+        {
+          "name": "hat",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "hat"
+          }
+        },
+        {
+          "name": "ear_r",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "ear_r"
+          }
+        },
+        {
+          "name": "neck_l",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "neck_l"
+          }
+        },
+        {
+          "name": "neck",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "neck"
+          }
+        },
+        {
+          "name": "cloth",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "cloth"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            56
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 53,
+      "type": "MaskInsertWithBBox(FaceParsing)",
+      "pos": [
+        1340,
+        420
+      ],
+      "size": [
+        330,
+        140
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "MaskInsertWithBBox(FaceParsing)"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {
+          "name": "bbox",
+          "type": "BBOX",
+          "link": 57
+        },
+        {
+          "name": "image_src",
+          "type": "IMAGE",
+          "link": 58
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 56
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            59,
+            61
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 54,
+      "type": "MaskToImage",
+      "pos": [
+        1720,
+        420
+      ],
+      "size": [
+        230,
+        70
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 59
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            60
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 55,
+      "type": "PreviewImage",
+      "pos": [
+        1980,
+        420
+      ],
+      "size": [
+        360,
+        300
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 60
+        }
+      ],
+      "outputs": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 56,
+      "type": "ImpactDilateMask",
+      "pos": [
+        1720,
+        760
+      ],
+      "size": [
+        260,
+        90
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "ImpactDilateMask"
+      },
+      "widgets_values": [
+        6
+      ],
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 61
+        },
+        {
+          "name": "dilation",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "dilation"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            62
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 57,
+      "type": "MaskBlur+",
+      "pos": [
+        2020,
+        760
+      ],
+      "size": [
+        280,
+        120
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "MaskBlur+"
+      },
+      "widgets_values": [
+        5,
+        "auto"
+      ],
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 62
+        },
+        {
+          "name": "amount",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "amount"
+          }
+        },
+        {
+          "name": "device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "device"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            12,
+            63
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 58,
+      "type": "MaskToImage",
+      "pos": [
+        2340,
+        760
+      ],
+      "size": [
+        230,
+        70
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 63
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            64
+          ]
+        }
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 59,
+      "type": "PreviewImage",
+      "pos": [
+        2600,
+        760
+      ],
+      "size": [
+        360,
+        300
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 64
+        }
+      ],
+      "outputs": [],
+      "color": "#223",
+      "bgcolor": "#335"
     }
   ],
   "links": [
@@ -2045,55 +2527,55 @@
     ],
     [
       6,
-      5,
+      44,
       0,
-      6,
+      45,
       0,
       "BBOX_DETECTOR"
     ],
     [
       7,
-      6,
-      0,
-      8,
-      1,
-      "SEGS"
-    ],
-    [
-      8,
-      7,
-      0,
-      6,
       2,
-      "SAM_MODEL"
+      0,
+      45,
+      1,
+      "IMAGE"
     ],
     [
-      9,
       8,
+      45,
       0,
+      46,
+      0,
+      "BBOX_LIST"
+    ],
+    [
       9,
+      46,
       0,
-      "MASK"
+      47,
+      0,
+      "BBOX"
     ],
     [
       10,
-      9,
+      2,
       0,
-      10,
-      0,
-      "MASK"
+      47,
+      1,
+      "IMAGE"
     ],
     [
       11,
-      10,
+      49,
       0,
-      11,
+      50,
       0,
-      "MASK"
+      "FACE_PARSING_MODEL"
     ],
     [
       12,
-      10,
+      57,
       0,
       36,
       1,
@@ -2101,11 +2583,11 @@
     ],
     [
       13,
-      11,
+      48,
       0,
-      12,
-      0,
-      "IMAGE"
+      50,
+      1,
+      "FACE_PARSING_PROCESSOR"
     ],
     [
       14,
@@ -2402,6 +2884,102 @@
       43,
       0,
       "IMAGE"
+    ],
+    [
+      53,
+      47,
+      0,
+      50,
+      2,
+      "IMAGE"
+    ],
+    [
+      54,
+      50,
+      0,
+      51,
+      0,
+      "IMAGE"
+    ],
+    [
+      55,
+      50,
+      1,
+      52,
+      0,
+      "FACE_PARSING_RESULT"
+    ],
+    [
+      56,
+      52,
+      0,
+      53,
+      2,
+      "MASK"
+    ],
+    [
+      57,
+      46,
+      0,
+      53,
+      0,
+      "BBOX"
+    ],
+    [
+      58,
+      2,
+      0,
+      53,
+      1,
+      "IMAGE"
+    ],
+    [
+      59,
+      53,
+      0,
+      54,
+      0,
+      "MASK"
+    ],
+    [
+      60,
+      54,
+      0,
+      55,
+      0,
+      "IMAGE"
+    ],
+    [
+      61,
+      53,
+      0,
+      56,
+      0,
+      "MASK"
+    ],
+    [
+      62,
+      56,
+      0,
+      57,
+      0,
+      "MASK"
+    ],
+    [
+      63,
+      57,
+      0,
+      58,
+      0,
+      "MASK"
+    ],
+    [
+      64,
+      58,
+      0,
+      59,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -2419,12 +2997,12 @@
     },
     {
       "id": 2,
-      "title": "YOLO + SAM auto face mask",
+      "title": "Face parsing auto face mask",
       "bounding": [
-        -958.0164683948864,
-        784.2975408380684,
-        1950,
-        560
+        -940,
+        360,
+        3980,
+        880
       ],
       "color": "#b58b2a",
       "flags": {}

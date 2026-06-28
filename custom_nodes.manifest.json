@@ -60,6 +60,12 @@
       "folder": "comfyui-impact-subpack",
       "repo": "https://github.com/ltdrdata/ComfyUI-Impact-Subpack",
       "reason": "Provides UltralyticsDetectorProvider for YOLO face detection used to generate automatic face masks."
+    },
+    {
+      "name": "comfyui_face_parsing",
+      "folder": "comfyui_face_parsing",
+      "repo": "https://github.com/Ryuukeisyou/comfyui_face_parsing",
+      "reason": "Provides face parsing and bbox crop nodes for tight face-only masks that exclude hair, neck, clothing, and background."
     }
   ]
 }

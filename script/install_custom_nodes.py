@@ -20,10 +20,18 @@ ALWAYS_FIX_DEPENDENCIES = {
     "ComfyUI-Watermark-Detection",
     "ComfyUI-qwenmultiangle",
 }
+FORCE_NO_DEPS = {
+    "comfyui_face_parsing",
+}
 EXTRA_PIP_DEPENDENCIES = {
     "ComfyUI-Watermark-Detection": [
         "ultralytics",
         "huggingface_hub",
+    ],
+    "comfyui_face_parsing": [
+        "torchvision",
+        "ultralytics",
+        "matplotlib",
     ],
 }
 
@@ -114,24 +122,25 @@ def manager_install_node(
     name = node["name"]
     always_fix_deps = name in ALWAYS_FIX_DEPENDENCIES or node["folder"] in ALWAYS_FIX_DEPENDENCIES
     extra_dependencies = EXTRA_PIP_DEPENDENCIES.get(name, []) + EXTRA_PIP_DEPENDENCIES.get(node["folder"], [])
+    force_no_deps = name in FORCE_NO_DEPS or node["folder"] in FORCE_NO_DEPS
 
     base_cmd = [python_bin, str(manager_cli)]
     if folder.exists():
         print(f"{folder} already exists", flush=True)
         requirements = folder / "requirements.txt"
-        if requirements.exists() and (always_fix_deps or not no_deps):
+        if requirements.exists() and not force_no_deps and (always_fix_deps or not no_deps):
             run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
-        if extra_dependencies and (always_fix_deps or not no_deps):
+        if extra_dependencies and (always_fix_deps or not no_deps or force_no_deps):
             run([python_bin, "-m", "pip", "install", *extra_dependencies])
         if manager_fix_existing or always_fix_deps:
             run(base_cmd + ["fix", name, "--mode", "local"], env=manager_env())
         return
 
     cmd = base_cmd + ["install", repo, "--mode", "local", "--exit-on-fail"]
-    if no_deps and not always_fix_deps:
+    if force_no_deps or (no_deps and not always_fix_deps):
         cmd.append("--no-deps")
     run(cmd, env=manager_env())
-    if extra_dependencies and (always_fix_deps or not no_deps):
+    if extra_dependencies and (always_fix_deps or not no_deps or force_no_deps):
         run([python_bin, "-m", "pip", "install", *extra_dependencies])
 
 
@@ -143,6 +152,16 @@ def apply_post_install_fixes() -> None:
     if source_font.exists() and not expected_font.exists():
         expected_font.write_bytes(source_font.read_bytes())
         print(f"Created EasyOCR expected font resource: {expected_font}", flush=True)
+
+    face_parsing_init = CUSTOM_NODES_DIR / "comfyui_face_parsing" / "__init__.py"
+    if face_parsing_init.exists():
+        text = face_parsing_init.read_text(encoding="utf-8")
+        start = text.find("# Install packages.")
+        end = text.find("# Export classes.")
+        if start != -1 and end != -1 and start < end:
+            fixed = text[:start] + text[end:]
+            face_parsing_init.write_text(fixed, encoding="utf-8")
+            print("Removed comfyui_face_parsing import-time pip installer", flush=True)
 
 
 def main() -> None:
