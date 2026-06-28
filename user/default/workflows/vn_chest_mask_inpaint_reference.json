@@ -27,8 +27,7 @@
         "## Chest / upper torso masked inpaint\n\nGoal:\n\noriginal image -> manual chest/upper torso mask -> inpaint only that area -> use original image as visual reference -> low/medium denoise -> compare outfit consistency.\n\nMask rules:\n\n- Use a separate black/white mask image.\n- White = editable chest / upper torso / shirt region.\n- Black = protected.\n- Keep face, hair, and neck black if possible.\n- Include enough surrounding shirt/torso context so fabric tension can change naturally.\n- For silhouette changes, include a small band around the body edge.\n\nPrompt intent:\n\nPreserve same face, hair, pose, lighting, camera, and outfit design. Only adjust chest/upper torso shape under the same shirt.\n\nStart conservative. Default denoise is 0.40 through SplitSigmasDenoise. If the outfit changes, lower denoise/CFG, reduce the mask area, or make the prompt more explicit."
       ],
       "color": "#432",
-      "bgcolor": "#653",
-      "title": "MarkdownNote"
+      "bgcolor": "#653"
     },
     {
       "id": 2,
@@ -65,7 +64,6 @@
           "links": null
         }
       ],
-      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -99,7 +97,6 @@
           ]
         }
       ],
-      "title": "LoadImageMask",
       "properties": {
         "Node name for S&R": "LoadImageMask"
       },
@@ -131,7 +128,6 @@
         }
       ],
       "outputs": [],
-      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -187,8 +183,7 @@
       "widgets_values": [
         "flux2\\kleinova_nsfw_generation_22_bf16.safetensors",
         "default"
-      ],
-      "title": "UNETLoader"
+      ]
     },
     {
       "id": 6,
@@ -252,8 +247,7 @@
         "flux2\\qwen_3_8b_fp8mixed.safetensors",
         "flux2",
         "default"
-      ],
-      "title": "CLIPLoader"
+      ]
     },
     {
       "id": 7,
@@ -297,8 +291,7 @@
       },
       "widgets_values": [
         "flux2\\full_encoder_small_decoder.safetensors"
-      ],
-      "title": "VAELoader"
+      ]
     },
     {
       "id": 8,
@@ -341,7 +334,6 @@
           ]
         }
       ],
-      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -390,7 +382,6 @@
           ]
         }
       ],
-      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -444,8 +435,7 @@
       },
       "widgets_values": [
         1.1
-      ],
-      "title": "FluxGuidance"
+      ]
     },
     {
       "id": 11,
@@ -485,7 +475,6 @@
           ]
         }
       ],
-      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -530,7 +519,6 @@
           ]
         }
       ],
-      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -582,8 +570,7 @@
       },
       "widgets_values": [
         "index"
-      ],
-      "title": "FluxKontextMultiReferenceLatentMethod"
+      ]
     },
     {
       "id": 14,
@@ -666,7 +653,6 @@
           ]
         }
       ],
-      "title": "InpaintModelConditioning",
       "properties": {
         "Node name for S&R": "InpaintModelConditioning"
       },
@@ -727,7 +713,6 @@
           ]
         }
       ],
-      "title": "CFGGuider",
       "properties": {
         "Node name for S&R": "CFGGuider"
       },
@@ -776,8 +761,7 @@
       "widgets_values": [
         123456789,
         "randomize"
-      ],
-      "title": "RandomNoise"
+      ]
     },
     {
       "id": 17,
@@ -819,8 +803,7 @@
       },
       "widgets_values": [
         "euler"
-      ],
-      "title": "KSamplerSelect"
+      ]
     },
     {
       "id": 18,
@@ -871,8 +854,7 @@
       "properties": {
         "Node name for S&R": "GetImageSize"
       },
-      "widgets_values": [],
-      "title": "GetImageSize"
+      "widgets_values": []
     },
     {
       "id": 19,
@@ -927,7 +909,6 @@
           ]
         }
       ],
-      "title": "Flux2Scheduler",
       "properties": {
         "Node name for S&R": "Flux2Scheduler"
       },
@@ -984,7 +965,6 @@
           ]
         }
       ],
-      "title": "SplitSigmasDenoise",
       "properties": {
         "Node name for S&R": "SplitSigmasDenoise"
       },
@@ -1057,8 +1037,7 @@
       "properties": {
         "Node name for S&R": "SamplerCustomAdvanced"
       },
-      "widgets_values": [],
-      "title": "SamplerCustomAdvanced"
+      "widgets_values": []
     },
     {
       "id": 21,
@@ -1103,8 +1082,7 @@
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
-      "widgets_values": [],
-      "title": "VAEDecode"
+      "widgets_values": []
     },
     {
       "id": 22,
@@ -1129,7 +1107,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1158,7 +1135,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1203,7 +1179,6 @@
           ]
         }
       ],
-      "title": "ImageBatch",
       "properties": {
         "Node name for S&R": "ImageBatch"
       },
@@ -1232,7 +1207,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1270,7 +1244,6 @@
         }
       ],
       "outputs": [],
-      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1310,7 +1283,6 @@
         }
       ],
       "outputs": [],
-      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },

@@ -58,7 +58,6 @@
           "links": null
         }
       ],
-      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -90,7 +89,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -378,7 +376,6 @@
           "links": null
         }
       ],
-      "title": "MosaicDetectionNode",
       "properties": {
         "Node name for S&R": "MosaicDetectionNode",
         "cnr_id": "comfyui-fast-mosaic-detector"
@@ -436,7 +433,6 @@
         }
       ],
       "outputs": [],
-      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -520,7 +516,6 @@
           ]
         }
       ],
-      "title": "MaskFix+",
       "properties": {
         "Node name for S&R": "MaskFix+"
       },
@@ -555,7 +550,6 @@
         }
       ],
       "outputs": [],
-      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -657,7 +651,6 @@
           "links": null
         }
       ],
-      "title": "MaskBoundingBox+",
       "properties": {
         "Node name for S&R": "MaskBoundingBox+"
       },
@@ -689,7 +682,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -718,7 +710,6 @@
         }
       ],
       "outputs": [],
-      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -775,7 +766,6 @@
           ]
         }
       ],
-      "title": "MaskBlur+",
       "properties": {
         "Node name for S&R": "MaskBlur+"
       },
@@ -807,7 +797,6 @@
         }
       ],
       "outputs": [],
-      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -860,8 +849,7 @@
       },
       "widgets_values": [
         1
-      ],
-      "title": "DifferentialDiffusion"
+      ]
     },
     {
       "id": 16,
@@ -904,7 +892,6 @@
           ]
         }
       ],
-      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -958,8 +945,7 @@
       },
       "widgets_values": [
         30
-      ],
-      "title": "FluxGuidance"
+      ]
     },
     {
       "id": 18,
@@ -1002,7 +988,6 @@
           ]
         }
       ],
-      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -1091,7 +1076,6 @@
           ]
         }
       ],
-      "title": "InpaintModelConditioning",
       "properties": {
         "Node name for S&R": "InpaintModelConditioning"
       },
@@ -1203,7 +1187,6 @@
           ]
         }
       ],
-      "title": "KSampler",
       "properties": {
         "Node name for S&R": "KSampler"
       },
@@ -1256,7 +1239,6 @@
           ]
         }
       ],
-      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -1285,7 +1267,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1365,7 +1346,6 @@
           ]
         }
       ],
-      "title": "ImageCompositeMasked",
       "properties": {
         "Node name for S&R": "ImageCompositeMasked"
       },
@@ -1398,7 +1378,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1436,7 +1415,6 @@
         }
       ],
       "outputs": [],
-      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1483,7 +1461,6 @@
           ]
         }
       ],
-      "title": "ImageBatch",
       "properties": {
         "Node name for S&R": "ImageBatch"
       },
@@ -1512,7 +1489,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1550,7 +1526,6 @@
         }
       ],
       "outputs": [],
-      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1599,8 +1574,7 @@
       },
       "widgets_values": [
         "flux1\\ae.safetensors"
-      ],
-      "title": "VAELoader"
+      ]
     },
     {
       "id": 14,
@@ -1674,8 +1648,7 @@
         "flux1\\t5xxl_fp16.safetensors",
         "flux",
         "default"
-      ],
-      "title": "DualCLIPLoader"
+      ]
     },
     {
       "id": 12,
@@ -1721,7 +1694,6 @@
           ]
         }
       ],
-      "title": "UNETLoader",
       "properties": {
         "Node name for S&R": "UNETLoader"
       },

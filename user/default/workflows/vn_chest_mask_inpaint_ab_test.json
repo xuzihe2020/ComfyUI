@@ -55,8 +55,7 @@
       "properties": {
         "Node name for S&R": "GetImageSize"
       },
-      "widgets_values": [],
-      "title": "GetImageSize"
+      "widgets_values": []
     },
     {
       "id": 45,
@@ -98,7 +97,6 @@
           ]
         }
       ],
-      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -142,7 +140,6 @@
           ]
         }
       ],
-      "title": "ImageBatch",
       "properties": {
         "Node name for S&R": "ImageBatch"
       },
@@ -187,7 +184,6 @@
           ]
         }
       ],
-      "title": "ImageBatch",
       "properties": {
         "Node name for S&R": "ImageBatch"
       },
@@ -216,7 +212,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -245,8 +240,7 @@
         "## Chest / upper torso masked inpaint A/B test\n\nShared upstream:\n\n- Same original image.\n- The edit region is selected with `Olm Drag Crop: draw crop box here`.\n- `Olm Crop Info -> Values` converts that crop box to pixel coordinates.\n- `WAS Mask Rect Area Advanced` turns those coordinates into a full-size white rectangle mask.\n- Same FLUX2 model, CLIP, VAE, prompt, seed, sampler, scheduler, and image reference latent.\n\nHow to create the mask:\n\n1. Run once after loading/changing the image so DragCrop receives the preview and image size.\n2. On `Olm Drag Crop: draw crop box here`, drag/resize the crop box around the chest / upper torso / shirt area.\n3. Run again. The crop box becomes the white inpaint mask.\n4. Check `Generated crop-rectangle mask preview` before trusting the A/B output.\n\nMask rules:\n\n- White = editable crop rectangle.\n- Black = protected.\n- Keep face, hair, and neck outside the crop rectangle if possible.\n- Make the box slightly larger than the exact target so fabric has context.\n\nBranch A tests `InpaintModelConditioning`.\nBranch B tests `SetLatentNoiseMask` + `ReferenceLatent`.\n\nThe outputs are saved separately and batched as original, A, B."
       ],
       "color": "#432",
-      "bgcolor": "#653",
-      "title": "MarkdownNote"
+      "bgcolor": "#653"
     },
     {
       "id": 11,
@@ -289,7 +283,6 @@
           ]
         }
       ],
-      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -376,7 +369,6 @@
           ]
         }
       ],
-      "title": "InpaintModelConditioning",
       "properties": {
         "Node name for S&R": "InpaintModelConditioning"
       },
@@ -423,7 +415,6 @@
           ]
         }
       ],
-      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -470,7 +461,6 @@
           ]
         }
       ],
-      "title": "FluxKontextMultiReferenceLatentMethod",
       "properties": {
         "Node name for S&R": "FluxKontextMultiReferenceLatentMethod"
       },
@@ -521,8 +511,7 @@
       },
       "widgets_values": [
         "flux2\\full_encoder_small_decoder.safetensors"
-      ],
-      "title": "VAELoader"
+      ]
     },
     {
       "id": 6,
@@ -586,8 +575,7 @@
         "flux2\\qwen_3_8b_fp8mixed.safetensors",
         "flux2",
         "default"
-      ],
-      "title": "CLIPLoader"
+      ]
     },
     {
       "id": 17,
@@ -625,7 +613,6 @@
           ]
         }
       ],
-      "title": "KSamplerSelect",
       "properties": {
         "Node name for S&R": "KSamplerSelect"
       },
@@ -672,7 +659,6 @@
           ]
         }
       ],
-      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -716,7 +702,6 @@
           ]
         }
       ],
-      "title": "SetLatentNoiseMask",
       "properties": {
         "Node name for S&R": "SetLatentNoiseMask"
       },
@@ -784,7 +769,6 @@
           "links": null
         }
       ],
-      "title": "SamplerCustomAdvanced",
       "properties": {
         "Node name for S&R": "SamplerCustomAdvanced"
       },
@@ -852,7 +836,6 @@
           "links": null
         }
       ],
-      "title": "SamplerCustomAdvanced",
       "properties": {
         "Node name for S&R": "SamplerCustomAdvanced"
       },
@@ -898,7 +881,6 @@
           ]
         }
       ],
-      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -927,7 +909,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -965,7 +946,6 @@
         }
       ],
       "outputs": [],
-      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -996,7 +976,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1034,7 +1013,6 @@
         }
       ],
       "outputs": [],
-      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1065,7 +1043,6 @@
         }
       ],
       "outputs": [],
-      "title": "MaskPreview",
       "properties": {
         "Node name for S&R": "MaskPreview"
       },
@@ -1154,7 +1131,6 @@
           "links": null
         }
       ],
-      "title": "OlmCropInfoInterpreter",
       "properties": {
         "Node name for S&R": "OlmCropInfoInterpreter"
       },
@@ -1185,7 +1161,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1214,7 +1189,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1275,7 +1249,6 @@
           "links": null
         }
       ],
-      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -1335,8 +1308,7 @@
       "widgets_values": [
         "flux2\\flux_2_klein_9b.safetensors",
         "default"
-      ],
-      "title": "UNETLoader"
+      ]
     },
     {
       "id": 10,
@@ -1385,8 +1357,7 @@
       },
       "widgets_values": [
         1.1
-      ],
-      "title": "FluxGuidance"
+      ]
     },
     {
       "id": 16,
@@ -1424,7 +1395,6 @@
           ]
         }
       ],
-      "title": "RandomNoise",
       "properties": {
         "Node name for S&R": "RandomNoise"
       },
@@ -1472,7 +1442,6 @@
           ]
         }
       ],
-      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1569,7 +1538,6 @@
           ]
         }
       ],
-      "title": "Mask Rect Area (Advanced)",
       "properties": {
         "Node name for S&R": "Mask Rect Area (Advanced)"
       },
@@ -1615,7 +1583,6 @@
         }
       ],
       "outputs": [],
-      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1665,7 +1632,6 @@
           ]
         }
       ],
-      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -1727,7 +1693,6 @@
           ]
         }
       ],
-      "title": "Flux2Scheduler",
       "properties": {
         "Node name for S&R": "Flux2Scheduler"
       },
@@ -1826,7 +1791,6 @@
           ]
         }
       ],
-      "title": "OlmDragCrop",
       "properties": {
         "Node name for S&R": "OlmDragCrop",
         "dragStart": [
@@ -1925,7 +1889,6 @@
           ]
         }
       ],
-      "title": "CFGGuider",
       "properties": {
         "Node name for S&R": "CFGGuider"
       },
@@ -1986,7 +1949,6 @@
           ]
         }
       ],
-      "title": "CFGGuider",
       "properties": {
         "Node name for S&R": "CFGGuider"
       },
@@ -2035,7 +1997,6 @@
           ]
         }
       ],
-      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -2090,7 +2051,6 @@
           ]
         }
       ],
-      "title": "SplitSigmasDenoise",
       "properties": {
         "Node name for S&R": "SplitSigmasDenoise"
       },
@@ -2145,7 +2105,6 @@
           ]
         }
       ],
-      "title": "SplitSigmasDenoise",
       "properties": {
         "Node name for S&R": "SplitSigmasDenoise"
       },

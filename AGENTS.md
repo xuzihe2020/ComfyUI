@@ -2,17 +2,18 @@
 
 ## ComfyUI Workflow JSON
 
-When creating or editing ComfyUI workflow JSON files, every node `type` value must be the exact ComfyUI registered node type.
+When creating or editing ComfyUI workflow JSON files, every node `type` value must be the exact ComfyUI registered backend node type.
 
 Do not invent node type names. Do not use display names. Do not use Python class names unless that class name is exactly the key registered in `NODE_CLASS_MAPPINGS`.
 
-For every node in workflow JSON, keep these values identical to the registered node type:
+Keep backend references as registered node types:
 
 - `type`
-- `title`
 - `properties["Node name for S&R"]` when that property exists
 
-Do not add descriptive custom node titles such as workflow steps, comments, or plain-English labels. Do not rename nodes in workflow JSON for readability. The workflow UI must show the real node type name.
+Do not add custom node `title` values to workflow JSON. Leave node `title` absent so ComfyUI displays the real UI/search node name from its registry, such as `Mask Fix` for backend type `MaskFix+`.
+
+Do not set node `title` to backend type names such as `MaskFix+` when the UI/search name is different. Do not add descriptive custom titles such as workflow steps, comments, or plain-English labels. If a node title absolutely must be set, it must be the exact UI/search display name from ComfyUI's runtime registry or `NODE_DISPLAY_NAME_MAPPINGS`, not a guessed label and not the backend type unless the UI/search name is exactly the same.
 
 Before saving a workflow that uses custom nodes, verify each custom node `type` against at least one authoritative source:
 
@@ -22,4 +23,4 @@ Before saving a workflow that uses custom nodes, verify each custom node `type` 
 
 For Impact Pack specifically, remember that some Python class names differ from workflow type names. For example, the Python class `BboxDetectorForEach` is registered for workflow JSON as `BboxDetectorSEGS`.
 
-If a workflow contains a node title or display name from an older file, do not treat it as the node type. Replace node titles with the actual registered `type` string when editing workflows.
+If a workflow contains a node title from an older file, do not treat it as the backend type. Remove custom node titles unless there is a verified reason to preserve an exact UI/search display name.

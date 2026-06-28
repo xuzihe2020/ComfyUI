@@ -58,7 +58,6 @@
           "links": null
         }
       ],
-      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -92,7 +91,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -144,7 +142,6 @@
           "links": null
         }
       ],
-      "title": "GetImageSize+",
       "properties": {
         "Node name for S&R": "GetImageSize+"
       },
@@ -225,7 +222,6 @@
           ]
         }
       ],
-      "title": "BboxDetectorSEGS",
       "properties": {
         "Node name for S&R": "BboxDetectorSEGS"
       },
@@ -337,7 +333,6 @@
           ]
         }
       ],
-      "title": "SAMDetectorCombined",
       "properties": {
         "Node name for S&R": "SAMDetectorCombined"
       },
@@ -393,7 +388,6 @@
           ]
         }
       ],
-      "title": "ImpactDilateMask",
       "properties": {
         "Node name for S&R": "ImpactDilateMask"
       },
@@ -435,7 +429,6 @@
           ]
         }
       ],
-      "title": "MaskToImage",
       "properties": {
         "Node name for S&R": "MaskToImage"
       },
@@ -464,7 +457,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -514,7 +506,6 @@
           ]
         }
       ],
-      "title": "UNETLoader",
       "properties": {
         "Node name for S&R": "UNETLoader"
       },
@@ -580,7 +571,6 @@
           ]
         }
       ],
-      "title": "CLIPLoader",
       "properties": {
         "Node name for S&R": "CLIPLoader"
       },
@@ -631,7 +621,6 @@
           ]
         }
       ],
-      "title": "VAELoader",
       "properties": {
         "Node name for S&R": "VAELoader"
       },
@@ -680,7 +669,6 @@
           ]
         }
       ],
-      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -736,7 +724,6 @@
           "links": null
         }
       ],
-      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -785,7 +772,6 @@
           ]
         }
       ],
-      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -829,7 +815,6 @@
           ]
         }
       ],
-      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -876,7 +861,6 @@
           ]
         }
       ],
-      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -927,7 +911,6 @@
           ]
         }
       ],
-      "title": "CLIPTextEncode",
       "properties": {
         "Node name for S&R": "CLIPTextEncode"
       },
@@ -976,7 +959,6 @@
           ]
         }
       ],
-      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1021,7 +1003,6 @@
           ]
         }
       ],
-      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1066,7 +1047,6 @@
           ]
         }
       ],
-      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1111,7 +1091,6 @@
           ]
         }
       ],
-      "title": "ReferenceLatent",
       "properties": {
         "Node name for S&R": "ReferenceLatent"
       },
@@ -1158,7 +1137,6 @@
           ]
         }
       ],
-      "title": "FluxKontextMultiReferenceLatentMethod",
       "properties": {
         "Node name for S&R": "FluxKontextMultiReferenceLatentMethod"
       },
@@ -1209,7 +1187,6 @@
           ]
         }
       ],
-      "title": "FluxGuidance",
       "properties": {
         "Node name for S&R": "FluxGuidance"
       },
@@ -1270,7 +1247,6 @@
           ]
         }
       ],
-      "title": "CFGGuider",
       "properties": {
         "Node name for S&R": "CFGGuider"
       },
@@ -1313,7 +1289,6 @@
           ]
         }
       ],
-      "title": "RandomNoise",
       "properties": {
         "Node name for S&R": "RandomNoise"
       },
@@ -1357,7 +1332,6 @@
           ]
         }
       ],
-      "title": "KSamplerSelect",
       "properties": {
         "Node name for S&R": "KSamplerSelect"
       },
@@ -1418,7 +1392,6 @@
           ]
         }
       ],
-      "title": "Flux2Scheduler",
       "properties": {
         "Node name for S&R": "Flux2Scheduler"
       },
@@ -1475,7 +1448,6 @@
           ]
         }
       ],
-      "title": "SplitSigmasDenoise",
       "properties": {
         "Node name for S&R": "SplitSigmasDenoise"
       },
@@ -1521,7 +1493,6 @@
           ]
         }
       ],
-      "title": "SetLatentNoiseMask",
       "properties": {
         "Node name for S&R": "SetLatentNoiseMask"
       },
@@ -1589,7 +1560,6 @@
           "links": null
         }
       ],
-      "title": "SamplerCustomAdvanced",
       "properties": {
         "Node name for S&R": "SamplerCustomAdvanced"
       },
@@ -1634,7 +1604,6 @@
           ]
         }
       ],
-      "title": "VAEDecode",
       "properties": {
         "Node name for S&R": "VAEDecode"
       },
@@ -1663,7 +1632,6 @@
         }
       ],
       "outputs": [],
-      "title": "PreviewImage",
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -1701,7 +1669,6 @@
         }
       ],
       "outputs": [],
-      "title": "SaveImage",
       "properties": {
         "Node name for S&R": "SaveImage"
       },
@@ -1759,7 +1726,6 @@
           "links": null
         }
       ],
-      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -1808,7 +1774,6 @@
           ]
         }
       ],
-      "title": "VAEEncode",
       "properties": {
         "Node name for S&R": "VAEEncode"
       },
@@ -1865,7 +1830,6 @@
           ]
         }
       ],
-      "title": "MaskBlur+",
       "properties": {
         "Node name for S&R": "MaskBlur+"
       },
@@ -1926,7 +1890,6 @@
           "links": null
         }
       ],
-      "title": "LoadImage",
       "properties": {
         "Node name for S&R": "LoadImage"
       },
@@ -1978,7 +1941,6 @@
           "links": null
         }
       ],
-      "title": "UltralyticsDetectorProvider",
       "properties": {
         "Node name for S&R": "UltralyticsDetectorProvider"
       },
@@ -2032,7 +1994,6 @@
           ]
         }
       ],
-      "title": "SAMLoader",
       "properties": {
         "Node name for S&R": "SAMLoader"
       },
@@ -2059,7 +2020,6 @@
       "mode": 0,
       "inputs": [],
       "outputs": [],
-      "title": "Note",
       "properties": {
         "Node name for S&R": "Note"
       },
