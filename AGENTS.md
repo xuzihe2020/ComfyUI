@@ -24,3 +24,16 @@ Before saving a workflow that uses custom nodes, verify each custom node `type` 
 For Impact Pack specifically, remember that some Python class names differ from workflow type names. For example, the Python class `BboxDetectorForEach` is registered for workflow JSON as `BboxDetectorSEGS`.
 
 If a workflow contains a node title from an older file, do not treat it as the backend type. Remove custom node titles unless there is a verified reason to preserve an exact UI/search display name.
+
+## ComfyUI Custom Nodes
+
+Do not edit files under `custom_nodes/` as the durable fix for a workflow or dependency problem. Custom node folders are installed artifacts and may be ignored, replaced, or recloned on another station.
+
+If a custom node has an installation or startup problem, preserve the fix in one of these repo-controlled places instead:
+
+- `custom_nodes.manifest.json`
+- `script/install_custom_nodes.py`
+- a maintained fork referenced by the manifest
+- a new repo-controlled wrapper/custom node outside ignored installed artifacts
+
+Install all required custom-node dependencies before ComfyUI starts. Do not rely on a custom node running `pip install` during ComfyUI import/startup, especially for packages with native DLLs such as OpenCV.
