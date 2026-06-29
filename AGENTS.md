@@ -34,7 +34,19 @@ For nontrivial scripts, use a checked script file or a short reliable command. I
 
 Do not edit files under `custom_nodes/` as the durable fix for a workflow or dependency problem. Custom node folders are installed artifacts and may be ignored, replaced, or recloned on another station.
 
-If a custom node has an installation or startup problem, preserve the fix in one of these repo-controlled places instead:
+If a custom node needs a source-code fix, the only acceptable durable path is:
+
+1. fork the custom node repository under the user's GitHub account or another maintained GitHub location the user approves
+2. make the source-code fix in that fork
+3. push the fork
+4. update `custom_nodes.manifest.json` to reference the fork
+5. update `script/install_custom_nodes.py` only when installation behavior or dependencies need to change
+6. if the old custom node folder already exists under `custom_nodes/`, remove that installed folder
+7. let the user run `script/install_custom_nodes.py` to clone/install the fork into `custom_nodes/`
+
+Do not create repo files whose purpose is to rewrite custom-node source files after installation. Do not apply local patches into `custom_nodes/` as the fix path.
+
+If a custom node has an installation or startup problem that does not require changing the custom node source code, preserve the fix in one of these repo-controlled places instead:
 
 - `custom_nodes.manifest.json`
 - `script/install_custom_nodes.py`
