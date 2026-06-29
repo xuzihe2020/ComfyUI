@@ -56,6 +56,7 @@ ALWAYS_FIX_DEPENDENCIES = {
     "ComfyUI-qwenmultiangle",
     "Comfyui-LayerForge",
     "comfyui_face_parsing",
+    "comfyui_controlnet_aux",
 }
 EXTRA_PIP_DEPENDENCIES = {
     "ComfyUI-Watermark-Detection": [
@@ -63,6 +64,24 @@ EXTRA_PIP_DEPENDENCIES = {
         "huggingface_hub",
     ],
 }
+
+
+def current_os() -> str:
+    if sys.platform.startswith("linux"):
+        return "linux"
+    if sys.platform == "darwin":
+        return "macos"
+    if sys.platform.startswith("win"):
+        return "windows"
+    return sys.platform
+
+
+def node_allowed_here(node: dict) -> bool:
+    """A manifest node with a "platforms" allowlist installs only on those OSes
+    (e.g. ["linux"] for GPU-only nodes whose deps have no macOS/Windows wheels,
+    like comfyui_controlnet_aux -> onnxruntime-gpu). No key = install everywhere."""
+    platforms = node.get("platforms")
+    return True if not platforms else current_os() in platforms
 
 
 def run(cmd: list[str], *, cwd: Path = REPO_ROOT, env: dict[str, str] | None = None) -> None:
@@ -175,6 +194,10 @@ def manager_install_node(
 def missing_manifest_nodes(manifest: dict) -> list[dict]:
     missing = []
     for node in manifest["nodes"]:
+        if not node_allowed_here(node):
+            print(f"{node['name']}: skipping on {current_os()} "
+                  f"(platforms={node['platforms']})", flush=True)
+            continue
         folder = CUSTOM_NODES_DIR / node["folder"]
         if folder.exists():
             print(f"{folder} already exists; skipping in diff mode", flush=True)
@@ -249,7 +272,16 @@ def main() -> None:
 
     manifest = load_manifest(args.manifest)
     install_mode = "full" if args.full else args.install_mode
-    nodes_to_install = manifest["nodes"] if install_mode == "full" else missing_manifest_nodes(manifest)
+    if install_mode == "full":
+        nodes_to_install = []
+        for node in manifest["nodes"]:
+            if not node_allowed_here(node):
+                print(f"{node['name']}: skipping on {current_os()} "
+                      f"(platforms={node['platforms']})", flush=True)
+                continue
+            nodes_to_install.append(node)
+    else:
+        nodes_to_install = missing_manifest_nodes(manifest)
 
     if not nodes_to_install:
         print("No missing custom nodes found in manifest; diff install is complete.", flush=True)

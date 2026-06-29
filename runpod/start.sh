@@ -14,7 +14,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 WORKSPACE="${WORKSPACE:-/workspace}"
 COMFY="${COMFY:-$WORKSPACE/ComfyUI}"
-VENV="${VENV:-$WORKSPACE/venv}"
+VENV="${VENV:-$COMFY/.venv}"
 PORT="${COMFY_PORT:-8188}"
 LOG="$WORKSPACE/comfyui.log"
 

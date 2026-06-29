@@ -16,7 +16,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 WORKSPACE="${WORKSPACE:-/workspace}"
 COMFY="${COMFY:-$WORKSPACE/ComfyUI}"
-VENV="${VENV:-$WORKSPACE/venv}"
+VENV="${VENV:-$COMFY/.venv}"          # matches setup.sh / the repo installer
 
 # Keep HF's download cache on the big /workspace volume, NOT the ~80 GB container
 # disk (/). Otherwise the 64 GB transformer blob can fill / and abort the download.

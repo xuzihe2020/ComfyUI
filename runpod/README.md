@@ -37,7 +37,7 @@ Run top to bottom; details are in the numbered sections below.
 | Mistral-3 text encoder (**BF16**) | `Comfy-Org/flux2-dev` | `models/text_encoders/mistral_3_small_flux2_bf16.safetensors` | 35.6 GB |
 | FLUX.2 VAE | `Comfy-Org/flux2-dev` | `models/vae/flux2-vae.safetensors` | 0.3 GB |
 | Fun ControlNet Union | `alibaba-pai/FLUX.2-dev-Fun-Controlnet-Union` | `models/controlnet/FLUX.2-dev-Fun-Controlnet-Union.safetensors` | 8.3 GB |
-| ComfyUI + Manager + ControlNet-Aux + Fun-ControlNet node | GitHub | `custom_nodes/` | — |
+| ComfyUI + all custom nodes (via `script/install_custom_nodes.py` + manifest) | GitHub `xuzihe2020/ComfyUI` | the repo + `custom_nodes/` | — |
 
 **Total model download ≈ 108 GB** → size the network volume at **200 GB**.
 
@@ -117,41 +117,46 @@ Now `ssh runpod` opens a shell **and** forwards port 8188. Test: `ssh runpod nvi
 
 ---
 
-## 4. Get these scripts onto the pod
+## 4. Clone this repo onto the pod
 
-From your Mac (one-time per fresh volume). This uses the `runpod` alias from
-step 3, so it inherits the port and key automatically:
+`ssh runpod`, then clone your ComfyUI fork onto the volume and enter it. The repo
+carries ComfyUI itself, the custom-node **manifest + installer**, the `runpod/`
+scripts, and your workflows:
 ```bash
-scp -r /Users/tonyxu/Workspace/playground_01/ComfyUI/runpod runpod:/workspace/
-# (or, once committed to your repo:  ssh runpod 'git clone <your-repo> /workspace/repo')
+git clone https://github.com/xuzihe2020/ComfyUI /workspace/ComfyUI
+cd /workspace/ComfyUI
 ```
-Then on the pod: `cd /workspace/runpod`.
+> ⚠️ **Commit + push first.** The pose-ControlNet workflow, the two new
+> `custom_nodes.manifest.json` entries, and the `install_custom_nodes.py` change must
+> be committed and pushed to `xuzihe2020/ComfyUI`, or the clone won't include them.
 
 ---
 
-## 5. Install (≈ 5–10 min) — `setup.sh`
+## 5. Install (≈ 10–15 min) — `runpod/setup.sh`
 
 ```bash
-ssh runpod
-cd /workspace/runpod
-bash setup.sh
+cp runpod/.env.example runpod/.env
+nano runpod/.env                 # paste HF_TOKEN
+bash runpod/setup.sh
 ```
-This installs system libs, a venv at `/workspace/venv`, PyTorch (cu124), ComfyUI,
-the three custom-node repos, and **verifies `nvidia-smi` + `torch.cuda` see the
-GPU** (your “make sure NVIDIA infra is correct” gate — it aborts if not).
+This refreshes the clone, creates **`.venv` at the repo root** (where the installer
+expects it), installs PyTorch (cu124) + ComfyUI requirements, then runs the repo's own
+**`script/install_custom_nodes.py`** — your manifest installer, which pulls every custom
+node including `comfyui-flux2fun-controlnet` and `comfyui_controlnet_aux` (its native
+deps — OpenCV/onnxruntime — are force-installed via `ALWAYS_FIX_DEPENDENCIES`). Finally
+it **verifies `nvidia-smi` + `torch.cuda`** and aborts if the GPU isn't visible.
 
 ---
 
-## 6. Download models (≈ 108 GB) — `download_models.sh`
+## 6. Download models (≈ 108 GB) — `runpod/download_models.sh`
 
 ```bash
-cp .env.example .env
-nano .env                 # paste HF_TOKEN
-bash download_models.sh
+bash runpod/download_models.sh   # uses the same runpod/.env (HF_TOKEN) from §5
 ```
-Resumable (uses `hf_transfer`). Re-running skips completed files. At the end it
-prints `ls -lh` of every model dir + `df -h /workspace`. The script sets
-`HF_HOME=/workspace/.hf_cache` so the download cache lands on the 200 GB volume,
+Downloads into `/workspace/ComfyUI/models/{diffusion_models,text_encoders,vae,controlnet}`
+(on the volume, gitignored). Resumable (uses `hf_transfer`); re-running skips completed
+files. At the end it prints `ls -lh` of every model dir + `df -h /workspace`. The script
+sets `HF_HOME=/workspace/.hf_cache` so the download cache lands on the 200 GB volume,
 **not** the ~80 GB container disk (otherwise the 64 GB transformer can fill `/`).
 
 ---
@@ -160,7 +165,7 @@ prints `ls -lh` of every model dir + `df -h /workspace`. The script sets
 
 On the pod:
 ```bash
-bash start.sh            # runs ComfyUI in tmux session 'comfy', logs to /workspace/comfyui.log
+bash runpod/start.sh     # runs ComfyUI in tmux session 'comfy', logs to /workspace/comfyui.log
 ```
 On your Mac (separate terminal):
 ```bash
@@ -179,7 +184,7 @@ ssh runpod 'nvidia-smi'                                  # GPU / VRAM
 ssh runpod 'tail -n 80 /workspace/comfyui.log'           # server log
 ssh runpod 'tmux capture-pane -pt comfy | tail -n 40'    # live console
 curl -s localhost:8188/system_stats                      # via the tunnel: server health
-curl -s localhost:8188/object_info/Flux2FunApplyControlNet | head  # node registered?
+curl -s localhost:8188/object_info/Flux2FunControlNetApply | head  # node registered?
 ```
 Just paste Claude the RunPod SSH command and it will fill in the config and take over
 verification + the first test generation.
@@ -200,13 +205,13 @@ into `ComfyUI/input/`:
 
 ## 10. Daily / restart flow (the “minimal time” path)
 
-- **Pod was only stopped (same pod):** `ssh runpod` → `cd /workspace/runpod` → `bash start.sh`. Done.
-- **New pod, same network volume:** re-run `bash setup.sh` (fast — it skips existing
-  clones/venv/models and just restores system apt libs), then `bash start.sh`.
-  Models are already on the volume; nothing re-downloads.
+- **Pod was only stopped (same pod):** `ssh runpod` → `cd /workspace/ComfyUI` → `bash runpod/start.sh`. Done.
+- **New pod, same network volume:** `ssh runpod` → `cd /workspace/ComfyUI` → `bash runpod/setup.sh`
+  (fast — clone/venv/models already on the volume; it just `git pull`s, restores apt libs,
+  and re-checks deps), then `bash runpod/start.sh`. Nothing re-downloads.
 - Update the `HostName`/`Port` in `~/.ssh/config` to the new pod’s values.
-- *Optional:* set the pod’s **Container Start Command** to `bash /workspace/runpod/start.sh`
-  so ComfyUI auto-launches on boot.
+- *Optional:* set the pod’s **Container Start Command** to
+  `bash /workspace/ComfyUI/runpod/start.sh` so ComfyUI auto-launches on boot.
 
 ---
 

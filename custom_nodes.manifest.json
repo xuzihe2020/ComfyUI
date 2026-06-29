@@ -69,7 +69,7 @@
     },
     {
       "name": "Comfyui-LayerForge",
-      "folder": "Comfyui-LayerForge",
+      "folder": "layerforge",
       "repo": "https://github.com/Azornes/Comfyui-LayerForge",
       "reason": "Provides LayerForgeNode, an interactive layered canvas editor for testing manual environment and placement-mask compositing as a possible replacement for Compositor3."
     },
@@ -78,6 +78,19 @@
       "folder": "ComfyUI-enricos-nodes",
       "repo": "https://github.com/erosDiffusion/ComfyUI-enricos-nodes",
       "reason": "Provides an interactive compositor for Photoshop-like layer placement, scale, rotation, stretch, and transformed mask outputs for foundation layout workflows."
+    },
+    {
+      "name": "comfyui-flux2fun-controlnet",
+      "folder": "comfyui-flux2fun-controlnet",
+      "repo": "https://github.com/bryanmcguire/comfyui-flux2fun-controlnet",
+      "reason": "Provides Flux2FunControlNetLoader and Flux2FunControlNetApply for the FLUX.2-dev Alibaba Fun ControlNet Union (pose/canny/depth/etc) used by the pose-controlnet + reference paint workflow. Requires the FLUX.2-dev base model."
+    },
+    {
+      "name": "comfyui_controlnet_aux",
+      "folder": "comfyui_controlnet_aux",
+      "repo": "https://github.com/Fannovel16/comfyui_controlnet_aux",
+      "reason": "Provides DWPose_Preprocessor (and other ControlNet preprocessors) to turn a photo into an OpenPose skeleton that feeds the Flux2 Fun ControlNet. Pulls onnxruntime + detector/pose model weights on first run.",
+      "platforms": ["linux"]
     }
   ]
 }
