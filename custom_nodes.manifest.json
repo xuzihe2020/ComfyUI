@@ -68,6 +68,12 @@
       "reason": "Provides face parsing and bbox crop nodes for tight face-only masks that exclude hair, neck, clothing, and background."
     },
     {
+      "name": "Comfyui-LayerForge",
+      "folder": "Comfyui-LayerForge",
+      "repo": "https://github.com/Azornes/Comfyui-LayerForge",
+      "reason": "Provides LayerForgeNode, an interactive layered canvas editor for testing manual environment and placement-mask compositing as a possible replacement for Compositor3."
+    },
+    {
       "name": "ComfyUI-enricos-nodes",
       "folder": "ComfyUI-enricos-nodes",
       "repo": "https://github.com/erosDiffusion/ComfyUI-enricos-nodes",

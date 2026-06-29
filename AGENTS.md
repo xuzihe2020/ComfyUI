@@ -42,3 +42,5 @@ If a custom node has an installation or startup problem, preserve the fix in one
 - a new repo-controlled wrapper/custom node outside ignored installed artifacts
 
 Install all required custom-node dependencies before ComfyUI starts. Do not rely on a custom node running `pip install` during ComfyUI import/startup, especially for packages with native DLLs such as OpenCV.
+
+Do not run `script/install_custom_nodes.py` yourself unless the user explicitly asks you to run it in the current request. When adding or changing custom-node dependencies, update the manifest/install script and tell the user to run the installer themselves.

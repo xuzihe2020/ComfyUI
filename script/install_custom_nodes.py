@@ -1,5 +1,40 @@
 #!/usr/bin/env python3
-"""Install the ComfyUI custom nodes listed in custom_nodes.manifest.json."""
+"""Install the ComfyUI custom nodes listed in custom_nodes.manifest.json.
+
+Run from the repository root.
+
+Windows PowerShell:
+
+    cd "C:\\Users\\Tony Xu\\workspace\\comfyui"
+    python .\\script\\install_custom_nodes.py
+
+macOS/Linux:
+
+    cd /path/to/comfyui
+    python3 script/install_custom_nodes.py
+
+Default behavior is diff mode: only custom nodes listed in the manifest whose
+folders are missing from custom_nodes/ are installed.
+
+Show help/options only:
+
+    python .\\script\\install_custom_nodes.py --help
+    python3 script/install_custom_nodes.py --help
+
+Useful commands on Windows:
+
+    python .\\script\\install_custom_nodes.py
+    python .\\script\\install_custom_nodes.py --no-deps
+    python .\\script\\install_custom_nodes.py --full
+    python .\\script\\install_custom_nodes.py --full --manager-fix-existing
+
+Useful commands on macOS/Linux:
+
+    python3 script/install_custom_nodes.py
+    python3 script/install_custom_nodes.py --no-deps
+    python3 script/install_custom_nodes.py --full
+    python3 script/install_custom_nodes.py --full --manager-fix-existing
+"""
 
 from __future__ import annotations
 
@@ -19,6 +54,7 @@ ALWAYS_FIX_DEPENDENCIES = {
     "ComfyUI-EasyOCR",
     "ComfyUI-Watermark-Detection",
     "ComfyUI-qwenmultiangle",
+    "Comfyui-LayerForge",
     "comfyui_face_parsing",
 }
 EXTRA_PIP_DEPENDENCIES = {
@@ -81,13 +117,13 @@ def clone_repo(repo: str, target: Path) -> None:
     run(["git", "clone", repo, str(target)])
 
 
-def install_manager(manifest: dict, python_bin: str) -> Path:
+def install_manager(manifest: dict, python_bin: str, *, install_requirements: bool) -> Path:
     manager = manifest["manager"]
     manager_dir = CUSTOM_NODES_DIR / manager["folder"]
     clone_repo(manager["repo"], manager_dir)
 
     requirements = manager_dir / "requirements.txt"
-    if requirements.exists():
+    if install_requirements and requirements.exists():
         run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
 
     return manager_dir / "cm-cli.py"
@@ -136,6 +172,17 @@ def manager_install_node(
         run([python_bin, "-m", "pip", "install", *extra_dependencies])
 
 
+def missing_manifest_nodes(manifest: dict) -> list[dict]:
+    missing = []
+    for node in manifest["nodes"]:
+        folder = CUSTOM_NODES_DIR / node["folder"]
+        if folder.exists():
+            print(f"{folder} already exists; skipping in diff mode", flush=True)
+            continue
+        missing.append(node)
+    return missing
+
+
 def apply_post_install_fixes() -> None:
     easyocr_docs = CUSTOM_NODES_DIR / "ComfyUI-EasyOCR" / "docs"
     source_font = easyocr_docs / "PingFangRegular.ttf"
@@ -147,7 +194,27 @@ def apply_post_install_fixes() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Windows examples:\n"
+            "  python .\\script\\install_custom_nodes.py\n"
+            "  python .\\script\\install_custom_nodes.py --no-deps\n"
+            "  python .\\script\\install_custom_nodes.py --full\n"
+            "  python .\\script\\install_custom_nodes.py --full --manager-fix-existing\n"
+            "\n"
+            "macOS/Linux examples:\n"
+            "  python3 script/install_custom_nodes.py\n"
+            "  python3 script/install_custom_nodes.py --no-deps\n"
+            "  python3 script/install_custom_nodes.py --full\n"
+            "  python3 script/install_custom_nodes.py --full --manager-fix-existing\n"
+            "\n"
+            "Show help/options only:\n"
+            "  python .\\script\\install_custom_nodes.py --help\n"
+            "  python3 script/install_custom_nodes.py --help\n"
+        ),
+    )
     parser.add_argument(
         "--manifest",
         type=Path,
@@ -160,17 +227,43 @@ def main() -> None:
         help="Ask ComfyUI-Manager to skip dependency installation for missing nodes.",
     )
     parser.add_argument(
+        "--install-mode",
+        choices=("diff", "full"),
+        default="diff",
+        help=(
+            "diff installs only manifest nodes whose custom_nodes folders are missing "
+            "(default); full processes every manifest node."
+        ),
+    )
+    parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Shortcut for --install-mode full.",
+    )
+    parser.add_argument(
         "--manager-fix-existing",
         action="store_true",
-        help="Also run Manager's slower dependency fix for nodes whose folders already exist.",
+        help="In full mode, also run Manager's slower dependency fix for nodes whose folders already exist.",
     )
     args = parser.parse_args()
 
     manifest = load_manifest(args.manifest)
-    python_bin = comfy_python()
-    manager_cli = install_manager(manifest, python_bin)
+    install_mode = "full" if args.full else args.install_mode
+    nodes_to_install = manifest["nodes"] if install_mode == "full" else missing_manifest_nodes(manifest)
 
-    for node in manifest["nodes"]:
+    if not nodes_to_install:
+        print("No missing custom nodes found in manifest; diff install is complete.", flush=True)
+        return
+
+    python_bin = comfy_python()
+    manager_dir = CUSTOM_NODES_DIR / manifest["manager"]["folder"]
+    manager_cli = install_manager(
+        manifest,
+        python_bin,
+        install_requirements=install_mode == "full" or not manager_dir.exists(),
+    )
+
+    for node in nodes_to_install:
         manager_install_node(
             python_bin=python_bin,
             manager_cli=manager_cli,
@@ -179,7 +272,11 @@ def main() -> None:
             manager_fix_existing=args.manager_fix_existing,
         )
 
-    apply_post_install_fixes()
+    if install_mode == "full" or any(
+        node["name"] == "ComfyUI-EasyOCR" or node["folder"] == "ComfyUI-EasyOCR"
+        for node in nodes_to_install
+    ):
+        apply_post_install_fixes()
 
 
 if __name__ == "__main__":
