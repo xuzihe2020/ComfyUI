@@ -1,29 +1,26 @@
 # Repository Instructions
 
-## ComfyUI Workflow JSON
+## Response Style
 
-When creating or editing ComfyUI workflow JSON files, every node `type` value must be the exact ComfyUI registered backend node type.
+Start every answer with: `My lord`
 
-Do not invent node type names. Do not use display names. Do not use Python class names unless that class name is exactly the key registered in `NODE_CLASS_MAPPINGS`.
+## ComfyUI Node Naming Convention
 
-Keep backend references as registered node types:
+When creating or editing ComfyUI workflow JSON, always use the exact ComfyUI registered backend node name in `type` and in `properties["Node name for S&R"]` when present.
 
-- `type`
-- `properties["Node name for S&R"]` when that property exists
+Do not invent names, use display names, or use Python class names unless they are exactly the registered backend node name.
 
-Do not add custom node `title` values to workflow JSON. Leave node `title` absent so ComfyUI displays the real UI/search node name from its registry, such as `Mask Fix` for backend type `MaskFix+`.
+Do not add custom node `title` values unless the user explicitly asks.
 
-Do not set node `title` to backend type names such as `MaskFix+` when the UI/search name is different. Do not add descriptive custom titles such as workflow steps, comments, or plain-English labels. If a node title absolutely must be set, it must be the exact UI/search display name from ComfyUI's runtime registry or `NODE_DISPLAY_NAME_MAPPINGS`, not a guessed label and not the backend type unless the UI/search name is exactly the same.
+## ComfyUI Workflow Validation
 
-Before saving a workflow that uses custom nodes, verify each custom node `type` against at least one authoritative source:
+Before saving any ComfyUI workflow JSON edit, audit the graph structure.
 
-- An existing workflow exported by this ComfyUI install.
-- The custom node pack's `NODE_CLASS_MAPPINGS` key.
-- ComfyUI's runtime node registry.
+Verify that the workflow has no duplicate link IDs, no dangling input/output link references, no conflicting edges, and no source/target input-output type mismatches.
 
-For Impact Pack specifically, remember that some Python class names differ from workflow type names. For example, the Python class `BboxDetectorForEach` is registered for workflow JSON as `BboxDetectorSEGS`.
+For subgraphs, audit the internal links and node sockets too. Do not leave stale saved sockets that are not accepted by the current registered backend node schema.
 
-If a workflow contains a node title from an older file, do not treat it as the backend type. Remove custom node titles unless there is a verified reason to preserve an exact UI/search display name.
+Do not use PowerShell `ConvertTo-Json` / `ConvertFrom-Json` to rewrite workflow JSON because it can mangle ComfyUI link arrays. Use a safe JSON editor/script and validate that top-level `links` remain normal ComfyUI array links before saving.
 
 ## ComfyUI Custom Nodes
 
