@@ -537,7 +537,7 @@
         false,
         false,
         false,
-        1782702349152
+        1782704693175
       ]
     },
     {
@@ -1948,72 +1948,6 @@
       "widgets_values": []
     },
     {
-      "id": 2,
-      "type": "LoadImage",
-      "pos": [
-        -1004.9139044334466,
-        -678.4817584970112
-      ],
-      "size": [
-        425.398999137798,
-        542.1829261695804
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "COMBO",
-          "widget": {
-            "name": "image"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "choose file to upload",
-          "name": "upload",
-          "type": "IMAGEUPLOAD",
-          "widget": {
-            "name": "upload"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "slot_index": 0,
-          "links": [
-            2,
-            5,
-            19,
-            28,
-            64
-          ]
-        },
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "slot_index": 1,
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "istockphoto-2191528532-2048x2048.jpg",
-        "image"
-      ],
-      "color": "#232",
-      "bgcolor": "#353"
-    },
-    {
       "id": 8,
       "type": "LoadImage",
       "pos": [
@@ -2494,6 +2428,72 @@
         "",
         "continue"
       ]
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        -1004.9139044334466,
+        -678.4817584970112
+      ],
+      "size": [
+        425.398999137798,
+        542.1829261695804
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            2,
+            5,
+            19,
+            28,
+            64
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "slot_index": 1,
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "char_01.jpg",
+        "image"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
     }
   ],
   "links": [
@@ -3850,6 +3850,14 @@
     ]
   },
   "config": {},
-  "extra": {},
+  "extra": {
+    "ds": {
+      "scale": 0.827177536313252,
+      "offset": [
+        1562.6808487537733,
+        992.9410559661809
+      ]
+    }
+  },
   "version": 0.4
 }
