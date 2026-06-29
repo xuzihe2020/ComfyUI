@@ -318,7 +318,7 @@
     },
     {
       "id": 9,
-      "type": "CompositorConfig3",
+      "type": "CompositorConfig4",
       "pos": [
         157.7785922270998,
         -295.6557613583107
@@ -334,113 +334,113 @@
         {
           "localized_name": "image1",
           "name": "image1",
-          "shape": 7,
           "type": "IMAGE",
+          "shape": 7,
           "link": 5
         },
         {
           "localized_name": "mask1",
           "name": "mask1",
-          "shape": 7,
           "type": "MASK",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "image2",
           "name": "image2",
-          "shape": 7,
           "type": "IMAGE",
+          "shape": 7,
           "link": 108
         },
         {
           "localized_name": "mask2",
           "name": "mask2",
-          "shape": 7,
           "type": "MASK",
+          "shape": 7,
           "link": 110
         },
         {
           "localized_name": "image3",
           "name": "image3",
-          "shape": 7,
           "type": "IMAGE",
+          "shape": 7,
           "link": 13
         },
         {
           "localized_name": "mask3",
           "name": "mask3",
-          "shape": 7,
           "type": "MASK",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "image4",
           "name": "image4",
-          "shape": 7,
           "type": "IMAGE",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "mask4",
           "name": "mask4",
-          "shape": 7,
           "type": "MASK",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "image5",
           "name": "image5",
-          "shape": 7,
           "type": "IMAGE",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "mask5",
           "name": "mask5",
-          "shape": 7,
           "type": "MASK",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "image6",
           "name": "image6",
-          "shape": 7,
           "type": "IMAGE",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "mask6",
           "name": "mask6",
-          "shape": 7,
           "type": "MASK",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "image7",
           "name": "image7",
-          "shape": 7,
           "type": "IMAGE",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "mask7",
           "name": "mask7",
-          "shape": 7,
           "type": "MASK",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "image8",
           "name": "image8",
-          "shape": 7,
           "type": "IMAGE",
+          "shape": 7,
           "link": null
         },
         {
           "localized_name": "mask8",
           "name": "mask8",
-          "shape": 7,
           "type": "MASK",
+          "shape": 7,
           "link": null
         },
         {
@@ -460,51 +460,6 @@
             "name": "height"
           },
           "link": 4
-        },
-        {
-          "localized_name": "padding",
-          "name": "padding",
-          "type": "INT",
-          "widget": {
-            "name": "padding"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "normalizeHeight",
-          "name": "normalizeHeight",
-          "type": "BOOLEAN",
-          "widget": {
-            "name": "normalizeHeight"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "onConfigChanged",
-          "name": "onConfigChanged",
-          "type": "BOOLEAN",
-          "widget": {
-            "name": "onConfigChanged"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "invertMask",
-          "name": "invertMask",
-          "type": "BOOLEAN",
-          "widget": {
-            "name": "invertMask"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "initialized",
-          "name": "initialized",
-          "type": "STRING",
-          "widget": {
-            "name": "initialized"
-          },
-          "link": null
         }
       ],
       "outputs": [
@@ -516,19 +471,10 @@
           "links": [
             14
           ]
-        },
-        {
-          "localized_name": "extendedConfig",
-          "name": "extendedConfig",
-          "type": "COMPOSITOR_CONFIG",
-          "slot_index": 1,
-          "links": [
-            15
-          ]
         }
       ],
       "properties": {
-        "Node name for S&R": "CompositorConfig3"
+        "Node name for S&R": "CompositorConfig4"
       },
       "widgets_values": [
         1024,
@@ -537,38 +483,9 @@
         false,
         false,
         false,
-        1782704693175
+        "PNG Level 0 (fastest)",
+        "output"
       ]
-    },
-    {
-      "id": 10,
-      "type": "CompositorTools3",
-      "pos": [
-        -152.4829801009029,
-        381.9234454461878
-      ],
-      "size": [
-        220,
-        106
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "localized_name": "tools",
-          "name": "tools",
-          "type": "BOOLEAN",
-          "slot_index": 0,
-          "links": [
-            16
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CompositorTools3"
-      }
     },
     {
       "id": 13,
@@ -600,7 +517,7 @@
     },
     {
       "id": 12,
-      "type": "CompositorMasksOutputV3",
+      "type": "Compositor4MasksOutput",
       "pos": [
         1381.5036090694355,
         -256.6250105856031
@@ -737,7 +654,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "CompositorMasksOutputV3"
+        "Node name for S&R": "Compositor4MasksOutput"
       },
       "widgets_values": []
     },
@@ -2339,7 +2256,7 @@
     },
     {
       "id": 11,
-      "type": "Compositor3",
+      "type": "Compositor4",
       "pos": [
         399.74706511829214,
         -2520.224488899276
@@ -2357,76 +2274,50 @@
           "name": "config",
           "type": "COMPOSITOR_CONFIG",
           "link": 14
-        },
-        {
-          "localized_name": "tools",
-          "name": "tools",
-          "shape": 7,
-          "type": "BOOLEAN",
-          "link": 16
-        },
-        {
-          "localized_name": "extendedConfig",
-          "name": "extendedConfig",
-          "shape": 7,
-          "type": "COMPOSITOR_CONFIG",
-          "link": 15
-        },
-        {
-          "localized_name": "fabricData",
-          "name": "fabricData",
-          "type": "STRING",
-          "widget": {
-            "name": "fabricData"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "imageName",
-          "name": "imageName",
-          "type": "STRING",
-          "widget": {
-            "name": "imageName"
-          },
-          "link": null
         }
       ],
       "outputs": [
         {
-          "localized_name": "transforms",
-          "name": "transforms",
-          "type": "STRING",
-          "slot_index": 0,
-          "links": null
-        },
-        {
           "localized_name": "image",
           "name": "image",
           "type": "IMAGE",
-          "slot_index": 1,
+          "slot_index": 0,
           "links": [
             18,
             20
           ]
         },
         {
+          "localized_name": "fabricData_output",
+          "name": "fabricData_output",
+          "type": "STRING",
+          "slot_index": 1,
+          "links": null
+        },
+        {
+          "localized_name": "imageName_output",
+          "name": "imageName_output",
+          "type": "STRING",
+          "slot_index": 2,
+          "links": null
+        },
+        {
           "localized_name": "layer_outputs",
           "name": "layer_outputs",
           "type": "COMPOSITOR_OUTPUT_MASKS",
-          "slot_index": 2,
+          "slot_index": 3,
           "links": [
             17
           ]
         }
       ],
       "properties": {
-        "Node name for S&R": "Compositor3"
+        "Node name for S&R": "Compositor4"
       },
       "widgets_values": [
         "",
         "",
-        "",
-        "continue"
+        "0"
       ]
     },
     {
@@ -2562,25 +2453,9 @@
       "COMPOSITOR_CONFIG"
     ],
     [
-      15,
-      9,
-      1,
-      11,
-      2,
-      "COMPOSITOR_CONFIG"
-    ],
-    [
-      16,
-      10,
-      0,
-      11,
-      1,
-      "BOOLEAN"
-    ],
-    [
       17,
       11,
-      2,
+      3,
       12,
       0,
       "COMPOSITOR_OUTPUT_MASKS"
@@ -2588,7 +2463,7 @@
     [
       18,
       11,
-      1,
+      0,
       13,
       0,
       "IMAGE"
@@ -2604,7 +2479,7 @@
     [
       20,
       11,
-      1,
+      0,
       15,
       0,
       "IMAGE"
