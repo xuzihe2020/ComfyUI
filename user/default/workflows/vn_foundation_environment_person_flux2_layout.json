@@ -537,7 +537,7 @@
         false,
         false,
         false,
-        1782701677139
+        1782702349152
       ]
     },
     {
@@ -2489,8 +2489,8 @@
         "Node name for S&R": "Compositor3"
       },
       "widgets_values": [
-        "{\"width\":2048,\"height\":1365,\"padding\":120,\"transforms\":[{\"left\":122.66623408335886,\"top\":124.67715331998802,\"scaleX\":1,\"scaleY\":1,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":2048,\"xheight\":1365,\"skewY\":0,\"skewX\":0},{\"left\":621.8747709494381,\"top\":96.35909811250576,\"scaleX\":0.9057990637967575,\"scaleY\":0.9057990637967575,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":1024,\"xheight\":1536,\"skewY\":0,\"skewX\":0},{\"left\":0,\"top\":0,\"scaleX\":1,\"scaleY\":1,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":0,\"xheight\":0,\"skewY\":0,\"skewX\":0},{\"left\":0,\"top\":0,\"scaleX\":1,\"scaleY\":1,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":0,\"xheight\":0,\"skewY\":0,\"skewX\":0},{\"left\":0,\"top\":0,\"scaleX\":1,\"scaleY\":1,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":0,\"xheight\":0,\"skewY\":0,\"skewX\":0},{\"left\":0,\"top\":0,\"scaleX\":1,\"scaleY\":1,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":0,\"xheight\":0,\"skewY\":0,\"skewX\":0},{\"left\":0,\"top\":0,\"scaleX\":1,\"scaleY\":1,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":0,\"xheight\":0,\"skewY\":0,\"skewX\":0},{\"left\":0,\"top\":0,\"scaleX\":1,\"scaleY\":1,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":0,\"xheight\":0,\"skewY\":0,\"skewX\":0}],\"bboxes\":[{\"left\":122.66623408335886,\"top\":124.67715331998807,\"xwidth\":1365,\"xheight\":2048},{\"left\":621.8747709494381,\"top\":96.35909811250576,\"xwidth\":1391.3073619918196,\"xheight\":927.5382413278795},{\"left\":0,\"top\":0,\"xwidth\":0,\"xheight\":0},{\"left\":0,\"top\":0,\"xwidth\":0,\"xheight\":0},{\"left\":0,\"top\":0,\"xwidth\":0,\"xheight\":0},{\"left\":0,\"top\":0,\"xwidth\":0,\"xheight\":0},{\"left\":0,\"top\":0,\"xwidth\":0,\"xheight\":0},{\"left\":0,\"top\":0,\"xwidth\":0,\"xheight\":0}]}",
-        "compositor/1782702027510.png [temp]",
+        "",
+        "",
         "",
         "continue"
       ]
@@ -3323,8 +3323,8 @@
             ],
             "localized_name": "width",
             "pos": [
-              51,
-              24
+              1024.6411993041077,
+              1679.5228991082852
             ]
           },
           {
@@ -3336,8 +3336,8 @@
             ],
             "localized_name": "height",
             "pos": [
-              51,
-              44
+              1024.6411993041077,
+              1699.5228991082852
             ]
           },
           {
@@ -3345,12 +3345,11 @@
             "name": "model",
             "type": "MODEL",
             "linkIds": [
-              91,
               92
             ],
             "pos": [
-              51,
-              64
+              1024.6411993041077,
+              1719.5228991082852
             ]
           },
           {
@@ -3362,8 +3361,8 @@
             ],
             "localized_name": "positive",
             "pos": [
-              51,
-              84
+              1024.6411993041077,
+              1739.5228991082852
             ]
           },
           {
@@ -3375,8 +3374,8 @@
             ],
             "localized_name": "negative",
             "pos": [
-              51,
-              104
+              1024.6411993041077,
+              1759.5228991082852
             ]
           },
           {
@@ -3388,8 +3387,8 @@
             ],
             "localized_name": "latent_image",
             "pos": [
-              51,
-              124
+              1024.6411993041077,
+              1779.5228991082852
             ]
           }
         ],
@@ -3403,81 +3402,13 @@
             ],
             "localized_name": "output",
             "pos": [
-              24,
-              24
+              2199.5082488645166,
+              1729.5228991082852
             ]
           }
         ],
         "widgets": [],
         "nodes": [
-          {
-            "id": 55,
-            "type": "Flux2Scheduler",
-            "pos": [
-              1108.6411993041077,
-              1899.6861472754158
-            ],
-            "size": [
-              300,
-              130
-            ],
-            "flags": {},
-            "order": 2,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "steps",
-                "name": "steps",
-                "type": "INT",
-                "widget": {
-                  "name": "steps"
-                },
-                "link": null
-              },
-              {
-                "localized_name": "width",
-                "name": "width",
-                "type": "INT",
-                "widget": {
-                  "name": "width"
-                },
-                "link": 89
-              },
-              {
-                "localized_name": "height",
-                "name": "height",
-                "type": "INT",
-                "widget": {
-                  "name": "height"
-                },
-                "link": 90
-              },
-              {
-                "name": "model",
-                "type": "MODEL",
-                "link": 91
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "SIGMAS",
-                "name": "SIGMAS",
-                "type": "SIGMAS",
-                "slot_index": 0,
-                "links": [
-                  84
-                ]
-              }
-            ],
-            "properties": {
-              "Node name for S&R": "Flux2Scheduler"
-            },
-            "widgets_values": [
-              20,
-              1024,
-              1024
-            ]
-          },
           {
             "id": 56,
             "type": "SplitSigmasDenoise",
@@ -3750,6 +3681,69 @@
               "Node name for S&R": "SamplerCustomAdvanced"
             },
             "widgets_values": []
+          },
+          {
+            "id": 55,
+            "type": "Flux2Scheduler",
+            "pos": [
+              1125.6449395621987,
+              1901.575451748537
+            ],
+            "size": [
+              300,
+              130
+            ],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "steps",
+                "name": "steps",
+                "type": "INT",
+                "widget": {
+                  "name": "steps"
+                },
+                "link": null
+              },
+              {
+                "localized_name": "width",
+                "name": "width",
+                "type": "INT",
+                "widget": {
+                  "name": "width"
+                },
+                "link": 89
+              },
+              {
+                "localized_name": "height",
+                "name": "height",
+                "type": "INT",
+                "widget": {
+                  "name": "height"
+                },
+                "link": 90
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "SIGMAS",
+                "name": "SIGMAS",
+                "type": "SIGMAS",
+                "slot_index": 0,
+                "links": [
+                  84
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "Flux2Scheduler"
+            },
+            "widgets_values": [
+              20,
+              1024,
+              1024
+            ]
           }
         ],
         "groups": [],
@@ -3811,14 +3805,6 @@
             "type": "INT"
           },
           {
-            "id": 91,
-            "origin_id": -10,
-            "origin_slot": 2,
-            "target_id": 55,
-            "target_slot": 3,
-            "type": "MODEL"
-          },
-          {
             "id": 92,
             "origin_id": -10,
             "origin_slot": 2,
@@ -3864,14 +3850,6 @@
     ]
   },
   "config": {},
-  "extra": {
-    "ds": {
-      "scale": 0.5155952841092118,
-      "offset": [
-        362.93458727216534,
-        2914.157556281275
-      ]
-    }
-  },
+  "extra": {},
   "version": 0.4
 }
