@@ -110,57 +110,6 @@
       "bgcolor": "#335"
     },
     {
-      "id": 30,
-      "type": "CLIPTextEncode",
-      "pos": [
-        -397.9896564811384,
-        1194.1249065585023
-      ],
-      "size": [
-        620,
-        180
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 36
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "slot_index": 0,
-          "links": [
-            72
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "visual novel foundation image, insert the referenced person into the masked area of the provided environment, correct scale and perspective, natural contact shadows, matching lighting, full body or bust according to prompt, preserve the room outside the mask, coherent spatial relationship with nearby furniture"
-      ],
-      "color": "#232",
-      "bgcolor": "#353"
-    },
-    {
       "id": 31,
       "type": "CLIPTextEncode",
       "pos": [
@@ -924,7 +873,7 @@
       ],
       "size": [
         360,
-        120
+        270
       ],
       "flags": {},
       "order": 37,
@@ -991,7 +940,7 @@
       ],
       "size": [
         360,
-        120
+        270
       ],
       "flags": {},
       "order": 40,
@@ -1076,87 +1025,6 @@
       ],
       "properties": {
         "proxyWidgets": []
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 61,
-      "type": "56be61a7-719c-438a-9a31-0002f1807cc3",
-      "pos": [
-        1451.3715476340108,
-        1675.8923269918057
-      ],
-      "size": [
-        309.19743751423584,
-        149.63057211647947
-      ],
-      "flags": {},
-      "order": 34,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "width",
-          "name": "width",
-          "type": "INT",
-          "widget": {
-            "name": "width"
-          },
-          "link": 97
-        },
-        {
-          "localized_name": "height",
-          "name": "height",
-          "type": "INT",
-          "widget": {
-            "name": "height"
-          },
-          "link": 98
-        },
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 99
-        },
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 100
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 101
-        },
-        {
-          "localized_name": "latent_image",
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 102
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "output",
-          "name": "output",
-          "type": "LATENT",
-          "links": [
-            103
-          ]
-        }
-      ],
-      "properties": {
-        "proxyWidgets": [
-          [
-            "55",
-            "width"
-          ],
-          [
-            "55",
-            "height"
-          ]
-        ]
       },
       "widgets_values": []
     },
@@ -1456,7 +1324,8 @@
       ],
       "properties": {
         "Node name for S&R": "InvertMask"
-      }
+      },
+      "widgets_values": []
     },
     {
       "id": 4,
@@ -2407,11 +2276,145 @@
         "Node name for S&R": "Compositor4"
       },
       "widgets_values": [
-        "{\"transforms\":[{\"left\":120.17745965182576,\"top\":120.17745977903735,\"scaleX\":1,\"scaleY\":1,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":2048,\"xheight\":1365,\"skewY\":0,\"skewX\":0,\"opacity\":1,\"visible\":true,\"selectable\":true,\"evented\":true},{\"left\":735.0855191214889,\"top\":462.7903426580947,\"scaleX\":0.6652259429018385,\"scaleY\":0.6652259429018385,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":1024,\"xheight\":1536,\"skewY\":0,\"skewX\":0,\"opacity\":1,\"visible\":true,\"selectable\":true,\"evented\":true},null,null,null,null,null,null,null],\"bboxes\":[{\"left\":120.17745965182576,\"top\":120.17745977903735,\"xwidth\":1365,\"xheight\":2048},{\"left\":735.0855191214889,\"top\":462.7903426580947,\"xwidth\":1021.7870482972239,\"xheight\":681.1913655314825},null,null,null,null,null,null,null],\"imageNames\":[\"cfg9-in0.png\",\"cfg9-in1.png\",null,null,null,null,null,null,null],\"imagePositions\":[0,1,2,3,4,5,6,7,8],\"maskStates\":[true,true,true,true,true,true,true,true,true],\"applyMaskInConfig\":true,\"snapEnabled\":false,\"gridSize\":1,\"width\":2048,\"height\":1365,\"padding\":120,\"backgroundColor\":\"rgba(0,0,0,0.2)\",\"foregroundImageName\":null,\"seed\":0.5527777631129073}",
+        "{\"transforms\":[{\"left\":120.17745965182576,\"top\":120.17745977903735,\"scaleX\":1,\"scaleY\":1,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":2048,\"xheight\":1365,\"skewY\":0,\"skewX\":0,\"opacity\":1,\"visible\":true,\"selectable\":true,\"evented\":true},{\"left\":735.0855191214889,\"top\":462.7903426580947,\"scaleX\":0.6652259429018385,\"scaleY\":0.6652259429018385,\"angle\":0,\"flipX\":false,\"flipY\":false,\"originX\":\"left\",\"originY\":\"top\",\"xwidth\":1024,\"xheight\":1536,\"skewY\":0,\"skewX\":0,\"opacity\":1,\"visible\":true,\"selectable\":true,\"evented\":true},null,null,null,null,null,null,null],\"bboxes\":[{\"left\":120.17745965182576,\"top\":120.17745977903735,\"xwidth\":1365,\"xheight\":2048},{\"left\":735.0855191214889,\"top\":462.7903426580947,\"xwidth\":1021.7870482972239,\"xheight\":681.1913655314825},null,null,null,null,null,null,null],\"imageNames\":[\"cfg9-in0.png\",\"cfg9-in1.png\",null,null,null,null,null,null,null],\"imagePositions\":[0,1,2,3,4,5,6,7,8],\"maskStates\":[true,true,true,true,true,true,true,true,true],\"applyMaskInConfig\":true,\"snapEnabled\":false,\"gridSize\":1,\"width\":2048,\"height\":1365,\"padding\":120,\"backgroundColor\":\"rgba(0,0,0,0.2)\",\"foregroundImageName\":null,\"seed\":[\"0.43605811497628244\"]}",
         "vn-foundation-environment-person-flux2-layout_11.png",
-        0.5527777631129073,
+        [
+          "0.43605811497628244"
+        ],
         ""
       ]
+    },
+    {
+      "id": 30,
+      "type": "CLIPTextEncode",
+      "pos": [
+        -397.9896564811384,
+        1194.1249065585023
+      ],
+      "size": [
+        620,
+        180
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 36
+        },
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            72
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "A beautiful yound chinese woman sitting, half-body shots from the waist up in the following camera view; front view facing camera directly with neutral professional expression. Her hair is long dark brown, with soft gentle waves, and loose soft curls. correct scale and perspective, natural contact shadows, matching lighting, coherent spatial relationship with nearby furniture"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 61,
+      "type": "56be61a7-719c-438a-9a31-0002f1807cc3",
+      "pos": [
+        1451.3715476340108,
+        1675.8923269918057
+      ],
+      "size": [
+        309.19743751423584,
+        149.63057211647947
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 97
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 98
+        },
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 99
+        },
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 100
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 101
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 102
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "output",
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            103
+          ]
+        }
+      ],
+      "properties": {
+        "proxyWidgets": [
+          [
+            "55",
+            "width"
+          ],
+          [
+            "55",
+            "height"
+          ]
+        ]
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -3304,62 +3307,6 @@
         "widgets": [],
         "nodes": [
           {
-            "id": 56,
-            "type": "SplitSigmasDenoise",
-            "pos": [
-              1463.1721009051987,
-              1901.3009704173473
-            ],
-            "size": [
-              260,
-              80
-            ],
-            "flags": {},
-            "order": 3,
-            "mode": 0,
-            "inputs": [
-              {
-                "localized_name": "sigmas",
-                "name": "sigmas",
-                "type": "SIGMAS",
-                "link": 84
-              },
-              {
-                "localized_name": "denoise",
-                "name": "denoise",
-                "type": "FLOAT",
-                "widget": {
-                  "name": "denoise"
-                },
-                "link": null
-              }
-            ],
-            "outputs": [
-              {
-                "localized_name": "high_sigmas",
-                "name": "high_sigmas",
-                "type": "SIGMAS",
-                "slot_index": 0,
-                "links": []
-              },
-              {
-                "localized_name": "low_sigmas",
-                "name": "low_sigmas",
-                "type": "SIGMAS",
-                "slot_index": 1,
-                "links": [
-                  88
-                ]
-              }
-            ],
-            "properties": {
-              "Node name for S&R": "SplitSigmasDenoise"
-            },
-            "widgets_values": [
-              0.82
-            ]
-          },
-          {
             "id": 57,
             "type": "CFGGuider",
             "pos": [
@@ -3503,7 +3450,7 @@
               "Node name for S&R": "RandomNoise"
             },
             "widgets_values": [
-              441290061930273,
+              748831958721778,
               "randomize"
             ]
           },
@@ -3577,6 +3524,62 @@
             "widgets_values": []
           },
           {
+            "id": 56,
+            "type": "SplitSigmasDenoise",
+            "pos": [
+              1463.1721009051987,
+              1901.3009704173473
+            ],
+            "size": [
+              260,
+              80
+            ],
+            "flags": {},
+            "order": 3,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "sigmas",
+                "name": "sigmas",
+                "type": "SIGMAS",
+                "link": 84
+              },
+              {
+                "localized_name": "denoise",
+                "name": "denoise",
+                "type": "FLOAT",
+                "widget": {
+                  "name": "denoise"
+                },
+                "link": null
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "high_sigmas",
+                "name": "high_sigmas",
+                "type": "SIGMAS",
+                "slot_index": 0,
+                "links": []
+              },
+              {
+                "localized_name": "low_sigmas",
+                "name": "low_sigmas",
+                "type": "SIGMAS",
+                "slot_index": 1,
+                "links": [
+                  88
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "SplitSigmasDenoise"
+            },
+            "widgets_values": [
+              0.82
+            ]
+          },
+          {
             "id": 55,
             "type": "Flux2Scheduler",
             "pos": [
@@ -3634,7 +3637,7 @@
               "Node name for S&R": "Flux2Scheduler"
             },
             "widgets_values": [
-              20,
+              12,
               1024,
               1024
             ]
@@ -3746,10 +3749,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.5486847332673077,
+      "scale": 1.5959113603767574,
       "offset": [
-        -665.9007551920655,
-        1668.2146248224592
+        -1315.6555407082512,
+        -1149.9875625195664
       ]
     }
   },
