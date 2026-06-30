@@ -1,0 +1,4 @@
+# Both are already core ComfyUI dependencies, listed here so the tool is
+# self-documenting and runnable outside the ComfyUI environment.
+av>=10.0.0
+Pillow>=9.0.0
