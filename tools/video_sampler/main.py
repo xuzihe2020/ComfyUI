@@ -44,7 +44,7 @@ logger = get_logger("video_sampler")
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="video_sampler",
-        description="Efficiently sample JPEG frames from videos over time clips.",
+        description="Efficiently sample frames (PNG or JPEG) from videos over time clips.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -52,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory of videos (or a single video file) to sample from.",
     )
     parser.add_argument(
-        "-o", "--output", required=True, help="Output directory for sampled JPEGs."
+        "-o", "--output", required=True, help="Output directory for sampled images."
     )
     parser.add_argument(
         "-c",

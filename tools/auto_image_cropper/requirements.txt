@@ -1,0 +1,3 @@
+# Pillow is already a core ComfyUI dependency; listed here so the tool is
+# self-documenting and runnable outside the ComfyUI environment.
+Pillow>=9.0.0
