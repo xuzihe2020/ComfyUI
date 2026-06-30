@@ -73,12 +73,31 @@ ALWAYS_FIX_DEPENDENCIES = {
     "Comfyui-LayerForge",
     "comfyui_face_parsing",
     "comfyui_controlnet_aux",
+    # SeedVR2 pulls a sizable dependency set (omegaconf, einops, rotary
+    # embeddings, etc.) that must be present before ComfyUI imports the node;
+    # force its requirements.txt even under --no-deps.
+    "ComfyUI-SeedVR2_VideoUpscaler",
 }
 EXTRA_PIP_DEPENDENCIES = {
     "ComfyUI-Watermark-Detection": [
         "ultralytics",
         "huggingface_hub",
     ],
+}
+# Optional GPU-only accelerators installed best-effort (never fatal) and only on
+# the listed platforms. These are NOT required: the node falls back to PyTorch
+# sdpa when they are absent, so a build failure (or a macOS run) must not abort
+# the rest of the manifest install. SageAttention 2 enables SeedVR2's faster
+# `sageattn_2` attention_mode on Ampere/Ada/Hopper (needs torch>=2.3 +
+# triton>=3.0, both present on RunPod's CUDA images). Gated to linux (RunPod) to
+# avoid fragile Windows wheels; flip the DiT loader to sageattn_2 only after the
+# package installs successfully. "pip_args" is passed verbatim after `pip
+# install` (package spec plus any flags).
+OPTIONAL_ACCELERATORS = {
+    "ComfyUI-SeedVR2_VideoUpscaler": {
+        "platforms": ["linux"],
+        "pip_args": ["sageattention==2.2.0", "--no-build-isolation"],
+    },
 }
 
 
@@ -219,6 +238,27 @@ def manager_install_node(
         run([python_bin, "-m", "pip", "install", *extra_dependencies])
 
 
+def install_optional_accelerators(python_bin: str, node: dict) -> None:
+    """Best-effort install of optional GPU-only accelerators for a node. Never
+    fatal: a build failure or an unsupported platform is logged and skipped so
+    the node still works on its sdpa fallback and the rest of the install
+    continues."""
+    spec = OPTIONAL_ACCELERATORS.get(node["name"]) or OPTIONAL_ACCELERATORS.get(node["folder"])
+    if not spec:
+        return
+    if current_os() not in spec["platforms"]:
+        print(f"{node['name']}: skipping optional GPU accelerator on {current_os()} "
+              f"(installed only on {spec['platforms']})", flush=True)
+        return
+    try:
+        run([python_bin, "-m", "pip", "install", *spec["pip_args"]])
+    except subprocess.CalledProcessError:
+        print(f"{node['name']}: optional accelerator install failed "
+              f"({' '.join(spec['pip_args'])}); the node still runs on sdpa. "
+              f"Leave attention_mode at sdpa, or install the accelerator "
+              f"manually before switching to sageattn_2.", flush=True)
+
+
 def missing_manifest_nodes(manifest: dict) -> list[dict]:
     missing = []
     for node in manifest_nodes_in_install_order(manifest):
@@ -331,6 +371,7 @@ def main() -> None:
             no_deps=args.no_deps,
             manager_fix_existing=args.manager_fix_existing,
         )
+        install_optional_accelerators(python_bin, node)
 
     if install_mode == "full" or any(
         node["name"] == "ComfyUI-EasyOCR" or node["folder"] == "ComfyUI-EasyOCR"

@@ -91,6 +91,13 @@
       "repo": "https://github.com/Fannovel16/comfyui_controlnet_aux",
       "reason": "Provides DWPose_Preprocessor (and other ControlNet preprocessors) to turn a photo into an OpenPose skeleton that feeds the Flux2 Fun ControlNet. Pulls onnxruntime + detector/pose model weights on first run.",
       "platforms": ["linux"]
+    },
+    {
+      "name": "ComfyUI-SeedVR2_VideoUpscaler",
+      "folder": "ComfyUI-SeedVR2_VideoUpscaler",
+      "repo": "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler",
+      "reason": "Generative DiT one-step restoration upscaler. Provides SeedVR2LoadDiTModel, SeedVR2LoadVAEModel, SeedVR2TorchCompileSettings, and SeedVR2VideoUpscaler for the detail/4K refine stage (seedvr2_ema_7b_sharp_fp16 + ema_vae_fp16); DiT/VAE weights auto-download to models/SEEDVR2. CUDA-only, so gated to linux/windows; macOS is skipped (never run there) which keeps the Mac install of other nodes unaffected. requirements.txt force-installed via ALWAYS_FIX_DEPENDENCIES; the optional SageAttention 2 accelerator for the faster sageattn_2 attention_mode is installed best-effort on Linux via OPTIONAL_ACCELERATORS.",
+      "platforms": ["linux", "windows"]
     }
   ]
 }
