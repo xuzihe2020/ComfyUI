@@ -4,6 +4,16 @@
 
 Start every answer with: `My lord`
 
+## Mandatory Before Any Command -- when shell is PowerShell
+
+when Shell is PowerShell:
+- Do not use heredocs.
+- Do not use long `python -c` commands or other fragile inline scripts.
+- For nontrivial JSON/workflow inspection or edits, create a checked script file with `apply_patch`, run it, then delete it if temporary.
+- Never use PowerShell `ConvertTo-Json` / `ConvertFrom-Json` on workflow files.
+- Before saving workflow JSON, run a graph audit.
+- If you are about to run a command on workflow JSON, first state which checklist item applies. If the command would violate this checklist, do not run it.
+
 ## ComfyUI Node Naming Convention
 
 When creating or editing ComfyUI workflow JSON, always use the exact ComfyUI registered backend node name in `type` and in `properties["Node name for S&R"]` when present.
