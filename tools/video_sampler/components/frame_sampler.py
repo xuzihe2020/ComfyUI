@@ -1,16 +1,23 @@
 """The frame sampling engine (PyAV based).
 
-Sampling strategy, optimized for long high-resolution videos:
+Optimized for long high-resolution videos: open each video once, and for every
+clip seek a single time to the keyframe at or before the clip start, then
+stream-decode forward only through that clip's frames. We never decode the whole
+file and never seek per output frame.
 
-* Open each video once. For every clip, seek a single time to the keyframe at or
-  before the clip start, then stream-decode forward only through that clip's
-  frames. We never decode the whole file and never seek per output frame.
-* Frames are grouped into fixed-width time buckets of ``1 / fps`` seconds. Exactly
-  one frame is emitted per bucket that contains frames:
-    - ``random``  : reservoir-sample one frame uniformly at random from the bucket.
-    - ``uniform`` : keep the first frame of the bucket (closest to the bucket edge).
-* The chosen frame is encoded to JPEG only when its bucket closes, so at most one
-  decoded frame is held in memory at a time.
+Two sampling modes select which frame(s) to keep per second (``fps`` = n frames
+per second, an integer):
+
+* ``even`` (default): divide each 1-second window into ``n + 1`` equal chunks and
+  take the ``n`` interior boundary points as targets, i.e. times ``k / (n + 1)``
+  for ``k = 1..n`` within the second. For ``n = 1`` that is the midpoint (0.5s).
+  The decoded frame nearest each target time is kept.
+* ``random``: split each second into ``n`` equal sub-windows and keep one frame
+  chosen uniformly at random from each, via reservoir sampling (single pass,
+  O(1) memory).
+
+Either way exactly one frame is encoded (PNG or JPEG) per emitted target, so at
+most one decoded frame is held in memory at a time.
 """
 
 from __future__ import annotations
@@ -30,9 +37,10 @@ logger = get_logger(__name__)
 
 @dataclass
 class SampleParams:
-    fps: float = 1.0
-    sampling: str = "random"  # "random" | "uniform"
-    quality: int = 95
+    fps: int = 1
+    sampling: str = "even"  # "even" | "random"
+    image_format: str = "png"  # "png" (lossless) | "jpeg" (lossy)
+    quality: int = 95  # JPEG only; ignored for PNG
     seed: int | None = None
     per_video_subdir: bool = True
 
@@ -141,7 +149,7 @@ def _sample_clip(
             result.warnings.append(msg)
             clip_end = duration
 
-    bucket_dur = 1.0 / params.fps
+    n = params.fps
     time_base = float(stream.time_base)
 
     # Seek to the keyframe at or before the clip start (input seeking on the stream).
@@ -149,17 +157,41 @@ def _sample_clip(
         seek_target = int(clip_start / time_base)
         container.seek(seek_target, stream=stream, backward=True, any_frame=False)
 
-    current_bucket: int | None = None
+    if params.image_format == "jpeg":
+        ext = ".jpg"
+        save_kwargs = {"format": "JPEG", "quality": params.quality}
+    else:
+        ext = ".png"
+        save_kwargs = {"format": "PNG"}
+
+    # Dedupe by output filename so two targets that resolve to the same frame
+    # (e.g. a sub-second clip tail) never overwrite each other.
+    seen_keys: set[str] = set()
+
+    def save(frame, t: float) -> int:
+        key = format_for_filename(t)
+        if key in seen_keys:
+            return 0
+        seen_keys.add(key)
+        out_path = target_dir / f"{prefix}{key}{ext}"
+        frame.to_image().save(out_path, **save_kwargs)
+        return 1
+
+    if params.sampling == "random":
+        return _collect_random(container, stream, clip_start, clip_end, n, time_base, rng, save)
+    return _collect_even(container, stream, clip_start, clip_end, n, time_base, save)
+
+
+def _collect_random(
+    container, stream, clip_start, clip_end, n, time_base, rng, save
+) -> int:
+    """One uniformly-random frame per 1/n-second sub-window (reservoir, k=1)."""
+    bucket_dur = 1.0 / n
+    current_bucket = None
     chosen_frame = None
     chosen_time = 0.0
     seen_in_bucket = 0
     saved = 0
-
-    def flush() -> int:
-        if chosen_frame is None:
-            return 0
-        _save_frame(chosen_frame, chosen_time, target_dir, prefix, params.quality)
-        return 1
 
     for frame in container.decode(stream):
         if frame.pts is None:
@@ -171,34 +203,85 @@ def _sample_clip(
             break
 
         bucket = int((t - clip_start) / bucket_dur)
-
         if bucket != current_bucket:
-            saved += flush()
+            if chosen_frame is not None:
+                saved += save(chosen_frame, chosen_time)
             current_bucket = bucket
             chosen_frame = None
             seen_in_bucket = 0
 
-        if params.sampling == "uniform":
-            if chosen_frame is None:
-                chosen_frame = frame
-                chosen_time = t
-        else:  # reservoir sampling, k = 1
-            seen_in_bucket += 1
-            if rng.random() < 1.0 / seen_in_bucket:
-                chosen_frame = frame
-                chosen_time = t
+        seen_in_bucket += 1
+        if rng.random() < 1.0 / seen_in_bucket:
+            chosen_frame = frame
+            chosen_time = t
 
-    saved += flush()
+    if chosen_frame is not None:
+        saved += save(chosen_frame, chosen_time)
     return saved
 
 
-def _save_frame(frame, t: float, target_dir: Path, prefix: str, quality: int) -> None:
-    image = frame.to_image()  # PIL.Image in RGB
-    out_path = target_dir / f"{prefix}{format_for_filename(t)}.jpg"
-    image.save(out_path, format="JPEG", quality=quality)
+def _collect_even(container, stream, clip_start, clip_end, n, time_base, save) -> int:
+    """Keep the frame nearest each evenly-spaced per-second target time.
+
+    Targets per second i (relative to clip start): clip_start + i + k/(n+1),
+    for k = 1..n. Generated lazily so an open-ended clip (unknown duration) works.
+    """
+    sec_i = 0
+    k = 1
+
+    def next_target() -> float:
+        nonlocal sec_i, k
+        g = clip_start + sec_i + k / (n + 1)
+        k += 1
+        if k > n:
+            k = 1
+            sec_i += 1
+        return g
+
+    def target_in_range(g: float) -> bool:
+        return clip_end is None or g < clip_end
+
+    cur_target = next_target()
+    prev_frame = None
+    prev_t = 0.0
+    saved = 0
+
+    for frame in container.decode(stream):
+        if frame.pts is None:
+            continue
+        t = frame.pts * time_base
+        if t < clip_start:
+            continue
+        if clip_end is not None and t >= clip_end:
+            break
+
+        # Assign every target we have now passed to its nearest decoded frame.
+        while target_in_range(cur_target) and t >= cur_target:
+            if prev_frame is not None and abs(prev_t - cur_target) <= abs(t - cur_target):
+                saved += save(prev_frame, prev_t)
+            else:
+                saved += save(frame, t)
+            cur_target = next_target()
+
+        prev_frame = frame
+        prev_t = t
+
+    # Targets that fall between the last decoded frame and a known clip end map
+    # to that last frame (bounded by clip_end, so this terminates).
+    if clip_end is not None and prev_frame is not None:
+        while cur_target < clip_end:
+            saved += save(prev_frame, prev_t)
+            cur_target = next_target()
+
+    # Guarantee a non-empty clip yields at least one frame (e.g. sub-second clips
+    # whose only target fell outside the clip bounds).
+    if saved == 0 and prev_frame is not None:
+        saved += save(prev_frame, prev_t)
+
+    return saved
 
 
-def estimate_frame_count(clip, duration: float | None, fps: float) -> int:
+def estimate_frame_count(clip, duration: float | None, fps: int) -> int:
     """Upper-bound estimate of frames a clip will yield (for --dry-run)."""
     start = clip.start
     end = clip.end if clip.end is not None else duration

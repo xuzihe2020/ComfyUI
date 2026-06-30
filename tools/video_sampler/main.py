@@ -64,24 +64,40 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
-        "-f", "--fps", type=float, default=1.0, help="Frames sampled per second."
+        "-f",
+        "--fps",
+        type=int,
+        default=1,
+        help="Frames sampled per second (integer n >= 1).",
     )
     parser.add_argument(
         "-s",
         "--sampling",
-        choices=("random", "uniform"),
-        default="random",
-        help="'random' picks a random frame within each time bucket; "
-        "'uniform' picks the first.",
+        choices=("even", "random"),
+        default="even",
+        help="'even' keeps the frame nearest each evenly-spaced per-second target "
+        "(k/(n+1) within the second; the midpoint when fps=1); "
+        "'random' keeps a uniformly-random frame from each 1/n-second sub-window.",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=None,
-        help="Seed for reproducible random sampling.",
+        help="Seed for reproducible sampling in --sampling random mode.",
     )
     parser.add_argument(
-        "-q", "--quality", type=int, default=95, help="JPEG quality (1-100)."
+        "--format",
+        choices=("png", "jpeg"),
+        default="png",
+        help="Output image format. PNG is lossless; JPEG is smaller (lossy).",
+    )
+    parser.add_argument(
+        "-q",
+        "--quality",
+        type=int,
+        default=95,
+        help="JPEG quality, 0-100 (ignored for PNG, which is lossless). "
+        "Values above 95 give little gain for much larger files.",
     )
     parser.add_argument(
         "-w",
@@ -104,7 +120,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--flat",
         action="store_true",
-        help="Write all JPEGs flat into the output dir (prefixed by video name) "
+        help="Write all images flat into the output dir (prefixed by video name) "
         "instead of one subdirectory per video.",
     )
     parser.add_argument(
@@ -158,11 +174,11 @@ def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
     setup_logging(args.verbose)
 
-    if args.fps <= 0:
-        logger.error("--fps must be positive (got %s)", args.fps)
+    if args.fps < 1:
+        logger.error("--fps must be an integer >= 1 (got %s)", args.fps)
         return 2
-    if not (1 <= args.quality <= 100):
-        logger.error("--quality must be in 1..100 (got %s)", args.quality)
+    if not (0 <= args.quality <= 100):
+        logger.error("--quality must be in 0..100 (got %s)", args.quality)
         return 2
 
     extensions = tuple(e.strip() for e in args.ext.split(",") if e.strip())
@@ -194,6 +210,7 @@ def main(argv=None) -> int:
     params = SampleParams(
         fps=args.fps,
         sampling=args.sampling,
+        image_format=args.format,
         quality=args.quality,
         seed=args.seed,
         per_video_subdir=not args.flat,
