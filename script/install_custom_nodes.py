@@ -50,6 +50,22 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = REPO_ROOT / "custom_nodes.manifest.json"
 DEFAULT_EXTRA_MODEL_PATHS = REPO_ROOT / "extra_model_paths.yaml"
 CUSTOM_NODES_DIR = REPO_ROOT / "custom_nodes"
+
+# Patched custom nodes maintained from the user's GitHub should be handled first.
+# These forks carry repo-specific fixes and compatibility patches, so the install
+# pass checks/clones them before normal upstream/community nodes.
+#
+# Current patched forks:
+# - ComfyUI-EasyOCR: robust OCR box handling and sensitivity presets.
+# - ComfyUI-qwenmultiangle: Qwen multi-angle camera prompt controls and deps.
+# - comfyui-flux2fun-controlnet: ComfyUI Flux timestep_zero_index compatibility.
+# - ComfyUI-enricos-nodes: compositor fixes for VN foundation layout workflows.
+PATCHED_NODE_FOLDERS = {
+    "ComfyUI-EasyOCR",
+    "ComfyUI-qwenmultiangle",
+    "comfyui-flux2fun-controlnet",
+    "ComfyUI-enricos-nodes",
+}
 ALWAYS_FIX_DEPENDENCIES = {
     "ComfyUI-EasyOCR",
     "ComfyUI-Watermark-Detection",
@@ -82,6 +98,18 @@ def node_allowed_here(node: dict) -> bool:
     like comfyui_controlnet_aux -> onnxruntime-gpu). No key = install everywhere."""
     platforms = node.get("platforms")
     return True if not platforms else current_os() in platforms
+
+
+def is_patched_node_from_user_github(node: dict) -> bool:
+    return node.get("folder") in PATCHED_NODE_FOLDERS or node.get("name") in PATCHED_NODE_FOLDERS
+
+
+def manifest_nodes_in_install_order(manifest: dict) -> list[dict]:
+    """Process patched user-maintained forks before normal upstream nodes."""
+    nodes = list(manifest["nodes"])
+    patched = [node for node in nodes if is_patched_node_from_user_github(node)]
+    upstream = [node for node in nodes if not is_patched_node_from_user_github(node)]
+    return patched + upstream
 
 
 def run(cmd: list[str], *, cwd: Path = REPO_ROOT, env: dict[str, str] | None = None) -> None:
@@ -193,7 +221,7 @@ def manager_install_node(
 
 def missing_manifest_nodes(manifest: dict) -> list[dict]:
     missing = []
-    for node in manifest["nodes"]:
+    for node in manifest_nodes_in_install_order(manifest):
         if not node_allowed_here(node):
             print(f"{node['name']}: skipping on {current_os()} "
                   f"(platforms={node['platforms']})", flush=True)
@@ -274,7 +302,7 @@ def main() -> None:
     install_mode = "full" if args.full else args.install_mode
     if install_mode == "full":
         nodes_to_install = []
-        for node in manifest["nodes"]:
+        for node in manifest_nodes_in_install_order(manifest):
             if not node_allowed_here(node):
                 print(f"{node['name']}: skipping on {current_os()} "
                       f"(platforms={node['platforms']})", flush=True)

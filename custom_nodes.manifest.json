@@ -20,6 +20,18 @@
       "reason": "Adds Qwen multi-angle camera prompt controls. Uses the fork and is always dependency-checked by the installer."
     },
     {
+      "name": "comfyui-flux2fun-controlnet",
+      "folder": "comfyui-flux2fun-controlnet",
+      "repo": "https://github.com/xuzihe2020/comfyui-flux2fun-controlnet",
+      "reason": "Provides Flux2FunControlNetLoader and Flux2FunControlNetApply for the FLUX.2-dev Alibaba Fun ControlNet Union (pose/canny/depth/etc) used by the pose-controlnet + reference paint workflow. Uses the fork with ComfyUI Flux timestep_zero_index compatibility. Requires the FLUX.2-dev base model."
+    },
+    {
+      "name": "ComfyUI-enricos-nodes",
+      "folder": "ComfyUI-enricos-nodes",
+      "repo": "https://github.com/xuzihe2020/ComfyUI-enricos-nodes",
+      "reason": "Provides an interactive compositor for Photoshop-like layer placement, scale, rotation, stretch, and transformed mask outputs for foundation layout workflows. Uses the fork with compositor fixes used by the VN foundation layout workflows."
+    },
+    {
       "name": "ComfyUI-Watermark-Detection",
       "folder": "ComfyUI-Watermark-Detection",
       "repo": "https://github.com/lrzjason/ComfyUI-Watermark-Detection",
@@ -72,18 +84,6 @@
       "folder": "layerforge",
       "repo": "https://github.com/Azornes/Comfyui-LayerForge",
       "reason": "Provides LayerForgeNode, an interactive layered canvas editor for testing manual environment and placement-mask compositing as a possible replacement for Compositor3."
-    },
-    {
-      "name": "ComfyUI-enricos-nodes",
-      "folder": "ComfyUI-enricos-nodes",
-      "repo": "https://github.com/erosDiffusion/ComfyUI-enricos-nodes",
-      "reason": "Provides an interactive compositor for Photoshop-like layer placement, scale, rotation, stretch, and transformed mask outputs for foundation layout workflows."
-    },
-    {
-      "name": "comfyui-flux2fun-controlnet",
-      "folder": "comfyui-flux2fun-controlnet",
-      "repo": "https://github.com/bryanmcguire/comfyui-flux2fun-controlnet",
-      "reason": "Provides Flux2FunControlNetLoader and Flux2FunControlNetApply for the FLUX.2-dev Alibaba Fun ControlNet Union (pose/canny/depth/etc) used by the pose-controlnet + reference paint workflow. Requires the FLUX.2-dev base model."
     },
     {
       "name": "comfyui_controlnet_aux",
