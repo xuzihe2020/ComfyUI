@@ -1003,8 +1003,8 @@
       "id": 56,
       "type": "SamplerCustomAdvanced",
       "pos": [
-        531.0982387017435,
-        22.763008225231175
+        318.81137991436975,
+        14.203054241869333
       ],
       "size": [
         340,
@@ -1070,8 +1070,8 @@
       "id": 52,
       "type": "Flux2Scheduler",
       "pos": [
-        205.38549017790334,
-        332.9950359631021
+        -6.901368609470369,
+        324.43508197974023
       ],
       "size": [
         300,
@@ -1132,8 +1132,8 @@
       "id": 54,
       "type": "RandomNoise",
       "pos": [
-        184.185193572422,
-        -257.63308796935166
+        -28.101665214951694,
+        -266.19304195271354
       ],
       "size": [
         300,
@@ -1175,8 +1175,8 @@
       "id": 45,
       "type": "FluxGuidance",
       "pos": [
-        193.71386518320733,
-        -101.34845268665244
+        -18.57299360416637,
+        -109.90840667001427
       ],
       "size": [
         300,
@@ -1223,8 +1223,8 @@
       "id": 55,
       "type": "KSamplerSelect",
       "pos": [
-        198.92673093325598,
-        207.87447575447885
+        -13.360127854117723,
+        199.31452177111697
       ],
       "size": [
         300,
@@ -1327,8 +1327,8 @@
       "id": 46,
       "type": "CFGGuider",
       "pos": [
-        198.6101741907236,
-        21.885550741120873
+        -13.676684596650107,
+        13.325596757759032
       ],
       "size": [
         280,
@@ -1519,57 +1519,6 @@
       "bgcolor": "#653"
     },
     {
-      "id": 30,
-      "type": "CLIPTextEncode",
-      "pos": [
-        -1017.8359467928451,
-        -272.1516420930579
-      ],
-      "size": [
-        430,
-        300
-      ],
-      "flags": {},
-      "order": 13,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 9
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            11
-          ]
-        }
-      ],
-      "title": "Positive (keep outfit + match face)",
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "Generate a natural, photorealistic full-body portrait photograph of a young Chinese woman, late afternoon natural window light coming from the left at an angle, producing soft but visible volumetric shadows that sculpt the face and body with clear three-dimensional form and high facial detail. Clean pure white seamless backdrop, professional character photography style, candid studio portrait quality.\nShe is standing naturally in contrapposto pose (weight shifted to one leg), arms relaxed at her sides, facing slightly toward the camera with elegant and confident posture. Long dark brown hair with soft gentle waves and loose curls.\nOutfit: A form-fitting blue floor-length dress with thin spaghetti straps, square neckline, and a seductive high side slit revealing the thigh..\nReference Guidance:\nUse the 4 character reference images to maintain exact facial features, identity, age, skin tone, body proportions, and overall appearance of the woman with perfect consistency. Use the 1 outfit reference image to accurately reproduce the exact bikini style, color, fabric texture, cut, strap details, and how it fits her body.\nNatural elegant pose, highly detailed, realistic skin texture, masterpiece quality, best quality, photorealistic.\n"
-      ],
-      "color": "#232",
-      "bgcolor": "#353"
-    },
-    {
       "id": 57,
       "type": "VAEDecode",
       "pos": [
@@ -1651,6 +1600,57 @@
       "widgets_values": [
         "vn_outfit_character_single_pass"
       ]
+    },
+    {
+      "id": 30,
+      "type": "CLIPTextEncode",
+      "pos": [
+        -1017.8359467928451,
+        -272.1516420930579
+      ],
+      "size": [
+        430,
+        300
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 9
+        },
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "title": "Positive (keep outfit + match face)",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "Generate a natural, photorealistic full-body portrait photograph of a young Chinese woman, late afternoon natural window light coming from the left at an angle, producing soft but visible volumetric shadows that sculpt the face and body with clear three-dimensional form and high facial detail. Clean pure white seamless backdrop, professional character photography style, candid studio portrait quality.\nShe is standing naturally in contrapposto pose (weight shifted to one leg), arms relaxed at her sides, facing slightly toward the camera with elegant and confident posture. Long dark brown hair with soft gentle waves and loose curls.\nOutfit: A form-fitting blue floor-length dress with thin spaghetti straps, square neckline, and a seductive high side slit revealing the thigh..\nReference Guidance:\nUse the 4 character reference images to maintain exact facial features, identity, age, skin tone, body proportions, and overall appearance of the woman with perfect consistency. Use the 1 outfit reference image to accurately reproduce the exact bikini style, color, fabric texture, cut, strap details, and how it fits her body.\nNatural elegant pose, highly detailed, realistic skin texture, masterpiece quality, best quality, photorealistic.\n"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
     }
   ],
   "links": [
@@ -2008,10 +2008,10 @@
       "id": 4,
       "title": "Core Paint Unit",
       "bounding": [
-        -28.34241304206728,
-        -341.6590384244642,
-        927.1065285207316,
-        894.7498261952121
+        -38.1016652149517,
+        -336.19304195271354,
+        706.9130451293215,
+        776.6281239324537
       ],
       "color": "#88A",
       "flags": {}
@@ -2020,10 +2020,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.787508523115138,
+      "scale": 0.584115289605365,
       "offset": [
-        944.6279101580272,
-        276.0603962592135
+        1562.4380783522308,
+        1071.5781190803634
       ]
     }
   },
