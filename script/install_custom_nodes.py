@@ -14,7 +14,8 @@ macOS/Linux:
     python3 script/install_custom_nodes.py
 
 Default behavior is diff mode: only custom nodes listed in the manifest whose
-folders are missing from custom_nodes/ are installed.
+folders are missing from custom_nodes/ are installed. Existing nodes can get a
+lightweight optional-accelerator check without running ComfyUI-Manager.
 
 Show help/options only:
 
@@ -86,17 +87,27 @@ EXTRA_PIP_DEPENDENCIES = {
 }
 # Optional GPU-only accelerators installed best-effort (never fatal) and only on
 # the listed platforms. These are NOT required: the node falls back to PyTorch
-# sdpa when they are absent, so a build failure (or a macOS run) must not abort
-# the rest of the manifest install. SageAttention 2 enables SeedVR2's faster
-# `sageattn_2` attention_mode on Ampere/Ada/Hopper (needs torch>=2.3 +
-# triton>=3.0, both present on RunPod's CUDA images). Gated to linux (RunPod) to
-# avoid fragile Windows wheels; flip the DiT loader to sageattn_2 only after the
-# package installs successfully. "pip_args" is passed verbatim after `pip
-# install` (package spec plus any flags).
+# sdpa when they are absent, so a build failure or macOS run must not abort the
+# rest of the manifest install. SeedVR2 benefits from SageAttention/Triton on
+# CUDA machines; try Windows-friendly packages on Windows, Linux packages on
+# Linux, and skip macOS/Apple Silicon. Do not build flash-attn on Windows by
+# default: if a matching wheel is unavailable, it falls back to a fragile source
+# build that requires the local CUDA toolkit to match the PyTorch CUDA version.
+# Each platform-specific "pip_args" entry is passed verbatim after `pip install`.
 OPTIONAL_ACCELERATORS = {
     "ComfyUI-SeedVR2_VideoUpscaler": {
-        "platforms": ["linux"],
-        "pip_args": ["sageattention==2.2.0", "--no-build-isolation"],
+        "platforms": ["linux", "windows"],
+        "platform_pip_args": {
+            "linux": [
+                {"module": "triton", "pip_args": ["triton"]},
+                {"module": "sageattention", "pip_args": ["sageattention==2.2.0", "--no-build-isolation"]},
+                {"module": "flash_attn", "pip_args": ["flash-attn", "--no-build-isolation"]},
+            ],
+            "windows": [
+                {"module": "triton", "pip_args": ["triton-windows"]},
+                {"module": "sageattention", "pip_args": ["sageattention", "--no-build-isolation"]},
+            ],
+        },
     },
 }
 
@@ -250,13 +261,41 @@ def install_optional_accelerators(python_bin: str, node: dict) -> None:
         print(f"{node['name']}: skipping optional GPU accelerator on {current_os()} "
               f"(installed only on {spec['platforms']})", flush=True)
         return
-    try:
-        run([python_bin, "-m", "pip", "install", *spec["pip_args"]])
-    except subprocess.CalledProcessError:
-        print(f"{node['name']}: optional accelerator install failed "
-              f"({' '.join(spec['pip_args'])}); the node still runs on sdpa. "
-              f"Leave attention_mode at sdpa, or install the accelerator "
-              f"manually before switching to sageattn_2.", flush=True)
+
+    def module_available(module: str) -> bool:
+        result = subprocess.run(
+            [
+                python_bin,
+                "-c",
+                "import importlib.util, sys; "
+                "sys.exit(0 if importlib.util.find_spec(sys.argv[1]) else 1)",
+                module,
+            ],
+            cwd=REPO_ROOT,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        return result.returncode == 0
+
+    pip_args_sets = spec.get("platform_pip_args", {}).get(current_os(), spec.get("pip_args", []))
+    if pip_args_sets and isinstance(pip_args_sets[0], str):
+        pip_args_sets = [pip_args_sets]
+    for entry in pip_args_sets:
+        if isinstance(entry, dict):
+            module = entry.get("module")
+            pip_args = entry["pip_args"]
+        else:
+            module = None
+            pip_args = entry
+        if module and module_available(module):
+            print(f"{node['name']}: optional accelerator already available: {module}", flush=True)
+            continue
+        try:
+            run([python_bin, "-m", "pip", "install", *pip_args])
+        except subprocess.CalledProcessError:
+            print(f"{node['name']}: optional accelerator install failed "
+                  f"({' '.join(pip_args)}); continuing. The node still runs on "
+                  f"sdpa if no accelerator is available.", flush=True)
 
 
 def missing_manifest_nodes(manifest: dict) -> list[dict]:
@@ -272,6 +311,21 @@ def missing_manifest_nodes(manifest: dict) -> list[dict]:
             continue
         missing.append(node)
     return missing
+
+
+def diff_mode_existing_accelerator_nodes(manifest: dict) -> list[dict]:
+    nodes = []
+    for node in manifest_nodes_in_install_order(manifest):
+        if not node_allowed_here(node):
+            continue
+        name = node["name"]
+        folder_name = node["folder"]
+        folder = CUSTOM_NODES_DIR / folder_name
+        has_optional_accelerators = name in OPTIONAL_ACCELERATORS or folder_name in OPTIONAL_ACCELERATORS
+        if folder.exists() and has_optional_accelerators:
+            print(f"{folder} already exists; checking optional accelerators", flush=True)
+            nodes.append(node)
+    return nodes
 
 
 def apply_post_install_fixes() -> None:
@@ -323,6 +377,7 @@ def main() -> None:
         default="diff",
         help=(
             "diff installs only manifest nodes whose custom_nodes folders are missing "
+            "and checks optional accelerators for selected existing nodes "
             "(default); full processes every manifest node."
         ),
     )
@@ -340,6 +395,7 @@ def main() -> None:
 
     manifest = load_manifest(args.manifest)
     install_mode = "full" if args.full else args.install_mode
+    existing_accelerator_nodes: list[dict] = []
     if install_mode == "full":
         nodes_to_install = []
         for node in manifest_nodes_in_install_order(manifest):
@@ -350,27 +406,37 @@ def main() -> None:
             nodes_to_install.append(node)
     else:
         nodes_to_install = missing_manifest_nodes(manifest)
+        existing_accelerator_nodes = diff_mode_existing_accelerator_nodes(manifest)
+        seen = {node["folder"] for node in nodes_to_install}
+        existing_accelerator_nodes = [
+            node for node in existing_accelerator_nodes
+            if node["folder"] not in seen
+        ]
 
-    if not nodes_to_install:
-        print("No missing custom nodes found in manifest; diff install is complete.", flush=True)
+    if not nodes_to_install and not existing_accelerator_nodes:
+        print("No missing custom nodes or optional accelerator checks found in manifest; diff install is complete.", flush=True)
         return
 
     python_bin = comfy_python()
-    manager_dir = CUSTOM_NODES_DIR / manifest["manager"]["folder"]
-    manager_cli = install_manager(
-        manifest,
-        python_bin,
-        install_requirements=install_mode == "full" or not manager_dir.exists(),
-    )
-
-    for node in nodes_to_install:
-        manager_install_node(
-            python_bin=python_bin,
-            manager_cli=manager_cli,
-            node=node,
-            no_deps=args.no_deps,
-            manager_fix_existing=args.manager_fix_existing,
+    if nodes_to_install:
+        manager_dir = CUSTOM_NODES_DIR / manifest["manager"]["folder"]
+        manager_cli = install_manager(
+            manifest,
+            python_bin,
+            install_requirements=install_mode == "full" or not manager_dir.exists(),
         )
+
+        for node in nodes_to_install:
+            manager_install_node(
+                python_bin=python_bin,
+                manager_cli=manager_cli,
+                node=node,
+                no_deps=args.no_deps,
+                manager_fix_existing=args.manager_fix_existing,
+            )
+            install_optional_accelerators(python_bin, node)
+
+    for node in existing_accelerator_nodes:
         install_optional_accelerators(python_bin, node)
 
     if install_mode == "full" or any(

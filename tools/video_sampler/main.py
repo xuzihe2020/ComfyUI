@@ -100,6 +100,13 @@ def build_parser() -> argparse.ArgumentParser:
         "Values above 95 give little gain for much larger files.",
     )
     parser.add_argument(
+        "--scale",
+        type=float,
+        default=1.0,
+        help="Output image scale, 0.0 < scale <= 1.0. "
+        "Use 1.0 to keep native resolution; e.g. 0.8 shrinks 1920x1280 to 1536x1024.",
+    )
+    parser.add_argument(
         "-w",
         "--workers",
         type=int,
@@ -180,6 +187,9 @@ def main(argv=None) -> int:
     if not (0 <= args.quality <= 100):
         logger.error("--quality must be in 0..100 (got %s)", args.quality)
         return 2
+    if not (0.0 < args.scale <= 1.0):
+        logger.error("--scale must be in (0.0, 1.0] (got %s)", args.scale)
+        return 2
 
     extensions = tuple(e.strip() for e in args.ext.split(",") if e.strip())
 
@@ -212,6 +222,7 @@ def main(argv=None) -> int:
         sampling=args.sampling,
         image_format=args.format,
         quality=args.quality,
+        scale=args.scale,
         seed=args.seed,
         per_video_subdir=not args.flat,
     )

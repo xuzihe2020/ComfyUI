@@ -28,11 +28,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import av
+from PIL import Image
 
 from lib.logging_utils import get_logger
 from lib.timecode import format_for_filename, format_timecode
 
 logger = get_logger(__name__)
+RESAMPLE_LANCZOS = getattr(Image, "Resampling", Image).LANCZOS
 
 
 @dataclass
@@ -41,6 +43,7 @@ class SampleParams:
     sampling: str = "even"  # "even" | "random"
     image_format: str = "png"  # "png" (lossless) | "jpeg" (lossy)
     quality: int = 95  # JPEG only; ignored for PNG
+    scale: float = 1.0  # 1.0 keeps native resolution; lower values shrink
     seed: int | None = None
     per_video_subdir: bool = True
 
@@ -174,7 +177,12 @@ def _sample_clip(
             return 0
         seen_keys.add(key)
         out_path = target_dir / f"{prefix}{key}{ext}"
-        frame.to_image().save(out_path, **save_kwargs)
+        image = frame.to_image()
+        if params.scale < 1.0:
+            width = max(1, round(image.width * params.scale))
+            height = max(1, round(image.height * params.scale))
+            image = image.resize((width, height), RESAMPLE_LANCZOS)
+        image.save(out_path, **save_kwargs)
         return 1
 
     if params.sampling == "random":

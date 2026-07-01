@@ -2,7 +2,8 @@
 
 Efficiently sample frames (PNG or JPEG) from long, high-resolution videos
 (`.mp4`, `.webm`, and other common containers) over optional time clips.
-Output images are always the source frame's native resolution (no resizing).
+Output images default to the source frame's native resolution. Use `--scale` to
+shrink outputs while preserving aspect ratio.
 
 Designed for the hard case: 1–2 hour, ~2 GB videos where decoding the whole file
 would be wasteful. It uses [PyAV](https://pyav.org) (already a ComfyUI dependency,
@@ -42,6 +43,9 @@ python tools/video_sampler/main.py clip.webm -o out --fps 2
 python tools/video_sampler/main.py clip.webm -o out --sampling random --seed 7 \
     --format jpeg --quality 90
 
+# Shrink output frames to 80% of the source resolution
+python tools/video_sampler/main.py clip.webm -o out --scale 0.8
+
 # Preview what would be sampled without decoding anything
 python tools/video_sampler/main.py /data/videos -o out \
     --clips "0:01:00-0:05:20" --dry-run
@@ -59,6 +63,7 @@ python tools/video_sampler/main.py /data/videos -o out \
 | `--seed` | none | Seed for reproducible `random` sampling. |
 | `--format` | `png` | Output image format: `png` (lossless) or `jpeg` (lossy, smaller). |
 | `-q, --quality` | `95` | JPEG quality, 0–100. Ignored for PNG. Values >95 bloat the file for little gain. |
+| `--scale` | `1.0` | Output image scale, `0.0 < scale <= 1.0`. Preserves aspect ratio; `1.0` keeps native resolution, `0.8` turns `1920x1280` into `1536x1024`. |
 | `-w, --workers` | `min(4, #videos)` | Videos processed in parallel. |
 | `-r, --recursive` | off | Recurse into subdirectories. |
 | `--ext` | `mp4,webm` | Extensions to scan for. |
