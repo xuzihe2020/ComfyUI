@@ -16,7 +16,7 @@
         700
       ],
       "flags": {},
-      "order": 5,
+      "order": 0,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -25,76 +25,66 @@
       },
       "widgets_values": [
         "## SeedVR2 image refine\n\nNo prompt needed — load an image and run. SeedVR2 *re-synthesizes* detail\n(pores, fabric, hair), unlike ESRGAN which only sharpens existing edges.\n`LoadImage -> SeedVR2VideoUpscaler -> SaveImage`.\n\n---\n### Turn on the speed-up (RunPod / Linux)\nAfter `python3 script/install_custom_nodes.py` finishes on the VM, **SageAttention 2\nis already installed** (auto, Linux only). In the **SeedVR2LoadDiTModel** node change\n**`attention_mode`: `sdpa` -> `sageattn_2`**. That's the whole speed-up.\n\n### Pick attention_mode by GPU\n| GPU you rent | Best attention_mode | Notes |\n|---|---|---|\n| A100 / A40 / A6000 / L40 / 4090 (Ampere/Ada) | `sageattn_2` | auto-installed; the real win over sdpa |\n| H100 / H200 (Hopper) | `sageattn_2` (or flash_attn_3) | sageattn_2 is faster |\n| B200 / RTX 50xx (Blackwell) | `sageattn_3` | needs a separate SageAttention 3 source build |\n| anything, no extras | `sdpa` | already uses built-in FlashAttention-2 |\n\nSkip `flash_attn_2` — barely faster than `sdpa` (sdpa already runs FA2 internally),\nnot worth the build.\n\n### One more free speed lever\nOn a big GPU (48 GB+) set **`blocks_to_swap`: `36 -> 0`** in the DiT loader. 36 is a\nsafe won't-OOM default; 0 disables CPU offload and avoids GPU<->CPU transfer overhead.\n\n---\n### Other knobs (SeedVR2VideoUpscaler)\n- **resolution** = target SHORT edge: `1440` ~ 2K, `2160` ~ near-4K, `4096` = 4K.\n- **color_correction** = `lab` keeps colors faithful.\n- VAE tiling (tile 1024 / overlap 128) is the memory bottleneck — shrink tiles if you OOM.\n- ~14 GB DiT + VAE auto-download to `models/SEEDVR2` on first run.\n\n**Mac:** this node is CUDA-only and the installer skips it on macOS — nothing to run here.\n"
-      ]
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
     },
     {
-      "id": 1,
-      "type": "LoadImage",
+      "id": 5,
+      "type": "SaveImage",
       "pos": [
-        120,
-        140
+        1180,
+        299.07459417529833
       ],
       "size": [
-        464.3488902459137,
-        509.6412615846622
+        363.3672941044922,
+        659.1466079535058
       ],
       "flags": {},
-      "order": 0,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "image",
-          "name": "image",
-          "type": "COMBO",
-          "widget": {
-            "name": "image"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "choose file to upload",
-          "name": "upload",
-          "type": "IMAGEUPLOAD",
-          "widget": {
-            "name": "upload"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "label": "IMAGE",
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
+          "localized_name": "images",
+          "name": "images",
           "type": "IMAGE",
-          "links": [
-            1
-          ]
+          "link": 4
         },
         {
-          "label": "MASK",
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": []
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
         }
       ],
+      "outputs": [],
       "properties": {
-        "Node name for S&R": "LoadImage",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.1",
-          "input_ue_unconnectable": {}
-        },
+        "Node name for S&R": "SaveImage",
         "cnr_id": "comfy-core",
-        "ver": "0.3.27"
+        "ver": "0.3.64",
+        "enableTabs": false,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "hasSecondTab": false,
+        "secondTabText": "Send Back",
+        "secondTabOffset": 80,
+        "secondTabWidth": 65,
+        "ue_properties": {
+          "widget_ue_connectable": {
+            "filename_prefix": true
+          },
+          "version": "7.5.2",
+          "input_ue_unconnectable": {}
+        }
       },
       "widgets_values": [
-        "example.png",
-        "image"
+        "image/SeedVR2-refine/%date:yyyy-MM-dd%/%date:hhmmss%"
       ],
-      "color": "#232",
-      "bgcolor": "#353"
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
     },
     {
       "id": 2,
@@ -420,7 +410,7 @@
         386
       ],
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -593,7 +583,7 @@
       "widgets_values": [
         1234567890,
         "fixed",
-        1440,
+        1536,
         4096,
         1,
         false,
@@ -609,61 +599,73 @@
       "bgcolor": "#653"
     },
     {
-      "id": 5,
-      "type": "SaveImage",
+      "id": 1,
+      "type": "LoadImage",
       "pos": [
-        1180,
-        300
+        61.69943304379379,
+        -157.05526972924113
       ],
       "size": [
-        363.3672941044922,
-        659.1466079535058
+        464.3488902459137,
+        509.6412615846622
       ],
       "flags": {},
-      "order": 4,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 4
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
         },
         {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
           "widget": {
-            "name": "filename_prefix"
+            "name": "upload"
           },
           "link": null
         }
       ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "SaveImage",
-        "cnr_id": "comfy-core",
-        "ver": "0.3.64",
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65,
-        "ue_properties": {
-          "widget_ue_connectable": {
-            "filename_prefix": true
-          },
-          "version": "7.5.2",
-          "input_ue_unconnectable": {}
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "label": "MASK",
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
         }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "version": "7.1",
+          "input_ue_unconnectable": {}
+        },
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27"
       },
       "widgets_values": [
-        "image/SeedVR2-refine/%date:yyyy-MM-dd%/%date:hhmmss%"
+        "Screenshot 2026-07-01 003855.png",
+        "image"
       ],
-      "color": "#2a363b",
-      "bgcolor": "#3f5159"
+      "color": "#232",
+      "bgcolor": "#353"
     }
   ],
   "links": [
@@ -702,6 +704,14 @@
   ],
   "groups": [],
   "config": {},
-  "extra": {},
+  "extra": {
+    "ds": {
+      "scale": 1.7842778295978556,
+      "offset": [
+        275.2235722009689,
+        147.6116609069127
+      ]
+    }
+  },
   "version": 0.4
 }

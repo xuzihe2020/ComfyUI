@@ -16,7 +16,7 @@
         739.1105765194277
       ],
       "flags": {},
-      "order": 3,
+      "order": 0,
       "mode": 0,
       "inputs": [
         {
@@ -140,7 +140,7 @@
         482.04430428095657
       ],
       "flags": {},
-      "order": 9,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -584,7 +584,7 @@
         70
       ],
       "flags": {},
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {
@@ -633,7 +633,7 @@
         130
       ],
       "flags": {},
-      "order": 0,
+      "order": 2,
       "mode": 0,
       "inputs": [
         {
@@ -707,7 +707,7 @@
         77.17556316251984
       ],
       "flags": {},
-      "order": 2,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
@@ -750,7 +750,7 @@
         180
       ],
       "flags": {},
-      "order": 4,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
@@ -798,7 +798,7 @@
         90
       ],
       "flags": {},
-      "order": 8,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -846,7 +846,7 @@
         150
       ],
       "flags": {},
-      "order": 5,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {
@@ -1425,14 +1425,14 @@
       "type": "WatermarkDetectorLoader",
       "pos": [
         -212.64526014757072,
-        -96.0
+        -96
       ],
       "size": [
         360,
         78
       ],
       "flags": {},
-      "order": 7,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [

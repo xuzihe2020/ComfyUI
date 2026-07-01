@@ -1,8 +1,8 @@
 {
   "id": "b4d9dac2-96c7-4b31-a193-5e975ed62e5f",
   "revision": 0,
-  "last_node_id": 28,
-  "last_link_id": 38,
+  "last_node_id": 32,
+  "last_link_id": 46,
   "nodes": [
     {
       "id": 1,
@@ -48,14 +48,18 @@
             2,
             7,
             28,
-            35
+            35,
+            41,
+            40
           ]
         },
         {
           "localized_name": "MASK",
           "name": "MASK",
           "type": "MASK",
-          "links": null
+          "links": [
+            42
+          ]
         }
       ],
       "properties": {
@@ -384,20 +388,20 @@
         35,
         160,
         25,
-        2.5,
-        2.74,
-        0.1,
-        4,
-        40,
+        2.0,
+        2.2,
+        0.05,
+        2,
+        64,
         5,
         1,
         15,
         "HYBRID",
         "AUTO",
         8,
-        0.9,
+        1.3,
         32,
-        "replace",
+        "union",
         3,
         10,
         5,
@@ -450,14 +454,14 @@
         190
       ],
       "flags": {},
-      "order": 10,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
           "localized_name": "mask",
           "name": "mask",
           "type": "MASK",
-          "link": 4
+          "link": 45
         },
         {
           "localized_name": "erode_dilate",
@@ -539,7 +543,7 @@
         260
       ],
       "flags": {},
-      "order": 12,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {
@@ -567,7 +571,7 @@
         190
       ],
       "flags": {},
-      "order": 13,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {
@@ -655,7 +659,7 @@
         "Node name for S&R": "MaskBoundingBox+"
       },
       "widgets_values": [
-        96,
+        384,
         0
       ]
     },
@@ -770,7 +774,7 @@
         "Node name for S&R": "MaskBlur+"
       },
       "widgets_values": [
-        13,
+        48,
         "auto"
       ]
     },
@@ -1701,6 +1705,191 @@
         "flux1\\flux1_fill_dev.safetensors",
         "default"
       ]
+    },
+    {
+      "id": 30,
+      "type": "ImageMaskSwitch",
+      "pos": [
+        270,
+        520
+      ],
+      "size": [
+        320,
+        198
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images1",
+          "name": "images1",
+          "type": "IMAGE",
+          "link": 41
+        },
+        {
+          "localized_name": "mask1_opt",
+          "name": "mask1_opt",
+          "shape": 7,
+          "type": "MASK",
+          "link": 4
+        },
+        {
+          "localized_name": "images2_opt",
+          "name": "images2_opt",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 40
+        },
+        {
+          "localized_name": "mask2_opt",
+          "name": "mask2_opt",
+          "shape": 7,
+          "type": "MASK",
+          "link": 42
+        },
+        {
+          "localized_name": "images3_opt",
+          "name": "images3_opt",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "mask3_opt",
+          "name": "mask3_opt",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        },
+        {
+          "localized_name": "images4_opt",
+          "name": "images4_opt",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "mask4_opt",
+          "name": "mask4_opt",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        },
+        {
+          "localized_name": "select",
+          "name": "select",
+          "type": "INT",
+          "widget": {
+            "name": "select"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": null
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "slot_index": 1,
+          "links": [
+            46
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageMaskSwitch",
+        "cnr_id": "comfyui-impact-pack"
+      },
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "id": 31,
+      "type": "MaskPreview",
+      "pos": [
+        880,
+        520
+      ],
+      "size": [
+        320,
+        260
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 43
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "MaskPreview"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 32,
+      "type": "ToBinaryMask",
+      "pos": [
+        620,
+        500
+      ],
+      "size": [
+        220,
+        82
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 46
+        },
+        {
+          "localized_name": "threshold",
+          "name": "threshold",
+          "type": "INT",
+          "widget": {
+            "name": "threshold"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "slot_index": 0,
+          "links": [
+            43,
+            45
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ToBinaryMask",
+        "cnr_id": "comfyui-impact-pack"
+      },
+      "widgets_values": [
+        20
+      ]
     }
   ],
   "links": [
@@ -1732,8 +1921,8 @@
       4,
       3,
       0,
-      5,
-      0,
+      30,
+      1,
       "MASK"
     ],
     [
@@ -2007,6 +2196,54 @@
       28,
       0,
       "IMAGE"
+    ],
+    [
+      40,
+      1,
+      0,
+      30,
+      2,
+      "IMAGE"
+    ],
+    [
+      41,
+      1,
+      0,
+      30,
+      0,
+      "IMAGE"
+    ],
+    [
+      42,
+      1,
+      1,
+      30,
+      3,
+      "MASK"
+    ],
+    [
+      43,
+      32,
+      0,
+      31,
+      0,
+      "MASK"
+    ],
+    [
+      45,
+      32,
+      0,
+      5,
+      0,
+      "MASK"
+    ],
+    [
+      46,
+      30,
+      1,
+      32,
+      0,
+      "MASK"
     ]
   ],
   "groups": [
@@ -2024,12 +2261,12 @@
     },
     {
       "id": 2,
-      "title": "2. Auto mosaic detection and mask margin",
+      "title": "2. Mosaic mask source, detection, and context crop",
       "bounding": [
         -140,
         -190,
-        1120,
-        1000
+        1360,
+        1220
       ],
       "color": "#8A8",
       "flags": {}
