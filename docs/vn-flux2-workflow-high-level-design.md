@@ -1,4 +1,4 @@
-# Visual Novel FLUX2 Workflow Design
+# Visual Novel FLUX2 Workflow Design (high level) -- intial version
 
 This document summarizes the workflow research and design decisions for a
 visual novel production pipeline built around FLUX2, character consistency,

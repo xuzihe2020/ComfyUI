@@ -202,6 +202,15 @@ example:
 AI-Toolkit can load model paths directly from those directories. You do not need
 to copy the models into the container/OS disk.
 
+One network volume can be reused by different Pods in the same data center, so
+this is a good fit for budget splitting: use an A100 Pod for LoRA training, an
+RTX 5090 Pod for production generation, and a cheaper 4090/3090 Pod for small
+tasks, all reading the same model store. Create the volume first, then deploy
+each Pod with that volume attached. Avoid running multiple Pods that write into
+the same output/cache directory at the same time; keep task-specific outputs
+under separate folders such as `/workspace/fluxlab/runs/<run_id>` and
+`/workspace/fluxlab/prod/output/<batch_id>`.
+
 Speed expectations:
 
 - Network volume reads are usually fast enough for model loading and training
