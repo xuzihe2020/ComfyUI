@@ -1,0 +1,29 @@
+Describe the attached image in exhaustive, faithful detail so it can be repainted.
+
+Fill in every field of the structured schema:
+
+- scene_description: What is happening overall — the setting, the key subjects, the
+  action or moment, and the general composition. This is the top-line summary.
+- environment_and_lighting: The location/background, time of day, weather or season
+  if visible, surfaces and props, and the full lighting setup (sources, direction,
+  hardness, color temperature, shadows, highlights, overall mood).
+- camera_and_perspective: The apparent shot size, camera height and angle, focal-length
+  feel, depth of field, framing/composition, and any lens character.
+- character_relationships: How the people relate to one another spatially and socially
+  (who is near/facing whom, groupings, interactions, hierarchy, eye-lines). If there
+  are no people, say so briefly.
+- characters: One entry per visible person. For each person provide:
+    - label: a short handle to refer to this person (e.g. "foreground woman",
+      "man on the left").
+    - appearance: age range, build, skin tone, hair (color, length, style), facial
+      features, expression, and any distinguishing marks.
+    - clothing: every visible garment and accessory, with materials, colors (add hex
+      when distinctive), patterns, fit, and footwear.
+    - body_and_action: pose, gesture, body orientation, what the person is doing or
+      holding, and where their weight/attention is directed.
+    - relation_to_camera: position and scale within the frame (foreground/midground/
+      background, left/center/right), which way they face relative to the camera, and
+      whether they make eye contact with the lens.
+
+Remember: describe only what is visible, be specific, and write all field values in
+{language}.
