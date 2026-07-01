@@ -1329,23 +1329,54 @@ Keep this in GitHub notes or a bootstrap script so the pod can be rebuilt.
 
 ### Model Paths For ComfyUI
 
-Use `extra_model_paths.yaml` so ComfyUI sees models on the network volume:
+Use `extra_model_paths.yaml` so ComfyUI sees models on the network volume.
+Do not use the local Windows config unchanged on RunPod: the checked-in
+`extra_model_paths.yaml` points at `C:/Users/Tony Xu/workspace/comfyui_models`,
+which does not exist in the pod.
+
+For this repo's model layout, keep the model store beside the ComfyUI checkout
+on the RunPod volume:
+
+```text
+/workspace/comfyui/          ComfyUI checkout
+/workspace/comfyui_models/   persistent model store on the RunPod volume
+```
+
+Then write the RunPod model-path config:
 
 ```bash
 cat > /workspace/fluxlab/configs/extra_model_paths.yaml <<'EOF'
-fluxlab:
-  base_path: /workspace/fluxlab
-  checkpoints: models/checkpoints
-  diffusion_models: models/diffusion_models
-  clip: models/clip
-  text_encoders: models/text_encoders
-  vae: models/vae
-  loras: models/loras
-  controlnet: models/controlnet
+external_comfyui_models:
+  base_path: /workspace/comfyui_models
+  is_default: true
+
+  checkpoints: checkpoints
+  diffusion_models: checkpoints
+  loras: lora
+  text_encoders: text_encoders
+  vae: vae
+  download_model_base: .
+  sams: sams
+  ultralytics: ultralytics
+  ultralytics_bbox: ultralytics/bbox
+  ultralytics_segm: ultralytics/segm
+  yolo: yolo
+  seedvr2: SEEDVR2
 EOF
 ```
 
-Adjust folder names to match your installed Flux ComfyUI setup.
+If you launch this repo's ComfyUI checkout directly from its root, update that
+checkout's `extra_model_paths.yaml` with the same RunPod `base_path` before
+starting ComfyUI:
+
+```bash
+cp /workspace/fluxlab/configs/extra_model_paths.yaml /workspace/comfyui/extra_model_paths.yaml
+```
+
+If your RunPod volume uses a different mount or folder name, replace only
+`base_path`; keep the model category keys aligned with the repo's workflows.
+For example, SeedVR2 expects the `seedvr2` model type and the physical
+`SEEDVR2` folder.
 
 ### Run An Overnight Batch
 
@@ -1430,6 +1461,7 @@ Use this checklist for a fresh pod:
 [ ] Review samples in Google Drive.
 [ ] Upload final LoRA to Hugging Face.
 [ ] Optional: clone/install ComfyUI for production generation.
+[ ] Optional: rewrite ComfyUI extra_model_paths.yaml for the RunPod volume path.
 [ ] Optional: create prodgen_runner.py.
 [ ] Optional: test fluxlab start-comfy and a tiny production manifest.
 ```

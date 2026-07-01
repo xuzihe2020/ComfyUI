@@ -59,6 +59,7 @@ test_images/
 /.env
 /.env.*
 !/.env.example
+/extra_model_paths.yaml
 user/cache
 user/__manager/cache/
 user/__manager/startup-scripts/
