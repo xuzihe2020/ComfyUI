@@ -1,8 +1,8 @@
 {
   "id": "vn_step1_step2_background_plate_flux2",
   "revision": 0,
-  "last_node_id": 55,
-  "last_link_id": 64,
+  "last_node_id": 63,
+  "last_link_id": 72,
   "nodes": [
     {
       "id": 1,
@@ -579,8 +579,7 @@
           "type": "MASK",
           "links": [
             15,
-            23,
-            53
+            23
           ]
         }
       ],
@@ -900,7 +899,7 @@
         "Node name for S&R": "CLIPTextEncode"
       },
       "widgets_values": [
-        "Generate an empty background plate with no people. Use image A only for camera angle, crop, lens perspective, wall and floor geometry, subject reserved positions, and overall spatial layout. Use the generated background-depth fill reference to preserve empty-scene perspective and depth. Use the environment references for architecture, materials, lighting mood, color temperature, furniture, and scene details. Remove all people, faces, hands, bodies, and old clothing completely. Keep clean negative space where the two people will be composited back later."
+        "Generate a completely new empty background plate with no people anywhere. The whole frame is editable. Use image A/base only for camera angle, crop, lens perspective, wall and floor geometry, vanishing lines, reserved subject positions, and broad spatial layout. Use the background-depth fill only as loose empty-scene perspective guidance; ignore any remaining person-shaped depth artifacts. Use the environment references for the new architecture, materials, lighting mood, color temperature, furniture, floor, wall, and scene details. Remove every person, face, hair, hand, arm, leg, skin patch, clothing piece, body outline, reflection, and person-shaped shadow completely. The output must be an empty environment plate ready for people to be composited back later."
       ],
       "color": "#232",
       "bgcolor": "#353"
@@ -951,7 +950,7 @@
         "Node name for S&R": "CLIPTextEncode"
       },
       "widgets_values": [
-        "person, people, human body, face, hands, arms, legs, clothing, old outfit, silhouette remnants, person-shaped depth, old background artifacts, warped perspective, bad depth, pasted objects, blurry, low quality"
+        "person, people, woman, man, human, face, head, hair, hand, hands, arm, arms, leg, legs, skin, body, clothing, outfit, shoes, silhouette, body outline, person-shaped depth, ghost person, remaining person, old room, unchanged original background, pasted object, warped perspective, bad depth, blurry, low quality"
       ],
       "color": "#322",
       "bgcolor": "#533"
@@ -1396,7 +1395,7 @@
           "localized_name": "mask",
           "name": "mask",
           "type": "MASK",
-          "link": 53
+          "link": 72
         }
       ],
       "outputs": [
@@ -2321,7 +2320,7 @@
           "localized_name": "source",
           "name": "source",
           "type": "IMAGE",
-          "link": 22
+          "link": 69
         },
         {
           "localized_name": "mask",
@@ -2428,7 +2427,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            22
+            65
           ]
         }
       ],
@@ -2563,12 +2562,12 @@
           ]
         }
       ],
-      "title": "stage2 background plate denoise 0.86",
+      "title": "stage2 background plate denoise 1.00",
       "properties": {
         "Node name for S&R": "SplitSigmasDenoise"
       },
       "widgets_values": [
-        0.86
+        1.0
       ]
     },
     {
@@ -2669,7 +2668,7 @@
         "Node name for S&R": "Flux2Scheduler"
       },
       "widgets_values": [
-        12,
+        28,
         1536,
         1024
       ]
@@ -2781,7 +2780,7 @@
         "Node name for S&R": "FluxGuidance"
       },
       "widgets_values": [
-        3.5
+        4.5
       ]
     },
     {
@@ -2844,6 +2843,425 @@
       ],
       "color": "#232",
       "bgcolor": "#353"
+    },
+    {
+      "id": 56,
+      "type": "ImageBlur",
+      "pos": [
+        1648,
+        778
+      ],
+      "size": [
+        300,
+        110
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "widget": {
+            "name": "image"
+          },
+          "link": 65
+        },
+        {
+          "localized_name": "blur_radius",
+          "name": "blur_radius",
+          "type": "INT",
+          "widget": {
+            "name": "blur_radius"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sigma",
+          "name": "sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            66
+          ]
+        }
+      ],
+      "title": "A blurred depth fill source pass 2",
+      "properties": {
+        "Node name for S&R": "ImageBlur"
+      },
+      "widgets_values": [
+        31,
+        10.0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 57,
+      "type": "ImageBlur",
+      "pos": [
+        1978,
+        778
+      ],
+      "size": [
+        300,
+        110
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "widget": {
+            "name": "image"
+          },
+          "link": 66
+        },
+        {
+          "localized_name": "blur_radius",
+          "name": "blur_radius",
+          "type": "INT",
+          "widget": {
+            "name": "blur_radius"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sigma",
+          "name": "sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            67
+          ]
+        }
+      ],
+      "title": "A blurred depth fill source pass 3",
+      "properties": {
+        "Node name for S&R": "ImageBlur"
+      },
+      "widgets_values": [
+        31,
+        10.0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 58,
+      "type": "ImageBlur",
+      "pos": [
+        2308,
+        778
+      ],
+      "size": [
+        300,
+        110
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "widget": {
+            "name": "image"
+          },
+          "link": 67
+        },
+        {
+          "localized_name": "blur_radius",
+          "name": "blur_radius",
+          "type": "INT",
+          "widget": {
+            "name": "blur_radius"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sigma",
+          "name": "sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            68
+          ]
+        }
+      ],
+      "title": "A blurred depth fill source pass 4",
+      "properties": {
+        "Node name for S&R": "ImageBlur"
+      },
+      "widgets_values": [
+        31,
+        10.0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 59,
+      "type": "ImageBlur",
+      "pos": [
+        2638,
+        778
+      ],
+      "size": [
+        300,
+        110
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "widget": {
+            "name": "image"
+          },
+          "link": 68
+        },
+        {
+          "localized_name": "blur_radius",
+          "name": "blur_radius",
+          "type": "INT",
+          "widget": {
+            "name": "blur_radius"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sigma",
+          "name": "sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            69
+          ]
+        }
+      ],
+      "title": "A blurred depth fill source pass 5",
+      "properties": {
+        "Node name for S&R": "ImageBlur"
+      },
+      "widgets_values": [
+        31,
+        10.0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 60,
+      "type": "SolidMask",
+      "pos": [
+        2050,
+        960
+      ],
+      "size": [
+        310,
+        106
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "value",
+          "name": "value",
+          "type": "FLOAT",
+          "widget": {
+            "name": "value"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            70,
+            72
+          ]
+        }
+      ],
+      "title": "STEP2 FULL-FRAME EDIT MASK - used by sampler",
+      "properties": {
+        "Node name for S&R": "SolidMask"
+      },
+      "widgets_values": [
+        1.0,
+        1536,
+        1024
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 61,
+      "type": "MaskToImage",
+      "pos": [
+        2400,
+        960
+      ],
+      "size": [
+        230,
+        70
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 70
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            71
+          ]
+        }
+      ],
+      "title": "STEP2 EXACT MASK IMAGE - full frame",
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      },
+      "widgets_values": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 62,
+      "type": "PreviewImage",
+      "pos": [
+        2400,
+        1060
+      ],
+      "size": [
+        420,
+        315
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 71
+        }
+      ],
+      "outputs": [],
+      "title": "STEP2 EXACT MASK SENT TO SAMPLER",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 63,
+      "type": "MarkdownNote",
+      "pos": [
+        2040,
+        1240
+      ],
+      "size": [
+        520,
+        180
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "WHY STEP2 USES FULL-FRAME MASK",
+      "properties": {
+        "Node name for S&R": "MarkdownNote"
+      },
+      "widgets_values": [
+        "A person-only inpaint mask can only fill the old person area; it cannot change the visible background.\n\nFor the empty background plate, Step 2 now sends a full-frame white mask to the sampler. The person mask remains a Step 1 output for debugging, removal-only tests, and later compositing/contact masks."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
     }
   ],
   "links": [
@@ -3013,14 +3431,6 @@
       0,
       25,
       0,
-      "IMAGE"
-    ],
-    [
-      22,
-      24,
-      0,
-      25,
-      1,
       "IMAGE"
     ],
     [
@@ -3264,14 +3674,6 @@
       "LATENT"
     ],
     [
-      53,
-      13,
-      0,
-      46,
-      1,
-      "MASK"
-    ],
-    [
       54,
       49,
       0,
@@ -3358,6 +3760,70 @@
       55,
       0,
       "IMAGE"
+    ],
+    [
+      65,
+      24,
+      0,
+      56,
+      0,
+      "IMAGE"
+    ],
+    [
+      66,
+      56,
+      0,
+      57,
+      0,
+      "IMAGE"
+    ],
+    [
+      67,
+      57,
+      0,
+      58,
+      0,
+      "IMAGE"
+    ],
+    [
+      68,
+      58,
+      0,
+      59,
+      0,
+      "IMAGE"
+    ],
+    [
+      69,
+      59,
+      0,
+      25,
+      1,
+      "IMAGE"
+    ],
+    [
+      70,
+      60,
+      0,
+      61,
+      0,
+      "MASK"
+    ],
+    [
+      71,
+      61,
+      0,
+      62,
+      0,
+      "IMAGE"
+    ],
+    [
+      72,
+      60,
+      0,
+      46,
+      1,
+      "MASK"
     ]
   ],
   "groups": [

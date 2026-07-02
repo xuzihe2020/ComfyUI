@@ -1,8 +1,8 @@
 {
   "id": "vn_step1_preprocess_a_mask_depth_fill",
   "revision": 0,
-  "last_node_id": 25,
-  "last_link_id": 26,
+  "last_node_id": 29,
+  "last_link_id": 31,
   "nodes": [
     {
       "id": 1,
@@ -1142,7 +1142,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            22
+            27
           ]
         }
       ],
@@ -1182,7 +1182,7 @@
           "localized_name": "source",
           "name": "source",
           "type": "IMAGE",
-          "link": 22
+          "link": 31
         },
         {
           "localized_name": "x",
@@ -1343,6 +1343,262 @@
         "vn_step1_preprocess/background_depth_fill"
       ],
       "title": "save background-depth fill"
+    },
+    {
+      "id": 26,
+      "type": "ImageBlur",
+      "pos": [
+        1648,
+        778
+      ],
+      "size": [
+        300,
+        110
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "widget": {
+            "name": "image"
+          },
+          "link": 27
+        },
+        {
+          "localized_name": "blur_radius",
+          "name": "blur_radius",
+          "type": "INT",
+          "widget": {
+            "name": "blur_radius"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sigma",
+          "name": "sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            28
+          ]
+        }
+      ],
+      "title": "A blurred depth fill source pass 2",
+      "properties": {
+        "Node name for S&R": "ImageBlur"
+      },
+      "widgets_values": [
+        31,
+        10.0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 27,
+      "type": "ImageBlur",
+      "pos": [
+        1978,
+        778
+      ],
+      "size": [
+        300,
+        110
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "widget": {
+            "name": "image"
+          },
+          "link": 28
+        },
+        {
+          "localized_name": "blur_radius",
+          "name": "blur_radius",
+          "type": "INT",
+          "widget": {
+            "name": "blur_radius"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sigma",
+          "name": "sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            29
+          ]
+        }
+      ],
+      "title": "A blurred depth fill source pass 3",
+      "properties": {
+        "Node name for S&R": "ImageBlur"
+      },
+      "widgets_values": [
+        31,
+        10.0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 28,
+      "type": "ImageBlur",
+      "pos": [
+        2308,
+        778
+      ],
+      "size": [
+        300,
+        110
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "widget": {
+            "name": "image"
+          },
+          "link": 29
+        },
+        {
+          "localized_name": "blur_radius",
+          "name": "blur_radius",
+          "type": "INT",
+          "widget": {
+            "name": "blur_radius"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sigma",
+          "name": "sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            30
+          ]
+        }
+      ],
+      "title": "A blurred depth fill source pass 4",
+      "properties": {
+        "Node name for S&R": "ImageBlur"
+      },
+      "widgets_values": [
+        31,
+        10.0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 29,
+      "type": "ImageBlur",
+      "pos": [
+        2638,
+        778
+      ],
+      "size": [
+        300,
+        110
+      ],
+      "flags": {},
+      "order": 999,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "widget": {
+            "name": "image"
+          },
+          "link": 30
+        },
+        {
+          "localized_name": "blur_radius",
+          "name": "blur_radius",
+          "type": "INT",
+          "widget": {
+            "name": "blur_radius"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sigma",
+          "name": "sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            31
+          ]
+        }
+      ],
+      "title": "A blurred depth fill source pass 5",
+      "properties": {
+        "Node name for S&R": "ImageBlur"
+      },
+      "widgets_values": [
+        31,
+        10.0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
     }
   ],
   "links": [
@@ -1515,14 +1771,6 @@
       "IMAGE"
     ],
     [
-      22,
-      21,
-      0,
-      22,
-      1,
-      "IMAGE"
-    ],
-    [
       23,
       10,
       0,
@@ -1552,6 +1800,46 @@
       0,
       25,
       0,
+      "IMAGE"
+    ],
+    [
+      27,
+      21,
+      0,
+      26,
+      0,
+      "IMAGE"
+    ],
+    [
+      28,
+      26,
+      0,
+      27,
+      0,
+      "IMAGE"
+    ],
+    [
+      29,
+      27,
+      0,
+      28,
+      0,
+      "IMAGE"
+    ],
+    [
+      30,
+      28,
+      0,
+      29,
+      0,
+      "IMAGE"
+    ],
+    [
+      31,
+      29,
+      0,
+      22,
+      1,
       "IMAGE"
     ]
   ],
