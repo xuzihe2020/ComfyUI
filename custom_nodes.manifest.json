@@ -41,7 +41,7 @@
       "name": "ComfyUI_essentials",
       "folder": "ComfyUI_essentials",
       "repo": "https://github.com/cubiq/ComfyUI_essentials",
-      "reason": "Provides MaskBoundingBox+ for padded bbox crops around detected OCR masks."
+      "reason": "Provides MaskBoundingBox+ for padded bbox crops around detected OCR masks, plus RemBGSession+ and ImageRemoveBackground+ for human matte A/B workflows. The installer force-installs rembg[cpu] and rembg[gpu] so an ONNXRuntime backend is available before ComfyUI starts."
     },
     {
       "name": "was-node-suite-comfyui",

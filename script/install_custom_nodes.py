@@ -15,7 +15,8 @@ macOS/Linux:
 
 Default behavior is diff mode: only custom nodes listed in the manifest whose
 folders are missing from custom_nodes/ are installed. Existing nodes can get a
-lightweight optional-accelerator check without running ComfyUI-Manager.
+dependency fix or lightweight optional-accelerator check without running
+ComfyUI-Manager for every node.
 
 Show help/options only:
 
@@ -70,6 +71,7 @@ PATCHED_NODE_FOLDERS = {
 ALWAYS_FIX_DEPENDENCIES = {
     "ComfyUI-EasyOCR",
     "ComfyUI-Watermark-Detection",
+    "ComfyUI_essentials",
     "ComfyUI-qwenmultiangle",
     "Comfyui-LayerForge",
     "comfyui_face_parsing",
@@ -79,7 +81,14 @@ ALWAYS_FIX_DEPENDENCIES = {
     # force its requirements.txt even under --no-deps.
     "ComfyUI-SeedVR2_VideoUpscaler",
 }
+DIFF_MODE_FIX_EXISTING_DEPENDENCIES = {
+    "ComfyUI_essentials",
+}
 EXTRA_PIP_DEPENDENCIES = {
+    "ComfyUI_essentials": [
+        "rembg[cpu]",
+        "rembg[gpu]",
+    ],
     "ComfyUI-Watermark-Detection": [
         "ultralytics",
         "huggingface_hub",
@@ -313,6 +322,21 @@ def missing_manifest_nodes(manifest: dict) -> list[dict]:
     return missing
 
 
+def diff_mode_existing_dependency_nodes(manifest: dict) -> list[dict]:
+    nodes = []
+    for node in manifest_nodes_in_install_order(manifest):
+        if not node_allowed_here(node):
+            continue
+        name = node["name"]
+        folder_name = node["folder"]
+        folder = CUSTOM_NODES_DIR / folder_name
+        fix_existing_deps = name in DIFF_MODE_FIX_EXISTING_DEPENDENCIES or folder_name in DIFF_MODE_FIX_EXISTING_DEPENDENCIES
+        if folder.exists() and fix_existing_deps:
+            print(f"{folder} already exists; checking dependencies", flush=True)
+            nodes.append(node)
+    return nodes
+
+
 def diff_mode_existing_accelerator_nodes(manifest: dict) -> list[dict]:
     nodes = []
     for node in manifest_nodes_in_install_order(manifest):
@@ -377,7 +401,7 @@ def main() -> None:
         default="diff",
         help=(
             "diff installs only manifest nodes whose custom_nodes folders are missing "
-            "and checks optional accelerators for selected existing nodes "
+            "and checks dependency fixes or optional accelerators for selected existing nodes "
             "(default); full processes every manifest node."
         ),
     )
@@ -395,6 +419,7 @@ def main() -> None:
 
     manifest = load_manifest(args.manifest)
     install_mode = "full" if args.full else args.install_mode
+    existing_dependency_nodes: list[dict] = []
     existing_accelerator_nodes: list[dict] = []
     if install_mode == "full":
         nodes_to_install = []
@@ -406,19 +431,26 @@ def main() -> None:
             nodes_to_install.append(node)
     else:
         nodes_to_install = missing_manifest_nodes(manifest)
+        existing_dependency_nodes = diff_mode_existing_dependency_nodes(manifest)
         existing_accelerator_nodes = diff_mode_existing_accelerator_nodes(manifest)
         seen = {node["folder"] for node in nodes_to_install}
+        existing_dependency_nodes = [
+            node for node in existing_dependency_nodes
+            if node["folder"] not in seen
+        ]
+        seen.update(node["folder"] for node in existing_dependency_nodes)
         existing_accelerator_nodes = [
             node for node in existing_accelerator_nodes
             if node["folder"] not in seen
         ]
 
-    if not nodes_to_install and not existing_accelerator_nodes:
-        print("No missing custom nodes or optional accelerator checks found in manifest; diff install is complete.", flush=True)
+    if not nodes_to_install and not existing_dependency_nodes and not existing_accelerator_nodes:
+        print("No missing custom nodes, dependency fixes, or optional accelerator checks found in manifest; diff install is complete.", flush=True)
         return
 
     python_bin = comfy_python()
-    if nodes_to_install:
+    nodes_requiring_manager = nodes_to_install + existing_dependency_nodes
+    if nodes_requiring_manager:
         manager_dir = CUSTOM_NODES_DIR / manifest["manager"]["folder"]
         manager_cli = install_manager(
             manifest,
@@ -426,7 +458,7 @@ def main() -> None:
             install_requirements=install_mode == "full" or not manager_dir.exists(),
         )
 
-        for node in nodes_to_install:
+        for node in nodes_requiring_manager:
             manager_install_node(
                 python_bin=python_bin,
                 manager_cli=manager_cli,
