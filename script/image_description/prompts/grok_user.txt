@@ -1,29 +1,62 @@
-Describe the attached image in exhaustive, faithful detail so it can be repainted.
+Describe the attached image as compact structured JSON for a FLUX.2 image prompt.
 
-Fill in every field of the structured schema:
+Fill every field in this exact structure:
 
-- scene_description: What is happening overall — the setting, the key subjects, the
-  action or moment, and the general composition. This is the top-line summary.
-- environment_and_lighting: The location/background, time of day, weather or season
-  if visible, surfaces and props, and the full lighting setup (sources, direction,
-  hardness, color temperature, shadows, highlights, overall mood).
-- camera_and_perspective: The apparent shot size, camera height and angle, focal-length
-  feel, depth of field, framing/composition, and any lens character.
-- character_relationships: How the people relate to one another spatially and socially
-  (who is near/facing whom, groupings, interactions, hierarchy, eye-lines). If there
-  are no people, say so briefly.
-- characters: One entry per visible person. For each person provide:
-    - label: a short handle to refer to this person (e.g. "foreground woman",
-      "man on the left").
-    - appearance: age range, build, skin tone, hair (color, length, style), facial
-      features, expression, and any distinguishing marks.
-    - clothing: every visible garment and accessory, with materials, colors (add hex
-      when distinctive), patterns, fit, and footwear.
-    - body_and_action: pose, gesture, body orientation, what the person is doing or
-      holding, and where their weight/attention is directed.
-    - relation_to_camera: position and scale within the frame (foreground/midground/
-      background, left/center/right), which way they face relative to the camera, and
-      whether they make eye contact with the lens.
+{
+  "cinematography": {
+    "perspective": "...",
+    "shot_size": "...",
+    "focus_type": "...",
+    "body_part": "... or null",
+    "angle": "...",
+    "composition_notes": "..."
+  },
+  "scene": {
+    "location": "...",
+    "time": "...",
+    "lighting": "...",
+    "environment": "..."
+  },
+  "heroine": {
+    "name": "...",
+    "proportion_in_frame": "...",
+    "body": "...",
+    "face": "... or null",
+    "hairstyle": "... or null",
+    "clothing_state": "...",
+    "expression": "... or null",
+    "body_action": "...",
+    "relationship_to_camera": "..."
+  }
+}
 
-Remember: describe only what is visible, be specific, and write all field values in
-{language}.
+Field meanings and target lengths:
+
+cinematography:
+- perspective: enum camera viewpoint. Choose the closest available schema value.
+- shot_size: enum shot scale. Choose the closest available schema value.
+- focus_type: enum focus mode. Use "body_part_closeup" only when the image clearly focuses on one body part; otherwise use "character".
+- body_part: 1-4 words naming the focused body part, or null when focus_type is "character".
+- angle: enum camera angle. Choose the closest available schema value.
+- composition_notes: 6-18 words describing framing, crop, occlusion, leading lines, or visual emphasis.
+
+scene:
+- location: 3-10 words naming the visible place or setting.
+- time: 1-5 words for visible or implied time of day.
+- lighting: 4-12 words describing source, direction, color, hardness, and mood.
+- environment: 6-18 words for background, props, surfaces, weather, atmosphere, or spatial context.
+
+heroine:
+- name: 1-4 words identifying the main woman; use "the woman" if unnamed.
+- proportion_in_frame: 4-10 words for her scale and placement in the frame.
+- body: 6-16 words for apparent age range, build, pose, skin tone, and visible body traits.
+- face: 6-14 words for face shape and features if visible; otherwise null.
+- hairstyle: 3-10 words for hair color, length, and style if visible; otherwise null.
+- clothing_state: 6-16 words for garments, colors, materials, fit, accessories, and footwear.
+- expression: 3-10 words for visible emotion or facial expression; otherwise null.
+- body_action: 6-16 words for pose, gesture, body orientation, and current action.
+- relationship_to_camera: 5-14 words for facing direction, eye contact, distance, and camera relation.
+
+Keep every value prompt-ready, concrete, and concise. Do not write long sentences.
+Describe only visible evidence. If a nullable field is not visible, return null.
+Write all non-enum text values in {language}.

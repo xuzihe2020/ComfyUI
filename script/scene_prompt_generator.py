@@ -2,20 +2,19 @@ r"""Generate Flux prompt text files from storyboard JSON files.
 
 Run from the ComfyUI repo root:
 
-    python script/escape_prompt_generator.py C:\path\to\example_dir
+    python script/scene_prompt_generator.py C:\path\to\example_dir
 
 Expected folder layout:
 
     example_dir/
-      json/
-        shot_001.json
-        shot_002.json
+      shot_001.json
+      shot_002.json
       prompt/
         shot_001.txt  # generated
         shot_002.txt  # generated
 
-The script reads every `.json` file in `BASE_DIR/json` and writes a matching
-`.txt` prompt file into `BASE_DIR/prompt`.
+The script reads every `.json` file directly in `BASE_DIR` and writes a
+matching `.txt` prompt file into `BASE_DIR/prompt`.
 """
 
 import argparse
@@ -73,13 +72,31 @@ def _enum_text(mapping: dict[str, str], enum_value: object, default_enum_value: 
     return mapping.get(enum_value, mapping[default_enum_value])
 
 
-def _join_lines(parts: list[object]) -> str:
-    return "\n".join(text for part in parts if (text := _text(part)))
+def _clean_prompt_line(value: object) -> str:
+    return _text(value).strip().rstrip(".,")
+
+
+def _prompt_lines(parts: list[object]) -> list[str]:
+    return [text for part in parts if (text := _clean_prompt_line(part))]
+
+
+def _format_prompt_block(parts: list[object]) -> str:
+    lines = _prompt_lines(parts)
+    if not lines:
+        return ""
+
+    punctuated = [f"{line}," for line in lines[:-1]]
+    punctuated.append(f"{lines[-1]}.")
+    return "\n".join(punctuated)
+
+
+def _join_blocks(blocks: list[str]) -> str:
+    return "\n\n".join(block for block in blocks if block)
 
 
 def build_scene_prompt_block(scene: dict) -> str:
     """Build the prompt block for the unchanged JSON `scene` object."""
-    return _join_lines(
+    return _format_prompt_block(
         [
             scene.get("location", ""),
             scene.get("time", ""),
@@ -96,7 +113,7 @@ def build_cinematography_prompt_block(cinematography: dict) -> str:
     angle = cinematography.get("angle", DEFAULT_ANGLE)
     focus_type = cinematography.get("focus_type", DEFAULT_FOCUS_TYPE)
 
-    return _join_lines(
+    return _format_prompt_block(
         [
             _enum_text(PERSPECTIVE_TEXT, perspective, DEFAULT_PERSPECTIVE),
             _enum_text(SHOT_SIZE_TEXT, shot_size, DEFAULT_SHOT_SIZE),
@@ -112,7 +129,7 @@ def build_heroine_prompt_block(heroine: dict, cinematography: dict) -> str:
     """Build the prompt block for the unchanged JSON `heroine` object."""
     focus_type = cinematography.get("focus_type", DEFAULT_FOCUS_TYPE)
     if focus_type == "body_part_closeup":
-        return _join_lines(
+        return _format_prompt_block(
             [
                 heroine.get("clothing_state", ""),
                 heroine.get("body_action", ""),
@@ -120,7 +137,7 @@ def build_heroine_prompt_block(heroine: dict, cinematography: dict) -> str:
             ]
         )
 
-    return _join_lines(
+    return _format_prompt_block(
         [
             heroine.get("name", ""),
             heroine.get("proportion_in_frame", ""),
@@ -141,7 +158,7 @@ def construct_flux_prompt(json_data: dict) -> str:
     scene = json_data.get("scene", {})
     heroine = json_data.get("heroine", {})
 
-    return _join_lines(
+    return _join_blocks(
         [
             build_scene_prompt_block(scene),
             build_cinematography_prompt_block(cinematography),
@@ -152,11 +169,11 @@ def construct_flux_prompt(json_data: dict) -> str:
 
 
 def generate_prompt_files(base_dir: Path) -> int:
-    json_dir = base_dir / "json"
+    json_dir = base_dir
     prompt_dir = base_dir / "prompt"
 
     if not json_dir.is_dir():
-        raise FileNotFoundError(f"JSON input directory does not exist: {json_dir}")
+        raise FileNotFoundError(f"Input directory does not exist: {json_dir}")
 
     prompt_dir.mkdir(parents=True, exist_ok=True)
     json_paths = sorted(json_dir.glob("*.json"))
@@ -180,14 +197,14 @@ def generate_prompt_files(base_dir: Path) -> int:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Generate Flux prompt .txt files from JSON objects in BASE_DIR/json, "
+            "Generate Flux prompt .txt files from JSON objects in BASE_DIR, "
             "writing matching filenames to BASE_DIR/prompt."
         )
     )
     parser.add_argument(
         "base_dir",
         type=Path,
-        help="Directory containing a json/ folder; prompt/ will be created beside it.",
+        help="Directory containing .json files; prompt/ will be created inside it.",
     )
     return parser.parse_args()
 

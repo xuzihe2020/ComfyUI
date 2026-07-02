@@ -55,75 +55,201 @@ XAI_SAFE_MIME = {"image/jpeg", "image/png"}
 MAX_IMAGE_BYTES = 20 * 1024 * 1024
 
 # JSON schema keys, in the order we want them to flow into the FLUX.2 prompt.
-FIELD_SCENE = "scene_description"
-FIELD_ENV = "environment_and_lighting"
-FIELD_CAMERA = "camera_and_perspective"
-FIELD_RELATIONS = "character_relationships"
-FIELD_CHARACTERS = "characters"
+FIELD_CINEMATOGRAPHY = "cinematography"
+FIELD_SCENE = "scene"
+FIELD_HEROINE = "heroine"
 
-CHAR_LABEL = "label"
-CHAR_APPEARANCE = "appearance"
-CHAR_CLOTHING = "clothing"
-CHAR_ACTION = "body_and_action"
-CHAR_CAMERA = "relation_to_camera"
+CIN_PERSPECTIVE = "perspective"
+CIN_SHOT_SIZE = "shot_size"
+CIN_FOCUS_TYPE = "focus_type"
+CIN_BODY_PART = "body_part"
+CIN_ANGLE = "angle"
+CIN_COMPOSITION_NOTES = "composition_notes"
+
+SCENE_LOCATION = "location"
+SCENE_TIME = "time"
+SCENE_LIGHTING = "lighting"
+SCENE_ENVIRONMENT = "environment"
+
+HEROINE_NAME = "name"
+HEROINE_PROPORTION = "proportion_in_frame"
+HEROINE_BODY = "body"
+HEROINE_FACE = "face"
+HEROINE_HAIRSTYLE = "hairstyle"
+HEROINE_CLOTHING = "clothing_state"
+HEROINE_EXPRESSION = "expression"
+HEROINE_ACTION = "body_action"
+HEROINE_CAMERA = "relationship_to_camera"
+
+PERSPECTIVE_TEXT = {
+    "first_person_male_protagonist_pov": "first person POV looking down",
+    "third_person_side": "third person side view, no male face visible",
+    "third_person_over_shoulder": "over the shoulder view from behind the man",
+    "third_person_back": "from behind the man, only his back visible",
+}
+
+SHOT_SIZE_TEXT = {
+    "full_body": "full body shot",
+    "medium_full": "medium full shot (knees up)",
+    "medium": "medium shot (waist up)",
+    "medium_close_up": "medium close-up (chest up)",
+    "close_up": "close-up",
+    "extreme_close_up": "extreme close-up",
+}
+
+ANGLE_TEXT = {
+    "eye_level": "eye level",
+    "low_angle": "low angle",
+    "high_angle": "high angle",
+    "dutch_angle": "dutch angle",
+}
+
+FOCUS_TYPE_TEXT = {
+    "character": "",
+    "body_part_closeup": "extreme close-up of body part, no face visible",
+}
+
+DEFAULT_PERSPECTIVE = "first_person_male_protagonist_pov"
+DEFAULT_SHOT_SIZE = "medium"
+DEFAULT_ANGLE = "eye_level"
+DEFAULT_FOCUS_TYPE = "character"
+
+QUALITY_PROMPT = (
+    "photorealistic, ultra-detailed skin texture, cinematic lighting, sharp focus, "
+    "8k, masterpiece, best quality --ar 16:9"
+)
 
 
 def description_schema() -> dict[str, Any]:
     """The strict json_schema Grok must fill in."""
-    character = {
+    nullable_string = {"type": ["string", "null"]}
+    cinematography = {
         "type": "object",
         "additionalProperties": False,
         "properties": {
-            CHAR_LABEL: {
+            CIN_PERSPECTIVE: {
                 "type": "string",
-                "description": "Short handle for this person, e.g. 'foreground woman'.",
+                "enum": list(PERSPECTIVE_TEXT),
+                "description": "Camera viewpoint enum. Choose the closest match; enum value only.",
             },
-            CHAR_APPEARANCE: {
+            CIN_SHOT_SIZE: {
                 "type": "string",
-                "description": "Age range, build, skin tone, hair, facial features, expression, marks.",
+                "enum": list(SHOT_SIZE_TEXT),
+                "description": "Shot scale enum. Choose the closest match; enum value only.",
             },
-            CHAR_CLOTHING: {
+            CIN_FOCUS_TYPE: {
                 "type": "string",
-                "description": "Garments and accessories with materials, colors (hex if distinctive), fit, footwear.",
+                "enum": list(FOCUS_TYPE_TEXT),
+                "description": "Use body_part_closeup only when the image clearly focuses on one body part.",
             },
-            CHAR_ACTION: {
-                "type": "string",
-                "description": "Pose, gesture, body orientation, and what the person is doing or holding.",
+            CIN_BODY_PART: {
+                **nullable_string,
+                "description": "1-4 words naming the focused body part, or null when focus_type is character.",
             },
-            CHAR_CAMERA: {
+            CIN_ANGLE: {
                 "type": "string",
-                "description": "Position/scale in frame, facing direction relative to camera, eye contact, depth.",
+                "enum": list(ANGLE_TEXT),
+                "description": "Camera angle enum. Choose the closest match; enum value only.",
+            },
+            CIN_COMPOSITION_NOTES: {
+                "type": "string",
+                "description": "6-18 words on framing, crop, occlusion, leading lines, or important composition.",
             },
         },
-        "required": [CHAR_LABEL, CHAR_APPEARANCE, CHAR_CLOTHING, CHAR_ACTION, CHAR_CAMERA],
+        "required": [
+            CIN_PERSPECTIVE,
+            CIN_SHOT_SIZE,
+            CIN_FOCUS_TYPE,
+            CIN_BODY_PART,
+            CIN_ANGLE,
+            CIN_COMPOSITION_NOTES,
+        ],
+    }
+    scene = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            SCENE_LOCATION: {
+                "type": "string",
+                "description": "3-10 words naming the visible setting or place.",
+            },
+            SCENE_TIME: {
+                "type": "string",
+                "description": "1-5 words for visible or implied time of day.",
+            },
+            SCENE_LIGHTING: {
+                "type": "string",
+                "description": "4-12 words on light source, direction, color, hardness, or mood.",
+            },
+            SCENE_ENVIRONMENT: {
+                "type": "string",
+                "description": "6-18 words describing background, props, surfaces, weather, or atmosphere.",
+            },
+        },
+        "required": [SCENE_LOCATION, SCENE_TIME, SCENE_LIGHTING, SCENE_ENVIRONMENT],
+    }
+    heroine = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            HEROINE_NAME: {
+                "type": "string",
+                "description": "1-4 words identifying the main woman; use 'the woman' if unnamed.",
+            },
+            HEROINE_PROPORTION: {
+                "type": "string",
+                "description": "4-10 words for her scale and placement in frame.",
+            },
+            HEROINE_BODY: {
+                "type": "string",
+                "description": "6-16 words for age range, build, pose, skin tone, and visible body traits.",
+            },
+            HEROINE_FACE: {
+                **nullable_string,
+                "description": "6-14 words for face shape/features if visible, otherwise null.",
+            },
+            HEROINE_HAIRSTYLE: {
+                **nullable_string,
+                "description": "3-10 words for hair color, length, and style if visible, otherwise null.",
+            },
+            HEROINE_CLOTHING: {
+                "type": "string",
+                "description": "6-16 words for garments, colors, materials, fit, accessories, and footwear.",
+            },
+            HEROINE_EXPRESSION: {
+                **nullable_string,
+                "description": "3-10 words for visible emotion or facial expression, otherwise null.",
+            },
+            HEROINE_ACTION: {
+                "type": "string",
+                "description": "6-16 words for pose, gesture, body orientation, and current action.",
+            },
+            HEROINE_CAMERA: {
+                "type": "string",
+                "description": "5-14 words for facing direction, eye contact, distance, and camera relation.",
+            },
+        },
+        "required": [
+            HEROINE_NAME,
+            HEROINE_PROPORTION,
+            HEROINE_BODY,
+            HEROINE_FACE,
+            HEROINE_HAIRSTYLE,
+            HEROINE_CLOTHING,
+            HEROINE_EXPRESSION,
+            HEROINE_ACTION,
+            HEROINE_CAMERA,
+        ],
     }
     return {
         "type": "object",
         "additionalProperties": False,
         "properties": {
-            FIELD_SCENE: {
-                "type": "string",
-                "description": "Top-line summary: setting, key subjects, the action/moment, overall composition.",
-            },
-            FIELD_ENV: {
-                "type": "string",
-                "description": "Location/background, time of day, props, and full lighting setup and mood.",
-            },
-            FIELD_CAMERA: {
-                "type": "string",
-                "description": "Shot size, camera height/angle, focal-length feel, depth of field, framing, lens character.",
-            },
-            FIELD_RELATIONS: {
-                "type": "string",
-                "description": "How people relate spatially and socially; 'no people' if none.",
-            },
-            FIELD_CHARACTERS: {
-                "type": "array",
-                "description": "One entry per visible person; empty if there are none.",
-                "items": character,
-            },
+            FIELD_CINEMATOGRAPHY: cinematography,
+            FIELD_SCENE: scene,
+            FIELD_HEROINE: heroine,
         },
-        "required": [FIELD_SCENE, FIELD_ENV, FIELD_CAMERA, FIELD_RELATIONS, FIELD_CHARACTERS],
+        "required": [FIELD_CINEMATOGRAPHY, FIELD_SCENE, FIELD_HEROINE],
     }
 
 
@@ -258,31 +384,88 @@ def call_grok(
 # --------------------------------------------------------------------------- #
 
 def _clean(text: Any) -> str:
-    """Trim and drop a trailing period so segments join cleanly."""
+    """Trim and drop trailing punctuation so prompt lines format cleanly."""
     s = str(text or "").strip()
     while s.endswith((".", ";", ",")):
         s = s[:-1].strip()
     return s
 
 
-def _character_clause(character: dict[str, Any]) -> str:
-    label = _clean(character.get(CHAR_LABEL))
-    appearance = _clean(character.get(CHAR_APPEARANCE))
-    clothing = _clean(character.get(CHAR_CLOTHING))
-    action = _clean(character.get(CHAR_ACTION))
-    camera = _clean(character.get(CHAR_CAMERA))
+def _enum_text(mapping: dict[str, str], enum_value: object, default_enum_value: str) -> str:
+    return mapping.get(enum_value, mapping[default_enum_value])
 
-    head = f"{label}: " if label else ""
-    parts = []
-    if appearance:
-        parts.append(appearance)
-    if clothing:
-        parts.append(f"wearing {clothing}")
-    if action:
-        parts.append(action)
-    if camera:
-        parts.append(camera)
-    return head + ", ".join(parts) if parts else ""
+
+def _prompt_lines(parts: list[object]) -> list[str]:
+    return [text for part in parts if (text := _clean(part))]
+
+
+def _format_prompt_block(parts: list[object]) -> str:
+    lines = _prompt_lines(parts)
+    if not lines:
+        return ""
+
+    punctuated = [f"{line}," for line in lines[:-1]]
+    punctuated.append(f"{lines[-1]}.")
+    return "\n".join(punctuated)
+
+
+def _join_blocks(blocks: list[str]) -> str:
+    return "\n\n".join(block for block in blocks if block)
+
+
+def build_scene_prompt_block(scene: dict[str, Any]) -> str:
+    return _format_prompt_block(
+        [
+            scene.get(SCENE_LOCATION),
+            scene.get(SCENE_TIME),
+            scene.get(SCENE_LIGHTING),
+            scene.get(SCENE_ENVIRONMENT),
+        ]
+    )
+
+
+def build_cinematography_prompt_block(cinematography: dict[str, Any]) -> str:
+    perspective = cinematography.get(CIN_PERSPECTIVE, DEFAULT_PERSPECTIVE)
+    shot_size = cinematography.get(CIN_SHOT_SIZE, DEFAULT_SHOT_SIZE)
+    focus_type = cinematography.get(CIN_FOCUS_TYPE, DEFAULT_FOCUS_TYPE)
+    angle = cinematography.get(CIN_ANGLE, DEFAULT_ANGLE)
+
+    return _format_prompt_block(
+        [
+            _enum_text(PERSPECTIVE_TEXT, perspective, DEFAULT_PERSPECTIVE),
+            _enum_text(SHOT_SIZE_TEXT, shot_size, DEFAULT_SHOT_SIZE),
+            _enum_text(FOCUS_TYPE_TEXT, focus_type, DEFAULT_FOCUS_TYPE),
+            cinematography.get(CIN_BODY_PART),
+            _enum_text(ANGLE_TEXT, angle, DEFAULT_ANGLE),
+            cinematography.get(CIN_COMPOSITION_NOTES),
+        ]
+    )
+
+
+def build_heroine_prompt_block(heroine: dict[str, Any], cinematography: dict[str, Any]) -> str:
+    focus_type = cinematography.get(CIN_FOCUS_TYPE, DEFAULT_FOCUS_TYPE)
+    if focus_type == "body_part_closeup":
+        return _format_prompt_block(
+            [
+                heroine.get(HEROINE_CLOTHING),
+                heroine.get(HEROINE_ACTION),
+                heroine.get(HEROINE_CAMERA),
+            ]
+        )
+
+    return _format_prompt_block(
+        [
+            heroine.get(HEROINE_NAME),
+            heroine.get(HEROINE_PROPORTION),
+            heroine.get(HEROINE_BODY),
+            heroine.get(HEROINE_FACE),
+            heroine.get(HEROINE_HAIRSTYLE),
+            heroine.get(HEROINE_CLOTHING),
+            heroine.get(HEROINE_EXPRESSION),
+            heroine.get(HEROINE_ACTION),
+            heroine.get(HEROINE_CAMERA),
+        ]
+    )
 
 
 def build_flux2_prompt(
@@ -292,37 +475,23 @@ def build_flux2_prompt(
 ) -> str:
     """Assemble a FLUX.2 prompt from the structured description.
 
-    FLUX.2 favors front-loaded subjects, natural-language prose, and explicit
-    lighting/camera detail (no negative prompts). We order segments as
-    Subject -> characters/action -> relationships -> environment/lighting ->
-    camera/framing, wrapped in optional prefix/suffix blocks.
+    FLUX.2 favors compact natural-language descriptors and explicit scene,
+    camera, and character detail. We keep comma-separated lines inside each
+    block, end each block with a period, and separate larger blocks by a blank
+    line so the prompt remains readable without becoming wordy.
     """
-    segments: list[str] = []
+    cinematography = data.get(FIELD_CINEMATOGRAPHY) or {}
+    scene = data.get(FIELD_SCENE) or {}
+    heroine = data.get(FIELD_HEROINE) or {}
 
-    scene = _clean(data.get(FIELD_SCENE))
-    if scene:
-        segments.append(scene)
-
-    for character in data.get(FIELD_CHARACTERS) or []:
-        clause = _character_clause(character)
-        if clause:
-            segments.append(clause)
-
-    relations = _clean(data.get(FIELD_RELATIONS))
-    if relations and relations.lower() not in {"no people", "none"}:
-        segments.append(relations)
-
-    env = _clean(data.get(FIELD_ENV))
-    if env:
-        segments.append(env)
-
-    camera = _clean(data.get(FIELD_CAMERA))
-    if camera:
-        segments.append(camera)
-
-    body = ". ".join(segments)
-    if body and not body.endswith("."):
-        body += "."
+    body = _join_blocks(
+        [
+            build_scene_prompt_block(scene),
+            build_cinematography_prompt_block(cinematography),
+            build_heroine_prompt_block(heroine, cinematography),
+            QUALITY_PROMPT,
+        ]
+    )
 
     blocks = [b for b in (prefix.strip(), body, suffix.strip()) if b]
     return "\n\n".join(blocks) + "\n"
