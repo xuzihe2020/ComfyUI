@@ -1,8 +1,8 @@
 {
   "id": "vn_step1_preprocess_a_mask_depth_fill_ab_rembg",
   "revision": 0,
-  "last_node_id": 73,
-  "last_link_id": 86,
+  "last_node_id": 78,
+  "last_link_id": 90,
   "nodes": [
     {
       "id": 7,
@@ -135,8 +135,8 @@
           "localized_name": "image",
           "name": "image",
           "type": "IMAGE",
-          "link": 5
-        },
+          "link": 5   
+        }, 
         {
           "localized_name": "detailer_hook",
           "name": "detailer_hook",
@@ -2130,7 +2130,8 @@
             18,
             32,
             49,
-            51
+            51,
+            87
           ]
         }
       ],
@@ -2721,6 +2722,251 @@
       ],
       "color": "#232",
       "bgcolor": "#353"
+    },
+    {
+      "id": 74,
+      "type": "MarkdownNote",
+      "pos": [
+        3486.0,
+        540.0
+      ],
+      "size": [
+        560.0,
+        150.0
+      ],
+      "flags": {},
+      "order": 52,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "OpenPose control note",
+      "properties": {
+        "Node name for S&R": "MarkdownNote"
+      },
+      "widgets_values": [
+        "OpenPose control image extracted from the fixed input canvas.\n\nUse the resized OpenPose IMAGE output as the control_image input for a ControlNet apply node."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 75,
+      "type": "DWPose_Preprocessor",
+      "pos": [
+        3486.0,
+        720.0
+      ],
+      "size": [
+        330.0,
+        250.0
+      ],
+      "flags": {},
+      "order": 53,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 87
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            88
+          ]
+        },
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": null
+        }
+      ],
+      "title": "A OpenPose from input image",
+      "properties": {
+        "Node name for S&R": "DWPose_Preprocessor",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.5.2"
+        },
+        "aux_id": "Fannovel16/comfyui_controlnet_aux"
+      },
+      "widgets_values": [
+        "enable",
+        "enable",
+        "enable",
+        1024,
+        "yolox_l.onnx",
+        "dw-ll_ucoco_384_bs5.torchscript.pt",
+        "disable"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 76,
+      "type": "ImageResize+",
+      "pos": [
+        3856.0,
+        720.0
+      ],
+      "size": [
+        300.0,
+        218.0
+      ],
+      "flags": {},
+      "order": 54,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 88
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": null
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            89,
+            90
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "title": "A OpenPose control image 1024",
+      "properties": {
+        "Node name for S&R": "ImageResize+",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.5.2"
+        },
+        "cnr_id": "comfyui_essentials",
+        "ver": "9d9f4bedfc9f0321c19faf71855e228c93bd0dc9"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        "lanczos",
+        "fill / crop",
+        "always",
+        0
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 77,
+      "type": "PreviewImage",
+      "pos": [
+        4210.0,
+        720.0
+      ],
+      "size": [
+        520.0,
+        420.0
+      ],
+      "flags": {},
+      "order": 55,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 89
+        }
+      ],
+      "outputs": [],
+      "title": "OPENPOSE CONTROL preview",
+      "properties": {
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.5.2"
+        }
+      },
+      "widgets_values": [],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 78,
+      "type": "SaveImage",
+      "pos": [
+        4760.0,
+        720.0
+      ],
+      "size": [
+        420.0,
+        90.0
+      ],
+      "flags": {},
+      "order": 56,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 90
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [],
+      "title": "save openpose control image",
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.5.2"
+        }
+      },
+      "widgets_values": [
+        "vn_step1_preprocess/openpose_control"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
     }
   ],
   "links": [
@@ -3171,6 +3417,38 @@
       73,
       0,
       "IMAGE"
+    ],
+    [
+      87,
+      2,
+      0,
+      75,
+      0,
+      "IMAGE"
+    ],
+    [
+      88,
+      75,
+      0,
+      76,
+      0,
+      "IMAGE"
+    ],
+    [
+      89,
+      76,
+      0,
+      77,
+      0,
+      "IMAGE"
+    ],
+    [
+      90,
+      76,
+      0,
+      78,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -3232,6 +3510,18 @@
         1041.7231278735771
       ],
       "color": "#5f6f2b",
+      "flags": {}
+    },
+    {
+      "id": 6,
+      "title": "6. OpenPose control image from input",
+      "bounding": [
+        3476.0,
+        520.0,
+        1740.0,
+        660.0
+      ],
+      "color": "#3f789e",
       "flags": {}
     }
   ],

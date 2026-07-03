@@ -89,8 +89,8 @@
       "name": "comfyui_controlnet_aux",
       "folder": "comfyui_controlnet_aux",
       "repo": "https://github.com/Fannovel16/comfyui_controlnet_aux",
-      "reason": "Provides DWPose_Preprocessor (and other ControlNet preprocessors) to turn a photo into an OpenPose skeleton that feeds the Flux2 Fun ControlNet. Pulls onnxruntime + detector/pose model weights on first run.",
-      "platforms": ["linux"]
+      "reason": "Provides DWPose_Preprocessor (and other ControlNet preprocessors) to turn a photo into an OpenPose skeleton that feeds the Flux2 Fun ControlNet. Installs onnxruntime-gpu from requirements.txt; DWPose detector/pose weights are downloaded by the node as needed.",
+      "platforms": ["linux", "windows"]
     },
     {
       "name": "ComfyUI-SeedVR2_VideoUpscaler",

@@ -133,8 +133,7 @@ def current_os() -> str:
 
 def node_allowed_here(node: dict) -> bool:
     """A manifest node with a "platforms" allowlist installs only on those OSes
-    (e.g. ["linux"] for GPU-only nodes whose deps have no macOS/Windows wheels,
-    like comfyui_controlnet_aux -> onnxruntime-gpu). No key = install everywhere."""
+    (e.g. CUDA-heavy nodes gated away from macOS). No key = install everywhere."""
     platforms = node.get("platforms")
     return True if not platforms else current_os() in platforms
 

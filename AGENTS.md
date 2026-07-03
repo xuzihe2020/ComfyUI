@@ -22,6 +22,12 @@ Do not invent names, use display names, or use Python class names unless they ar
 
 Do not add custom node `title` values unless the user explicitly asks.
 
+## ComfyUI Model Paths
+
+On Windows, the user's default external model folder is `C:\Users\Tony Xu\workspace\comfyui_models`.
+
+Use `C:\Users\Tony Xu\workspace\comfyui\extra_model_paths.yaml` to configure or link ComfyUI model directories. Do not assume models live under the repository's local `models/` folder when the external model path is configured.
+
 ## ComfyUI Workflow Validation
 
 Before saving any ComfyUI workflow JSON edit, audit the graph structure.
