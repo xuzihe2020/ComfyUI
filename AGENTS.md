@@ -50,19 +50,19 @@ If a custom node needs a source-code fix, the only acceptable durable path is:
 2. make the source-code fix in that fork
 3. push the fork
 4. update `custom_nodes.manifest.json` to reference the fork
-5. update `script/install_custom_nodes.py` only when installation behavior or dependencies need to change
+5. update `scripts/install_custom_nodes.py` only when installation behavior or dependencies need to change
 6. if the old custom node folder already exists under `custom_nodes/`, remove that installed folder
-7. let the user run `script/install_custom_nodes.py` to clone/install the fork into `custom_nodes/`
+7. let the user run `scripts/install_custom_nodes.py` to clone/install the fork into `custom_nodes/`
 
 Do not create repo files whose purpose is to rewrite custom-node source files after installation. Do not apply local patches into `custom_nodes/` as the fix path.
 
 If a custom node has an installation or startup problem that does not require changing the custom node source code, preserve the fix in one of these repo-controlled places instead:
 
 - `custom_nodes.manifest.json`
-- `script/install_custom_nodes.py`
+- `scripts/install_custom_nodes.py`
 - a maintained fork referenced by the manifest
 - a new repo-controlled wrapper/custom node outside ignored installed artifacts
 
 Install all required custom-node dependencies before ComfyUI starts. Do not rely on a custom node running `pip install` during ComfyUI import/startup, especially for packages with native DLLs such as OpenCV.
 
-Do not run `script/install_custom_nodes.py` yourself unless the user explicitly asks you to run it in the current request. When adding or changing custom-node dependencies, update the manifest/install script and tell the user to run the installer themselves.
+Do not run `scripts/install_custom_nodes.py` yourself unless the user explicitly asks you to run it in the current request. When adding or changing custom-node dependencies, update the manifest/install script and tell the user to run the installer themselves.

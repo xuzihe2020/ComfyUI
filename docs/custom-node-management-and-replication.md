@@ -4,7 +4,7 @@ This repo keeps custom node source folders out of git. The portable source of
 truth is:
 
 - `custom_nodes.manifest.json`
-- `script/install_custom_nodes.py`
+- `scripts/install_custom_nodes.py`
 - `user/__manager/config.ini`
 
 The installer bootstraps ComfyUI-Manager into `custom_nodes/`, then asks Manager
@@ -68,14 +68,14 @@ python -m pip install -r requirements.txt
 Then install the custom nodes from the tracked manifest.
 
 ```bash
-python script/install_custom_nodes.py
+python scripts/install_custom_nodes.py
 ```
 
 If the node folders already exist and you want Manager to repair/reinstall their
 Python dependencies, run:
 
 ```bash
-python script/install_custom_nodes.py --fix-existing
+python scripts/install_custom_nodes.py --fix-existing
 ```
 
 ## Verify
@@ -104,7 +104,7 @@ Python traceback or nonzero exit code as the real failure signal.
 To add another shared custom node later:
 
 1. Add an entry to `custom_nodes.manifest.json`.
-2. Run `python script/install_custom_nodes.py` locally.
+2. Run `python scripts/install_custom_nodes.py` locally.
 3. Commit the manifest change, not the downloaded folder under `custom_nodes/`.
 
 The manifest entry should include `name`, `folder`, `repo`, and `reason`.

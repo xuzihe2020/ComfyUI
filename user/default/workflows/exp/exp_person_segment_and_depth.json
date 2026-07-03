@@ -2,7 +2,7 @@
   "id": "vn_step1_preprocess_a_mask_depth_fill_ab_rembg",
   "revision": 0,
   "last_node_id": 63,
-  "last_link_id": 75,
+  "last_link_id": 76,
   "nodes": [
     {
       "id": 7,
@@ -329,50 +329,10 @@
       "bgcolor": "#533"
     },
     {
-      "id": 4,
-      "type": "SaveImage",
-      "pos": [
-        -857.5684352485042,
-        -25.232773326939764
-      ],
-      "size": [
-        360,
-        270
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 3
-        },
-        {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
-          "widget": {
-            "name": "filename_prefix"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "title": "save fixed A",
-      "properties": {
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "vn_step1_preprocess/a_fixed_canvas"
-      ]
-    },
-    {
       "id": 30,
       "type": "RemBGSession+",
       "pos": [
-        141.18556931350392,
+        140.40780083891315,
         685.9888856707446
       ],
       "size": [
@@ -423,187 +383,6 @@
       "bgcolor": "#533"
     },
     {
-      "id": 1,
-      "type": "LoadImage",
-      "pos": [
-        -1339.4494203851275,
-        -378.033193886737
-      ],
-      "size": [
-        300,
-        314
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "COMBO",
-          "widget": {
-            "name": "image"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "choose file to upload",
-          "name": "upload",
-          "type": "IMAGEUPLOAD",
-          "widget": {
-            "name": "upload"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            1
-          ]
-        },
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": []
-        }
-      ],
-      "title": "A original composition image",
-      "properties": {
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "yui_hatano_01.jpg",
-        "image"
-      ],
-      "color": "#232",
-      "bgcolor": "#353"
-    },
-    {
-      "id": 3,
-      "type": "PreviewImage",
-      "pos": [
-        -1366.9247159787303,
-        13.427748433226007
-      ],
-      "size": [
-        420,
-        315
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 2
-        }
-      ],
-      "outputs": [],
-      "title": "A fixed canvas preview",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": [],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 2,
-      "type": "ImageScale",
-      "pos": [
-        -964.8602256243256,
-        -323.6150914779739
-      ],
-      "size": [
-        315,
-        130
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "IMAGE",
-          "link": 1
-        },
-        {
-          "localized_name": "upscale_method",
-          "name": "upscale_method",
-          "type": "COMBO",
-          "widget": {
-            "name": "upscale_method"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "width",
-          "name": "width",
-          "type": "INT",
-          "widget": {
-            "name": "width"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "height",
-          "name": "height",
-          "type": "INT",
-          "widget": {
-            "name": "height"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "crop",
-          "name": "crop",
-          "type": "COMBO",
-          "widget": {
-            "name": "crop"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            2,
-            3,
-            5,
-            8,
-            18,
-            32,
-            49,
-            51,
-            60
-          ]
-        }
-      ],
-      "title": "fixed final canvas",
-      "properties": {
-        "Node name for S&R": "ImageScale"
-      },
-      "widgets_values": [
-        "lanczos",
-        1024,
-        1536,
-        "center"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
       "id": 17,
       "type": "MarkdownNote",
       "pos": [
@@ -615,7 +394,7 @@
         220
       ],
       "flags": {},
-      "order": 6,
+      "order": 3,
       "mode": 0,
       "inputs": [],
       "outputs": [],
@@ -681,7 +460,7 @@
         70
       ],
       "flags": {},
-      "order": 45,
+      "order": 44,
       "mode": 0,
       "inputs": [
         {
@@ -746,68 +525,6 @@
         "Node name for S&R": "MaskToImage"
       },
       "widgets_values": [],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 10,
-      "type": "MaskBlur+",
-      "pos": [
-        2402.311923670454,
-        -392.56010333879595
-      ],
-      "size": [
-        280,
-        120
-      ],
-      "flags": {},
-      "order": 36,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 10
-        },
-        {
-          "localized_name": "amount",
-          "name": "amount",
-          "type": "INT",
-          "widget": {
-            "name": "amount"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "device",
-          "name": "device",
-          "type": "COMBO",
-          "widget": {
-            "name": "device"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            15,
-            23
-          ]
-        }
-      ],
-      "title": "person mask feather",
-      "properties": {
-        "Node name for S&R": "MaskBlur+"
-      },
-      "widgets_values": [
-        36,
-        "auto"
-      ],
       "color": "#223",
       "bgcolor": "#335"
     },
@@ -937,7 +654,7 @@
         417.23822420587544
       ],
       "flags": {},
-      "order": 50,
+      "order": 49,
       "mode": 0,
       "inputs": [
         {
@@ -968,7 +685,7 @@
         140
       ],
       "flags": {},
-      "order": 7,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -1089,575 +806,10 @@
       "bgcolor": "#533"
     },
     {
-      "id": 20,
-      "type": "DA3Render",
-      "pos": [
-        4042.939500709439,
-        -390.63134935276116
-      ],
-      "size": [
-        380,
-        106
-      ],
-      "flags": {},
-      "order": 16,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "da3_geometry",
-          "name": "da3_geometry",
-          "type": "DA3_GEOMETRY",
-          "link": 19
-        },
-        {
-          "localized_name": "output",
-          "name": "output",
-          "type": "COMFY_DYNAMICCOMBO_V3",
-          "widget": {
-            "name": "output"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "output.normalization",
-          "name": "output.normalization",
-          "type": "COMBO",
-          "widget": {
-            "name": "output.normalization"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "output.apply_sky_clip",
-          "name": "output.apply_sky_clip",
-          "type": "BOOLEAN",
-          "widget": {
-            "name": "output.apply_sky_clip"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            20,
-            21,
-            24
-          ]
-        }
-      ],
-      "title": "A raw depth render",
-      "properties": {
-        "Node name for S&R": "DA3Render"
-      },
-      "widgets_values": [
-        "depth",
-        "v2_style",
-        false
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 21,
-      "type": "ImageBlur",
-      "pos": [
-        3197.1445442578392,
-        -120.31762117863457
-      ],
-      "size": [
-        300,
-        110
-      ],
-      "flags": {},
-      "order": 26,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "IMAGE",
-          "link": 20
-        },
-        {
-          "localized_name": "blur_radius",
-          "name": "blur_radius",
-          "type": "INT",
-          "widget": {
-            "name": "blur_radius"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "sigma",
-          "name": "sigma",
-          "type": "FLOAT",
-          "widget": {
-            "name": "sigma"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            27
-          ]
-        }
-      ],
-      "title": "A blurred depth fill source",
-      "properties": {
-        "Node name for S&R": "ImageBlur"
-      },
-      "widgets_values": [
-        31,
-        10
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 26,
-      "type": "ImageBlur",
-      "pos": [
-        3529.693911991361,
-        -122.17076801766703
-      ],
-      "size": [
-        300,
-        110
-      ],
-      "flags": {},
-      "order": 39,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "IMAGE",
-          "link": 27
-        },
-        {
-          "localized_name": "blur_radius",
-          "name": "blur_radius",
-          "type": "INT",
-          "widget": {
-            "name": "blur_radius"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "sigma",
-          "name": "sigma",
-          "type": "FLOAT",
-          "widget": {
-            "name": "sigma"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            28
-          ]
-        }
-      ],
-      "title": "A blurred depth fill source pass 2",
-      "properties": {
-        "Node name for S&R": "ImageBlur"
-      },
-      "widgets_values": [
-        5,
-        10
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 27,
-      "type": "ImageBlur",
-      "pos": [
-        3860.251610775129,
-        -120.93397372812899
-      ],
-      "size": [
-        300,
-        110
-      ],
-      "flags": {},
-      "order": 47,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "IMAGE",
-          "link": 28
-        },
-        {
-          "localized_name": "blur_radius",
-          "name": "blur_radius",
-          "type": "INT",
-          "widget": {
-            "name": "blur_radius"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "sigma",
-          "name": "sigma",
-          "type": "FLOAT",
-          "widget": {
-            "name": "sigma"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            29
-          ]
-        }
-      ],
-      "title": "A blurred depth fill source pass 3",
-      "properties": {
-        "Node name for S&R": "ImageBlur"
-      },
-      "widgets_values": [
-        31,
-        10
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 28,
-      "type": "ImageBlur",
-      "pos": [
-        4198.272961199705,
-        -120.87522374855595
-      ],
-      "size": [
-        300,
-        110
-      ],
-      "flags": {},
-      "order": 51,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "IMAGE",
-          "link": 29
-        },
-        {
-          "localized_name": "blur_radius",
-          "name": "blur_radius",
-          "type": "INT",
-          "widget": {
-            "name": "blur_radius"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "sigma",
-          "name": "sigma",
-          "type": "FLOAT",
-          "widget": {
-            "name": "sigma"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            30
-          ]
-        }
-      ],
-      "title": "A blurred depth fill source pass 4",
-      "properties": {
-        "Node name for S&R": "ImageBlur"
-      },
-      "widgets_values": [
-        31,
-        10
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 29,
-      "type": "ImageBlur",
-      "pos": [
-        4536.6712302842025,
-        -117.99399298487899
-      ],
-      "size": [
-        300,
-        110
-      ],
-      "flags": {},
-      "order": 53,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "IMAGE",
-          "link": 30
-        },
-        {
-          "localized_name": "blur_radius",
-          "name": "blur_radius",
-          "type": "INT",
-          "widget": {
-            "name": "blur_radius"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "sigma",
-          "name": "sigma",
-          "type": "FLOAT",
-          "widget": {
-            "name": "sigma"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            31
-          ]
-        }
-      ],
-      "title": "A blurred depth fill source pass 5",
-      "properties": {
-        "Node name for S&R": "ImageBlur"
-      },
-      "widgets_values": [
-        31,
-        6
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 22,
-      "type": "ImageCompositeMasked",
-      "pos": [
-        4886.426493183032,
-        -374.8937301810622
-      ],
-      "size": [
-        340,
-        150
-      ],
-      "flags": {},
-      "order": 54,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "destination",
-          "name": "destination",
-          "type": "IMAGE",
-          "link": 21
-        },
-        {
-          "localized_name": "source",
-          "name": "source",
-          "type": "IMAGE",
-          "link": 31
-        },
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "shape": 7,
-          "type": "MASK",
-          "link": 23
-        },
-        {
-          "localized_name": "x",
-          "name": "x",
-          "type": "INT",
-          "widget": {
-            "name": "x"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "y",
-          "name": "y",
-          "type": "INT",
-          "widget": {
-            "name": "y"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "resize_source",
-          "name": "resize_source",
-          "type": "BOOLEAN",
-          "widget": {
-            "name": "resize_source"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            25,
-            26
-          ]
-        }
-      ],
-      "title": "A background-depth fill",
-      "properties": {
-        "Node name for S&R": "ImageCompositeMasked"
-      },
-      "widgets_values": [
-        0,
-        0,
-        false
-      ],
-      "color": "#232",
-      "bgcolor": "#353"
-    },
-    {
-      "id": 23,
-      "type": "PreviewImage",
-      "pos": [
-        4444.020441890961,
-        62.699537130275246
-      ],
-      "size": [
-        575.7931695707794,
-        423.47820696039435
-      ],
-      "flags": {},
-      "order": 27,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 24
-        }
-      ],
-      "outputs": [],
-      "title": "raw depth preview",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": [],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 24,
-      "type": "PreviewImage",
-      "pos": [
-        5042.441192054986,
-        62.40081549094059
-      ],
-      "size": [
-        544.6345356566226,
-        431.5563713085087
-      ],
-      "flags": {},
-      "order": 55,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 25
-        }
-      ],
-      "outputs": [],
-      "title": "BACKGROUND-DEPTH FILL preview",
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": [],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
-      "id": 25,
-      "type": "SaveImage",
-      "pos": [
-        5272.37929633416,
-        -266.70627565373803
-      ],
-      "size": [
-        299.99077912829307,
-        282
-      ],
-      "flags": {},
-      "order": 56,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 26
-        },
-        {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
-          "widget": {
-            "name": "filename_prefix"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "title": "save background-depth fill",
-      "properties": {
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "vn_step1_preprocess/background_depth_fill"
-      ]
-    },
-    {
       "id": 31,
       "type": "ImageRemoveBackground+",
       "pos": [
-        531.0332206539789,
+        530.2554521793882,
         685.2707083975956
       ],
       "size": [
@@ -1708,70 +860,10 @@
       "bgcolor": "#335"
     },
     {
-      "id": 38,
-      "type": "MaskBlur+",
-      "pos": [
-        1421.5798486814474,
-        852.2147267693533
-      ],
-      "size": [
-        280,
-        120
-      ],
-      "flags": {},
-      "order": 30,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 40
-        },
-        {
-          "localized_name": "amount",
-          "name": "amount",
-          "type": "INT",
-          "widget": {
-            "name": "amount"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "device",
-          "name": "device",
-          "type": "COMBO",
-          "widget": {
-            "name": "device"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            41
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "MaskBlur+"
-      },
-      "widgets_values": [
-        36,
-        "auto"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
       "id": 33,
       "type": "MaskToImage",
       "pos": [
-        582.4233729666608,
+        581.6456044920701,
         876.7087678538862
       ],
       "size": [
@@ -1810,7 +902,7 @@
       "id": 39,
       "type": "MaskToImage",
       "pos": [
-        1759.8755762622852,
+        1759.0978077876944,
         915.5396385157396
       ],
       "size": [
@@ -1818,7 +910,7 @@
         26
       ],
       "flags": {},
-      "order": 41,
+      "order": 40,
       "mode": 0,
       "inputs": [
         {
@@ -1849,7 +941,7 @@
       "id": 36,
       "type": "MaskToImage",
       "pos": [
-        1201.945184284319,
+        1201.1674158097283,
         707.303370426524
       ],
       "size": [
@@ -1888,7 +980,7 @@
       "id": 35,
       "type": "ImpactDilateMask",
       "pos": [
-        900.697566717723,
+        899.9197982431323,
         700.177125491907
       ],
       "size": [
@@ -1939,7 +1031,7 @@
       "id": 34,
       "type": "PreviewImage",
       "pos": [
-        750.2024585874196,
+        749.4246901128289,
         1031.1073197215135
       ],
       "size": [
@@ -1969,7 +1061,7 @@
       "id": 32,
       "type": "PreviewImage",
       "pos": [
-        197.45862055247753,
+        196.68085207788675,
         1030.7189450693331
       ],
       "size": [
@@ -1999,7 +1091,7 @@
       "id": 37,
       "type": "PreviewImage",
       "pos": [
-        1329.5404810825517,
+        1328.7627126079608,
         1032.445383601225
       ],
       "size": [
@@ -2007,7 +1099,7 @@
         444.2309567599423
       ],
       "flags": {},
-      "order": 40,
+      "order": 39,
       "mode": 0,
       "inputs": [
         {
@@ -2029,7 +1121,7 @@
       "id": 40,
       "type": "PreviewImage",
       "pos": [
-        1901.7478519056933,
+        1900.9700834311025,
         1035.9708813395341
       ],
       "size": [
@@ -2037,7 +1129,7 @@
         436.22549926153897
       ],
       "flags": {},
-      "order": 48,
+      "order": 47,
       "mode": 0,
       "inputs": [
         {
@@ -2056,115 +1148,11 @@
       "bgcolor": "#335"
     },
     {
-      "id": 44,
-      "type": "UltralyticsDetectorProvider",
-      "pos": [
-        161.99252264826276,
-        1852.6883363598895
-      ],
-      "size": [
-        360,
-        78
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model_name",
-          "name": "model_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "model_name"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "BBOX_DETECTOR",
-          "name": "BBOX_DETECTOR",
-          "type": "BBOX_DETECTOR",
-          "links": []
-        },
-        {
-          "localized_name": "SEGM_DETECTOR",
-          "name": "SEGM_DETECTOR",
-          "type": "SEGM_DETECTOR",
-          "links": [
-            48
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "UltralyticsDetectorProvider"
-      },
-      "widgets_values": [
-        "segm/person_yolov8m-seg.pt"
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
-      "id": 53,
-      "type": "SAMLoader",
-      "pos": [
-        157.07895664756705,
-        1985.0907357430644
-      ],
-      "size": [
-        360,
-        82
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model_name",
-          "name": "model_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "model_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "device_mode",
-          "name": "device_mode",
-          "type": "COMBO",
-          "widget": {
-            "name": "device_mode"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "SAM_MODEL",
-          "name": "SAM_MODEL",
-          "type": "SAM_MODEL",
-          "links": [
-            58
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "SAMLoader"
-      },
-      "widgets_values": [
-        "sam_vit_h_4b8939.pth",
-        "AUTO"
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
       "id": 46,
       "type": "SEGSPreview",
       "pos": [
         131.98948345074325,
-        2259.737553523923
+        2258.804104254479
       ],
       "size": [
         300,
@@ -2232,7 +1220,7 @@
       "type": "PreviewImage",
       "pos": [
         454.58055812648325,
-        2342.6771097417836
+        2341.74366047234
       ],
       "size": [
         508.5889829735604,
@@ -2262,14 +1250,14 @@
       "type": "PreviewImage",
       "pos": [
         985.9604823187441,
-        2344.396643675091
+        2343.4631944056473
       ],
       "size": [
         535.8471315808101,
         467.64563220059654
       ],
       "flags": {},
-      "order": 42,
+      "order": 41,
       "mode": 0,
       "inputs": [
         {
@@ -2292,7 +1280,7 @@
       "type": "MaskToImage",
       "pos": [
         1118.4453372836056,
-        2186.0008203830585
+        2185.0673711136146
       ],
       "size": [
         236.9595703125,
@@ -2331,7 +1319,7 @@
       "type": "SegsToCombinedMask",
       "pos": [
         1129.9837946680964,
-        2051.946907312571
+        2051.0134580431272
       ],
       "size": [
         236,
@@ -2370,7 +1358,7 @@
       "type": "SEGSToImageList",
       "pos": [
         1129.587170873308,
-        1884.4579401897963
+        1883.5244909203523
       ],
       "size": [
         260,
@@ -2417,7 +1405,7 @@
       "type": "SegmDetectorSEGS",
       "pos": [
         599.767949521854,
-        1889.2620008314457
+        1888.3285515620016
       ],
       "size": [
         360,
@@ -2523,7 +1511,7 @@
       "type": "PreviewImage",
       "pos": [
         1555.7084328054268,
-        2345.1293801694933
+        2344.1959309000495
       ],
       "size": [
         552.1147036473703,
@@ -2553,7 +1541,7 @@
       "type": "SAMDetectorCombined",
       "pos": [
         1677.6981028368195,
-        1930.5838149378524
+        1929.6503656684083
       ],
       "size": [
         360,
@@ -2666,7 +1654,7 @@
       "type": "MaskToImage",
       "pos": [
         2236.3172730521637,
-        2219.548759949872
+        2218.615310680428
       ],
       "size": [
         236.9595703125,
@@ -2705,14 +1693,14 @@
       "type": "PreviewImage",
       "pos": [
         2135.7848281783813,
-        2351.556706259544
+        2350.6232569901003
       ],
       "size": [
         491.6554324867093,
         459.4304811060233
       ],
       "flags": {},
-      "order": 43,
+      "order": 42,
       "mode": 0,
       "inputs": [
         {
@@ -2735,7 +1723,7 @@
       "type": "ImpactDilateMask",
       "pos": [
         2253.1115150412447,
-        1936.2632650417186
+        1935.3298157722745
       ],
       "size": [
         260,
@@ -2785,14 +1773,14 @@
       "type": "MaskBlur+",
       "pos": [
         2553.1397194642627,
-        1933.1117962111311
+        1932.178346941687
       ],
       "size": [
         280,
         120
       ],
       "flags": {},
-      "order": 44,
+      "order": 43,
       "mode": 0,
       "inputs": [
         {
@@ -2845,14 +1833,14 @@
       "type": "MaskToImage",
       "pos": [
         2898.051059978936,
-        1932.9340422963678
+        1932.0005930269238
       ],
       "size": [
         236.9595703125,
         70
       ],
       "flags": {},
-      "order": 49,
+      "order": 48,
       "mode": 0,
       "inputs": [
         {
@@ -2884,14 +1872,14 @@
       "type": "PreviewImage",
       "pos": [
         2679.7304485327904,
-        2354.9076261714986
+        2353.9741769020548
       ],
       "size": [
         594.0529733968233,
         454.5870380707197
       ],
       "flags": {},
-      "order": 52,
+      "order": 51,
       "mode": 0,
       "inputs": [
         {
@@ -2908,6 +1896,733 @@
       "widgets_values": [],
       "color": "#223",
       "bgcolor": "#335"
+    },
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        -1356.7188893345904,
+        739.9530796998993
+      ],
+      "size": [
+        300,
+        314
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "title": "A original composition image",
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "00-01-57.494.png",
+        "image"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 4,
+      "type": "SaveImage",
+      "pos": [
+        -836.0479145646168,
+        1122.9234921967463
+      ],
+      "size": [
+        553.9499481667472,
+        410.07496256487303
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 3
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [],
+      "title": "save fixed A",
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "vn_step1_preprocess/a_fixed_canvas"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "PreviewImage",
+      "pos": [
+        -1354.0241929911438,
+        1129.2590225957877
+      ],
+      "size": [
+        493.2699804185486,
+        407.66497523522366
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2
+        }
+      ],
+      "outputs": [],
+      "title": "A fixed canvas preview",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 2,
+      "type": "ImageScale",
+      "pos": [
+        -979.0031950128473,
+        781.8651838649026
+      ],
+      "size": [
+        315,
+        130
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "localized_name": "upscale_method",
+          "name": "upscale_method",
+          "type": "COMBO",
+          "widget": {
+            "name": "upscale_method"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "crop",
+          "name": "crop",
+          "type": "COMBO",
+          "widget": {
+            "name": "crop"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2,
+            3,
+            5,
+            8,
+            18,
+            32,
+            49,
+            51,
+            60
+          ]
+        }
+      ],
+      "title": "fixed final canvas",
+      "properties": {
+        "Node name for S&R": "ImageScale"
+      },
+      "widgets_values": [
+        "lanczos",
+        1024,
+        1536,
+        "center"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 10,
+      "type": "MaskBlur+",
+      "pos": [
+        2402.311923670454,
+        -392.56010333879595
+      ],
+      "size": [
+        280,
+        120
+      ],
+      "flags": {},
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 10
+        },
+        {
+          "localized_name": "amount",
+          "name": "amount",
+          "type": "INT",
+          "widget": {
+            "name": "amount"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "device",
+          "name": "device",
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            15,
+            23
+          ]
+        }
+      ],
+      "title": "person mask feather",
+      "properties": {
+        "Node name for S&R": "MaskBlur+"
+      },
+      "widgets_values": [
+        24,
+        "auto"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 38,
+      "type": "MaskBlur+",
+      "pos": [
+        1420.8020802068565,
+        852.2147267693533
+      ],
+      "size": [
+        280,
+        120
+      ],
+      "flags": {},
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 40
+        },
+        {
+          "localized_name": "amount",
+          "name": "amount",
+          "type": "INT",
+          "widget": {
+            "name": "amount"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "device",
+          "name": "device",
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            41
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskBlur+"
+      },
+      "widgets_values": [
+        24,
+        "auto"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 20,
+      "type": "DA3Render",
+      "pos": [
+        4042.939500709439,
+        -390.63134935276116
+      ],
+      "size": [
+        380,
+        106
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "da3_geometry",
+          "name": "da3_geometry",
+          "type": "DA3_GEOMETRY",
+          "link": 19
+        },
+        {
+          "localized_name": "output",
+          "name": "output",
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "widget": {
+            "name": "output"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "output.normalization",
+          "name": "output.normalization",
+          "type": "COMBO",
+          "widget": {
+            "name": "output.normalization"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "output.apply_sky_clip",
+          "name": "output.apply_sky_clip",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "output.apply_sky_clip"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            21,
+            24,
+            76
+          ]
+        }
+      ],
+      "title": "A raw depth render",
+      "properties": {
+        "Node name for S&R": "DA3Render"
+      },
+      "widgets_values": [
+        "depth",
+        "v2_style",
+        false
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 22,
+      "type": "ImageCompositeMasked",
+      "pos": [
+        4848.73287138828,
+        -371.2163036645012
+      ],
+      "size": [
+        340,
+        150
+      ],
+      "flags": {},
+      "order": 45,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "destination",
+          "name": "destination",
+          "type": "IMAGE",
+          "link": 21
+        },
+        {
+          "localized_name": "source",
+          "name": "source",
+          "type": "IMAGE",
+          "link": 31
+        },
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": 23
+        },
+        {
+          "localized_name": "x",
+          "name": "x",
+          "type": "INT",
+          "widget": {
+            "name": "x"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "y",
+          "name": "y",
+          "type": "INT",
+          "widget": {
+            "name": "y"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "resize_source",
+          "name": "resize_source",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "resize_source"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            25
+          ]
+        }
+      ],
+      "title": "A background-depth fill",
+      "properties": {
+        "Node name for S&R": "ImageCompositeMasked"
+      },
+      "widgets_values": [
+        0,
+        0,
+        false
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 29,
+      "type": "ImageBlur",
+      "pos": [
+        4492.542112085467,
+        -363.46221296533093
+      ],
+      "size": [
+        300,
+        110
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 76
+        },
+        {
+          "localized_name": "blur_radius",
+          "name": "blur_radius",
+          "type": "INT",
+          "widget": {
+            "name": "blur_radius"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sigma",
+          "name": "sigma",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            31
+          ]
+        }
+      ],
+      "title": "A blurred depth fill source pass 5",
+      "properties": {
+        "Node name for S&R": "ImageBlur"
+      },
+      "widgets_values": [
+        10,
+        6
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 23,
+      "type": "PreviewImage",
+      "pos": [
+        4453.867638581686,
+        -82.32281413314855
+      ],
+      "size": [
+        575.7931695707794,
+        423.47820696039435
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 24
+        }
+      ],
+      "outputs": [],
+      "title": "raw depth preview",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 24,
+      "type": "PreviewImage",
+      "pos": [
+        5051.393189046555,
+        -81.72633607332628
+      ],
+      "size": [
+        544.6345356566226,
+        431.5563713085087
+      ],
+      "flags": {},
+      "order": 50,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 25
+        }
+      ],
+      "outputs": [],
+      "title": "BACKGROUND-DEPTH FILL preview",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 44,
+      "type": "UltralyticsDetectorProvider",
+      "pos": [
+        161.99252264826276,
+        1863.959470318482
+      ],
+      "size": [
+        360,
+        78
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model_name",
+          "name": "model_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "model_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "BBOX_DETECTOR",
+          "name": "BBOX_DETECTOR",
+          "type": "BBOX_DETECTOR",
+          "links": []
+        },
+        {
+          "localized_name": "SEGM_DETECTOR",
+          "name": "SEGM_DETECTOR",
+          "type": "SEGM_DETECTOR",
+          "links": [
+            48
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UltralyticsDetectorProvider"
+      },
+      "widgets_values": [
+        "segm/person_yolov8m-seg.pt"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 53,
+      "type": "SAMLoader",
+      "pos": [
+        161.14715105691263,
+        2008.5664529296935
+      ],
+      "size": [
+        360,
+        82
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model_name",
+          "name": "model_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "model_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "device_mode",
+          "name": "device_mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "device_mode"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "SAM_MODEL",
+          "name": "SAM_MODEL",
+          "type": "SAM_MODEL",
+          "links": [
+            58
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SAMLoader"
+      },
+      "widgets_values": [
+        "sam_vit_h_4b8939.pth",
+        "AUTO"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
     }
   ],
   "links": [
@@ -3064,14 +2779,6 @@
       "DA3_GEOMETRY"
     ],
     [
-      20,
-      20,
-      0,
-      21,
-      0,
-      "IMAGE"
-    ],
-    [
       21,
       20,
       0,
@@ -3100,46 +2807,6 @@
       22,
       0,
       24,
-      0,
-      "IMAGE"
-    ],
-    [
-      26,
-      22,
-      0,
-      25,
-      0,
-      "IMAGE"
-    ],
-    [
-      27,
-      21,
-      0,
-      26,
-      0,
-      "IMAGE"
-    ],
-    [
-      28,
-      26,
-      0,
-      27,
-      0,
-      "IMAGE"
-    ],
-    [
-      29,
-      27,
-      0,
-      28,
-      0,
-      "IMAGE"
-    ],
-    [
-      30,
-      28,
-      0,
-      29,
       0,
       "IMAGE"
     ],
@@ -3390,6 +3057,14 @@
       60,
       0,
       "IMAGE"
+    ],
+    [
+      76,
+      20,
+      0,
+      29,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -3397,17 +3072,17 @@
       "id": 1,
       "title": "1. Input A and fixed final canvas",
       "bounding": [
-        -1379.4494203851275,
-        -498.0331938867372,
-        906.6855496866451,
-        844.0469103463969
+        -1396.71888933459,
+        619.953079699899,
+        1154.8270122064923,
+        1035.5473868562792
       ],
       "color": "#343",
       "flags": {}
     },
     {
       "id": 2,
-      "title": "2. Auto person mask with YOLO + SAM",
+      "title": "2. Auto person mask with YOLO BBox + SAM",
       "bounding": [
         106.63871483684225,
         -475.0069531921137,
@@ -3431,9 +3106,9 @@
     },
     {
       "id": 4,
-      "title": "4. A/B RemBG human segmentation mask + depth fill",
+      "title": "4. RemBG human segmentation mask",
       "bounding": [
-        131.18556931350403,
+        130.40780083891326,
         615.2707083975956,
         2359.5277957747744,
         871.9353393671112
@@ -3443,10 +3118,10 @@
     },
     {
       "id": 5,
-      "title": "5. YOLO segmentation + SAM refinement mask + depth fill",
+      "title": "5. YOLO segmentation + SAM refinement mask",
       "bounding": [
         121.98948345074322,
-        1782.688336359889,
+        1781.754887090445,
         3161.7939384788706,
         1041.7231278735771
       ],
@@ -3457,10 +3132,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.2842511565623526,
+      "scale": 1.5967743986859013,
       "offset": [
-        2424.319998940571,
-        69.63964861356315
+        257.60178418618716,
+        710.8229839837813
       ]
     }
   },

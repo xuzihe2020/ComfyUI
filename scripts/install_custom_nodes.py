@@ -6,12 +6,12 @@ Run from the repository root.
 Windows PowerShell:
 
     cd "C:\\Users\\Tony Xu\\workspace\\comfyui"
-    python .\\script\\install_custom_nodes.py
+    python .\\scripts\\install_custom_nodes.py
 
 macOS/Linux:
 
     cd /path/to/comfyui
-    python3 script/install_custom_nodes.py
+    python3 scripts/install_custom_nodes.py
 
 Default behavior is diff mode: only custom nodes listed in the manifest whose
 folders are missing from custom_nodes/ are installed. Existing nodes can get a
@@ -20,22 +20,22 @@ ComfyUI-Manager for every node.
 
 Show help/options only:
 
-    python .\\script\\install_custom_nodes.py --help
-    python3 script/install_custom_nodes.py --help
+    python .\\scripts\\install_custom_nodes.py --help
+    python3 scripts/install_custom_nodes.py --help
 
 Useful commands on Windows:
 
-    python .\\script\\install_custom_nodes.py
-    python .\\script\\install_custom_nodes.py --no-deps
-    python .\\script\\install_custom_nodes.py --full
-    python .\\script\\install_custom_nodes.py --full --manager-fix-existing
+    python .\\scripts\\install_custom_nodes.py
+    python .\\scripts\\install_custom_nodes.py --no-deps
+    python .\\scripts\\install_custom_nodes.py --full
+    python .\\scripts\\install_custom_nodes.py --full --manager-fix-existing
 
 Useful commands on macOS/Linux:
 
-    python3 script/install_custom_nodes.py
-    python3 script/install_custom_nodes.py --no-deps
-    python3 script/install_custom_nodes.py --full
-    python3 script/install_custom_nodes.py --full --manager-fix-existing
+    python3 scripts/install_custom_nodes.py
+    python3 scripts/install_custom_nodes.py --no-deps
+    python3 scripts/install_custom_nodes.py --full
+    python3 scripts/install_custom_nodes.py --full --manager-fix-existing
 """
 
 from __future__ import annotations
@@ -368,20 +368,20 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Windows examples:\n"
-            "  python .\\script\\install_custom_nodes.py\n"
-            "  python .\\script\\install_custom_nodes.py --no-deps\n"
-            "  python .\\script\\install_custom_nodes.py --full\n"
-            "  python .\\script\\install_custom_nodes.py --full --manager-fix-existing\n"
+            "  python .\\scripts\\install_custom_nodes.py\n"
+            "  python .\\scripts\\install_custom_nodes.py --no-deps\n"
+            "  python .\\scripts\\install_custom_nodes.py --full\n"
+            "  python .\\scripts\\install_custom_nodes.py --full --manager-fix-existing\n"
             "\n"
             "macOS/Linux examples:\n"
-            "  python3 script/install_custom_nodes.py\n"
-            "  python3 script/install_custom_nodes.py --no-deps\n"
-            "  python3 script/install_custom_nodes.py --full\n"
-            "  python3 script/install_custom_nodes.py --full --manager-fix-existing\n"
+            "  python3 scripts/install_custom_nodes.py\n"
+            "  python3 scripts/install_custom_nodes.py --no-deps\n"
+            "  python3 scripts/install_custom_nodes.py --full\n"
+            "  python3 scripts/install_custom_nodes.py --full --manager-fix-existing\n"
             "\n"
             "Show help/options only:\n"
-            "  python .\\script\\install_custom_nodes.py --help\n"
-            "  python3 script/install_custom_nodes.py --help\n"
+            "  python .\\scripts\\install_custom_nodes.py --help\n"
+            "  python3 scripts/install_custom_nodes.py --help\n"
         ),
     )
     parser.add_argument(

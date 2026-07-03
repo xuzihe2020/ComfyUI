@@ -37,7 +37,7 @@ Run top to bottom; details are in the numbered sections below.
 | Mistral-3 text encoder (**BF16**) | `Comfy-Org/flux2-dev` | `models/text_encoders/mistral_3_small_flux2_bf16.safetensors` | 35.6 GB |
 | FLUX.2 VAE | `Comfy-Org/flux2-dev` | `models/vae/flux2-vae.safetensors` | 0.3 GB |
 | Fun ControlNet Union | `alibaba-pai/FLUX.2-dev-Fun-Controlnet-Union` | `models/controlnet/FLUX.2-dev-Fun-Controlnet-Union.safetensors` | 8.3 GB |
-| ComfyUI + all custom nodes (via `script/install_custom_nodes.py` + manifest) | GitHub `xuzihe2020/ComfyUI` | the repo + `custom_nodes/` | — |
+| ComfyUI + all custom nodes (via `scripts/install_custom_nodes.py` + manifest) | GitHub `xuzihe2020/ComfyUI` | the repo + `custom_nodes/` | — |
 
 **Total model download ≈ 108 GB** → size the network volume at **200 GB**.
 
@@ -141,7 +141,7 @@ bash runpod/setup.sh
 ```
 This refreshes the clone, creates **`.venv` at the repo root** (where the installer
 expects it), installs PyTorch (cu124) + ComfyUI requirements, then runs the repo's own
-**`script/install_custom_nodes.py`** — your manifest installer, which pulls every custom
+**`scripts/install_custom_nodes.py`** — your manifest installer, which pulls every custom
 node including `comfyui-flux2fun-controlnet` and `comfyui_controlnet_aux` (its native
 deps — OpenCV/onnxruntime — are force-installed via `ALWAYS_FIX_DEPENDENCIES`). Finally
 it **verifies `nvidia-smi` + `torch.cuda`** and aborts if the GPU isn't visible.
