@@ -30,6 +30,22 @@ SKIP_WIDGET_INPUT_TYPES = {"IMAGEUPLOAD"}
 SKIP_WIDGET_INPUT_NAMES = {"control_after_generate"}
 MAX_SEED = 0xFFFFFFFFFFFFFFFF
 
+WORKFLOW_NODE_NAME_LOAD_IMAGE = "Load Input Image"
+WORKFLOW_NODE_NAME_SAVE_OUTPUT_IMAGE = "Save Output Image"
+WORKFLOW_NODE_NAME_CLIP_TEXT_ENCODE_PROMPT = "CLIPTextEncode"
+WORKFLOW_NODE_NAME_RANDOM_NOISE = "RandomNoise"
+WORKFLOW_NODE_NAME_WIDTH = "width"
+WORKFLOW_NODE_NAME_HEIGHT = "height"
+WORKFLOW_NODE_NAME_DENOISE = "denoise"
+
+INPUT_IMAGE = "image"
+INPUT_FILENAME_PREFIX = "filename_prefix"
+INPUT_TEXT = "text"
+INPUT_NOISE_SEED = "noise_seed"
+INPUT_VALUE = "value"
+
+DEFAULT_OUTPUT_SUBFOLDER = "flux2_img2img"
+
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -88,7 +104,7 @@ def node_label(node: dict[str, Any]) -> str:
     title = node.get("title")
     node_type = node.get("type")
     node_id = node.get("id")
-    return f"id={node_id} type={node_type!r} title={title!r}"
+    return f"id={node_id} name={saved_node_name(node)!r} type={node_type!r} title={title!r}"
 
 
 def exact_title(node: dict[str, Any]) -> str | None:
@@ -102,57 +118,20 @@ def sr_name(node: dict[str, Any]) -> str | None:
     return value if isinstance(value, str) else None
 
 
-def unique_backend_node(
-    workflow: dict[str, Any],
-    backend_name: str,
-    role: str,
-    *,
-    require_all_type_matches_unique: bool = True,
-) -> dict[str, Any]:
-    nodes = workflow.get("nodes") or []
-    type_matches = [node for node in nodes if node.get("type") == backend_name]
-    if require_all_type_matches_unique and len(type_matches) != 1:
-        details = ", ".join(node_label(node) for node in type_matches) or "none"
-        raise ValueError(
-            f"Expected exactly one {role} node with type {backend_name!r}; "
-            f"found {len(type_matches)}: {details}"
-        )
-
-    sr_matches = [node for node in type_matches if sr_name(node) == backend_name]
-    if sr_matches:
-        if len(sr_matches) != 1:
-            details = ", ".join(node_label(node) for node in sr_matches)
-            raise ValueError(
-                f"Expected exactly one {role} node with S&R name {backend_name!r}; "
-                f"found {len(sr_matches)}: {details}"
-            )
-        return sr_matches[0]
-
-    if len(type_matches) == 1:
-        return type_matches[0]
-
-    details = ", ".join(node_label(node) for node in type_matches) or "none"
-    raise ValueError(
-        f"Expected exactly one {role} node named {backend_name!r}; "
-        f"found {len(type_matches)}: {details}"
-    )
+def saved_node_name(node: dict[str, Any]) -> str | None:
+    return exact_title(node) or sr_name(node)
 
 
-def unique_titled_node(
-    workflow: dict[str, Any],
-    title: str,
-    allowed_types: set[str],
-    role: str,
-) -> dict[str, Any]:
+def unique_named_node(workflow: dict[str, Any], name: str, role: str) -> dict[str, Any]:
     matches = [
         node
         for node in workflow.get("nodes") or []
-        if exact_title(node) == title and node.get("type") in allowed_types
+        if saved_node_name(node) == name
     ]
     if len(matches) != 1:
         details = ", ".join(node_label(node) for node in matches) or "none"
         raise ValueError(
-            f"Expected exactly one {role} node titled {title!r}; "
+            f"Expected exactly one {role} node named {name!r}; "
             f"found {len(matches)}: {details}"
         )
     return matches[0]
@@ -259,7 +238,7 @@ def should_skip_widget_input(input_info: dict[str, Any]) -> bool:
 
 
 def converted_class_type(ui_node: dict[str, Any]) -> str:
-    if ui_node.get("type") == "PrimitiveNode" and exact_title(ui_node) == "denoise":
+    if saved_node_name(ui_node) == WORKFLOW_NODE_NAME_DENOISE and ui_node.get("type") == "PrimitiveNode":
         return "PrimitiveFloat"
     return str(ui_node["type"])
 
@@ -280,11 +259,11 @@ def convert_ui_workflow_to_api_prompt(workflow: dict[str, Any]) -> dict[str, Any
         widget_values = widget_value_stream(ui_node, len(widget_inputs))
         widget_index = 0
 
-        if ui_node.get("type") == "PrimitiveNode" and exact_title(ui_node) == "denoise":
+        if saved_node_name(ui_node) == WORKFLOW_NODE_NAME_DENOISE and ui_node.get("type") == "PrimitiveNode":
             values = list(ui_node.get("widgets_values") or [])
             if not values:
                 raise ValueError(f"Denoise primitive has no widget value: {node_label(ui_node)}")
-            inputs["value"] = values[0]
+            inputs[INPUT_VALUE] = values[0]
         else:
             for input_info in ui_inputs:
                 name = input_info.get("name")
@@ -329,15 +308,16 @@ def api_node(prompt: dict[str, Any], ui_node: dict[str, Any]) -> dict[str, Any]:
     return prompt[node_id]
 
 
-def output_prefix(output_dir: Path | None, clean_name: str) -> str:
+def output_prefix(output_dir: Path | None, clean_name: str, timestamp_s: int) -> str:
+    stem = f"{clean_name}_{timestamp_s}"
     if output_dir is None:
-        return f"flux2_img2img/{clean_name}"
+        return f"{DEFAULT_OUTPUT_SUBFOLDER}/{stem}"
     if output_dir.is_absolute():
         raise ValueError(
             "--output-dir must be a ComfyUI output subfolder, not an absolute path. "
             "ComfyUI's SaveImage node blocks saving outside its configured output directory."
         )
-    return (output_dir / clean_name).as_posix()
+    return (output_dir / stem).as_posix()
 
 
 def patch_prompt(
@@ -351,27 +331,22 @@ def patch_prompt(
     save_prefix: str,
     seed: int,
 ) -> None:
-    load_node = unique_backend_node(workflow, "LoadImage", "input image")
-    save_node = unique_backend_node(workflow, "SaveImage", "save image")
-    prompt_node = unique_backend_node(workflow, "CLIPTextEncode", "prompt text")
-    random_node = unique_backend_node(workflow, "RandomNoise", "random seed")
-    width_node = unique_titled_node(workflow, "width", {"PrimitiveInt"}, "width primitive")
-    height_node = unique_titled_node(workflow, "height", {"PrimitiveInt"}, "height primitive")
-    denoise_node = unique_titled_node(
-        workflow,
-        "denoise",
-        {"PrimitiveNode", "PrimitiveFloat"},
-        "denoise primitive",
-    )
+    load_node = unique_named_node(workflow, WORKFLOW_NODE_NAME_LOAD_IMAGE, "input image")
+    save_node = unique_named_node(workflow, WORKFLOW_NODE_NAME_SAVE_OUTPUT_IMAGE, "save image")
+    prompt_node = unique_named_node(workflow, WORKFLOW_NODE_NAME_CLIP_TEXT_ENCODE_PROMPT, "prompt text")
+    random_node = unique_named_node(workflow, WORKFLOW_NODE_NAME_RANDOM_NOISE, "random seed")
+    width_node = unique_named_node(workflow, WORKFLOW_NODE_NAME_WIDTH, "width primitive")
+    height_node = unique_named_node(workflow, WORKFLOW_NODE_NAME_HEIGHT, "height primitive")
+    denoise_node = unique_named_node(workflow, WORKFLOW_NODE_NAME_DENOISE, "denoise primitive")
 
     patches = [
-        (api_node(prompt, load_node), "image", str(image_path.resolve()), "LoadImage"),
-        (api_node(prompt, save_node), "filename_prefix", save_prefix, "SaveImage"),
-        (api_node(prompt, prompt_node), "text", prompt_text, "CLIPTextEncode"),
-        (api_node(prompt, random_node), "noise_seed", seed, "RandomNoise"),
-        (api_node(prompt, width_node), "value", width, "width primitive"),
-        (api_node(prompt, height_node), "value", height, "height primitive"),
-        (api_node(prompt, denoise_node), "value", denoise, "denoise primitive"),
+        (api_node(prompt, load_node), INPUT_IMAGE, str(image_path.resolve()), WORKFLOW_NODE_NAME_LOAD_IMAGE),
+        (api_node(prompt, save_node), INPUT_FILENAME_PREFIX, save_prefix, WORKFLOW_NODE_NAME_SAVE_OUTPUT_IMAGE),
+        (api_node(prompt, prompt_node), INPUT_TEXT, prompt_text, WORKFLOW_NODE_NAME_CLIP_TEXT_ENCODE_PROMPT),
+        (api_node(prompt, random_node), INPUT_NOISE_SEED, seed, WORKFLOW_NODE_NAME_RANDOM_NOISE),
+        (api_node(prompt, width_node), INPUT_VALUE, width, WORKFLOW_NODE_NAME_WIDTH),
+        (api_node(prompt, height_node), INPUT_VALUE, height, WORKFLOW_NODE_NAME_HEIGHT),
+        (api_node(prompt, denoise_node), INPUT_VALUE, denoise, WORKFLOW_NODE_NAME_DENOISE),
     ]
 
     for node, input_name, value, role in patches:
@@ -462,10 +437,10 @@ def main() -> None:
             continue
 
         width, height = image_size(path)
-        save_prefix = output_prefix(args.output_dir, clean_name)
 
         for repeat_index in range(1, args.repeat_count + 1):
             seed = random.randint(0, MAX_SEED)
+            save_prefix = output_prefix(args.output_dir, clean_name, int(time.time()))
             prompt = convert_ui_workflow_to_api_prompt(workflow)
             patch_prompt(
                 workflow=workflow,

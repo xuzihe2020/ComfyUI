@@ -1,8 +1,8 @@
 {
   "id": "80576762-7adf-4303-9d12-26f735fce9bc",
   "revision": 0,
-  "last_node_id": 30,
-  "last_link_id": 33,
+  "last_node_id": 32,
+  "last_link_id": 34,
   "nodes": [
     {
       "id": 5,
@@ -251,7 +251,7 @@
         46
       ],
       "flags": {},
-      "order": 15,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {
@@ -329,120 +329,6 @@
       ]
     },
     {
-      "id": 18,
-      "type": "SamplerCustomAdvanced",
-      "pos": [
-        2195.9915655995374,
-        549.6624145634297
-      ],
-      "size": [
-        355.3638671875,
-        184
-      ],
-      "flags": {},
-      "order": 18,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "noise",
-          "name": "noise",
-          "type": "NOISE",
-          "link": 9
-        },
-        {
-          "localized_name": "guider",
-          "name": "guider",
-          "type": "GUIDER",
-          "link": 10
-        },
-        {
-          "localized_name": "sampler",
-          "name": "sampler",
-          "type": "SAMPLER",
-          "link": 11
-        },
-        {
-          "localized_name": "sigmas",
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 13
-        },
-        {
-          "localized_name": "latent_image",
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 14
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "output",
-          "name": "output",
-          "type": "LATENT",
-          "links": [
-            15
-          ]
-        },
-        {
-          "localized_name": "denoised_output",
-          "name": "denoised_output",
-          "type": "LATENT",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "SamplerCustomAdvanced"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 14,
-      "type": "RandomNoise",
-      "pos": [
-        1878.3020827247012,
-        603.0259131301142
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "noise_seed",
-          "name": "noise_seed",
-          "type": "INT",
-          "widget": {
-            "name": "noise_seed"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "NOISE",
-          "name": "NOISE",
-          "type": "NOISE",
-          "links": [
-            9
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "RandomNoise"
-      },
-      "widgets_values": [
-        571208922492389,
-        "randomize"
-      ]
-    },
-    {
       "id": 2,
       "type": "PreviewImage",
       "pos": [
@@ -454,7 +340,7 @@
         246
       ],
       "flags": {},
-      "order": 11,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
@@ -471,47 +357,6 @@
         "Node name for S&R": "PreviewImage"
       },
       "widgets_values": []
-    },
-    {
-      "id": 21,
-      "type": "SaveImage",
-      "pos": [
-        2911.5248696828367,
-        599.02574728495
-      ],
-      "size": [
-        460,
-        500
-      ],
-      "flags": {},
-      "order": 20,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 18
-        },
-        {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
-          "widget": {
-            "name": "filename_prefix"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "flux2/img2img_repaint"
-      ]
     },
     {
       "id": 8,
@@ -629,7 +474,7 @@
         106
       ],
       "flags": {},
-      "order": 13,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -693,7 +538,7 @@
         82
       ],
       "flags": {},
-      "order": 16,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
@@ -738,200 +583,6 @@
       ]
     },
     {
-      "id": 10,
-      "type": "CLIPTextEncode",
-      "pos": [
-        959.1425145310982,
-        -22.149838449212726
-      ],
-      "size": [
-        430,
-        200
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 5
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            6
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "Photorealistic extreme close-up of a beautiful young East Asian woman lying on her back on white sheets, head tilted, eyes closed in ecstasy, mouth open with flushed wet lips, sweat glistening on her skin, thick shibari rope tightly knotted around her neck and pressing into her flesh, topless with bare shoulders, cinematic soft lighting, sharp detail, sensual submissive expression, high-resolution, no mosaic or blur. "
-      ]
-    },
-    {
-      "id": 26,
-      "type": "PrimitiveNode",
-      "pos": [
-        47.01825607876746,
-        936.7738815753945
-      ],
-      "size": [
-        262.4245939356922,
-        82
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "FLOAT",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "links": [
-            26
-          ]
-        }
-      ],
-      "title": "denoise",
-      "properties": {
-        "Run widget replace on values": false
-      },
-      "widgets_values": [
-        0.45,
-        "fixed"
-      ]
-    },
-    {
-      "id": 1,
-      "type": "LoadImage",
-      "pos": [
-        -329.6349824296253,
-        324.23855820002063
-      ],
-      "size": [
-        300,
-        314
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "image",
-          "name": "image",
-          "type": "COMBO",
-          "widget": {
-            "name": "image"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "choose file to upload",
-          "name": "upload",
-          "type": "IMAGEUPLOAD",
-          "widget": {
-            "name": "upload"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            1,
-            2,
-            27
-          ]
-        },
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": []
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "01-12-20.010.png",
-        "image"
-      ]
-    },
-    {
-      "id": 19,
-      "type": "VAEDecode",
-      "pos": [
-        2650.0220331497,
-        597.3040574658437
-      ],
-      "size": [
-        140,
-        46
-      ],
-      "flags": {},
-      "order": 19,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "samples",
-          "name": "samples",
-          "type": "LATENT",
-          "link": 15
-        },
-        {
-          "localized_name": "vae",
-          "name": "vae",
-          "type": "VAE",
-          "link": 16
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            18,
-            28
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "VAEDecode"
-      },
-      "widgets_values": []
-    },
-    {
       "id": 27,
       "type": "BatchImagesNode",
       "pos": [
@@ -943,7 +594,7 @@
         86
       ],
       "flags": {},
-      "order": 21,
+      "order": 20,
       "mode": 0,
       "inputs": [
         {
@@ -988,102 +639,6 @@
       "widgets_values": []
     },
     {
-      "id": 3,
-      "type": "PrimitiveInt",
-      "pos": [
-        39.07458528376627,
-        685.0169566260126
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "value",
-          "name": "value",
-          "type": "INT",
-          "widget": {
-            "name": "value"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "INT",
-          "name": "INT",
-          "type": "INT",
-          "links": [
-            19,
-            21,
-            31
-          ]
-        }
-      ],
-      "title": "width",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "PrimitiveInt"
-      },
-      "widgets_values": [
-        1920,
-        "fixed"
-      ]
-    },
-    {
-      "id": 4,
-      "type": "PrimitiveInt",
-      "pos": [
-        45.443577751465284,
-        808.5712321667919
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "value",
-          "name": "value",
-          "type": "INT",
-          "widget": {
-            "name": "value"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "INT",
-          "name": "INT",
-          "type": "INT",
-          "links": [
-            20,
-            22,
-            32
-          ]
-        }
-      ],
-      "title": "height",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "PrimitiveInt"
-      },
-      "widgets_values": [
-        964,
-        "fixed"
-      ]
-    },
-    {
       "id": 28,
       "type": "PreviewImage",
       "pos": [
@@ -1095,7 +650,7 @@
         299.16753875030486
       ],
       "flags": {},
-      "order": 23,
+      "order": 22,
       "mode": 0,
       "inputs": [
         {
@@ -1125,7 +680,7 @@
         154
       ],
       "flags": {},
-      "order": 22,
+      "order": 21,
       "mode": 0,
       "inputs": [
         {
@@ -1206,7 +761,7 @@
         262.3598590763763
       ],
       "flags": {},
-      "order": 9,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {
@@ -1226,12 +781,449 @@
         }
       ],
       "outputs": [],
+      "title": "Save Output Image",
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0"
       },
       "widgets_values": [
         "ComfyUI"
+      ]
+    },
+    {
+      "id": 19,
+      "type": "VAEDecode",
+      "pos": [
+        2650.0220331497,
+        597.3040574658437
+      ],
+      "size": [
+        140,
+        46
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 15
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            28,
+            34
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 32,
+      "type": "PreviewImage",
+      "pos": [
+        2880.9666221301322,
+        600.9147178734211
+      ],
+      "size": [
+        140,
+        26
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 34
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        -330.9371484188137,
+        322.93639221083225
+      ],
+      "size": [
+        300,
+        314
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1,
+            2,
+            27
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "title": "Load Input Image",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "01-12-20.010.png",
+        "image"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "CLIPTextEncode",
+      "pos": [
+        959.1425145310982,
+        -22.149838449212726
+      ],
+      "size": [
+        430,
+        200
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 5
+        },
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "title": "CLIP Text Encode - Prompt",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "Photorealistic extreme close-up of a beautiful young East Asian woman lying on her back on white sheets, head tilted, eyes closed in ecstasy, mouth open with flushed wet lips, sweat glistening on her skin, thick shibari rope tightly knotted around her neck and pressing into her flesh, topless with bare shoulders, cinematic soft lighting, sharp detail, sensual submissive expression, high-resolution, no mosaic or blur. "
+      ]
+    },
+    {
+      "id": 18,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        2194.321408356266,
+        595.5917387533988
+      ],
+      "size": [
+        355.3638671875,
+        184
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "noise",
+          "name": "noise",
+          "type": "NOISE",
+          "link": 9
+        },
+        {
+          "localized_name": "guider",
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 10
+        },
+        {
+          "localized_name": "sampler",
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 11
+        },
+        {
+          "localized_name": "sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 13
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "output",
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            15
+          ]
+        },
+        {
+          "localized_name": "denoised_output",
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 14,
+      "type": "RandomNoise",
+      "pos": [
+        1878.3020827247012,
+        603.0259131301142
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "noise_seed",
+          "name": "noise_seed",
+          "type": "INT",
+          "widget": {
+            "name": "noise_seed"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "NOISE",
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "title": "Random Noise",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        571208922492389,
+        "randomize"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "PrimitiveInt",
+      "pos": [
+        39.07458528376627,
+        685.0169566260126
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "value",
+          "name": "value",
+          "type": "INT",
+          "widget": {
+            "name": "value"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "INT",
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            19,
+            21,
+            31
+          ]
+        }
+      ],
+      "title": "Width",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "PrimitiveInt"
+      },
+      "widgets_values": [
+        1920,
+        "fixed"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "PrimitiveInt",
+      "pos": [
+        45.443577751465284,
+        808.5712321667919
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "value",
+          "name": "value",
+          "type": "INT",
+          "widget": {
+            "name": "value"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "INT",
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            20,
+            22,
+            32
+          ]
+        }
+      ],
+      "title": "Height",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "PrimitiveInt"
+      },
+      "widgets_values": [
+        964,
+        "fixed"
+      ]
+    },
+    {
+      "id": 26,
+      "type": "PrimitiveNode",
+      "pos": [
+        47.01825607876746,
+        936.7738815753945
+      ],
+      "size": [
+        262.4245939356922,
+        82
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "links": [
+            26
+          ]
+        }
+      ],
+      "title": "Denoise",
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [
+        0.45,
+        "fixed"
       ]
     }
   ],
@@ -1365,14 +1357,6 @@
       "VAE"
     ],
     [
-      18,
-      19,
-      0,
-      21,
-      0,
-      "IMAGE"
-    ],
-    [
       19,
       3,
       0,
@@ -1467,6 +1451,14 @@
       30,
       0,
       "IMAGE"
+    ],
+    [
+      34,
+      19,
+      0,
+      32,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -1534,10 +1526,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.438638690243578,
+      "scale": 1.1974920373858224,
       "offset": [
-        -990.092513147916,
-        -998.2346521452736
+        699.1296138014891,
+        -119.98116012330783
       ]
     }
   },

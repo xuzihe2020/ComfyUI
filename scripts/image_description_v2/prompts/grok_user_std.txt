@@ -12,19 +12,24 @@ Field Instructions (follow these strictly):
 
 - "cinematography": Describe the camera work in detail. Include shot size, camera angle,
 perspective, focus type, composition, and framing. Be specific about how the camera relates to the subject.
+If it is an extreme close-up on a body part, state it clearly.
 
 - "scene": Describe the environment and atmosphere. Include location type, background elements,
 lighting quality and direction, mood, and time of day if visible.
 
-- "heroine": Provide a rich, detailed description of the woman. Focus especially on:
+- "heroine": **MANDATORY FIRST STEP**: Determine the framing type and start the description accordingly:
+  - If full body → Start with: "Full body view of the woman..."
+  - If half body / upper body → Start with: "Half body shot showing the woman from the waist up..."
+  - If tight face close-up → Start with: "Tight close-up on the woman's face..."
+  - If extreme close-up on a specific body part (breasts, crotch, ass, thighs, genital area, etc.) → Start with: 
+  "Extreme close-up focused on the woman's [specific body part]..."
+Provide a rich, detailed description of the woman. Focus especially on:
   • Body pose and physical positioning state in detail. (how she stands, kneels, lies, or is suspended)
   • Face in details, especially facial expression and emotional state (eyes, eyebrows, mouth, blushing, tears, etc.)
   • How her body interacts with bondage, hands, or objects if applicable.
   • Clothing and clothing state (what she is wearing and how disheveled, torn, open, or removed it is)
   • Any visible sexual elements (exposure, fluids, marks, etc.)
   Be explicit and detailed when describing sexual or fetish-related content.
-  If the image is a close-up focusing on a specific body part — such as the breasts, thighs, buttocks, back, lower body,
-  or genital area — give special emphasis and detailed description to that area.
 
 - "genre": List the main sexual fetishes, BDSM elements, and sexual acts shown in the image, when there is clear signal
 of any of them in the image.
@@ -51,8 +56,9 @@ If there is no clear signal of any sexual genre, just return None.
 - "flux_prompt": Write a single, high-quality, ready-to-use English paragraph prompt optimized for FLUX image generation.
 It should combine the key visual information from cinematography, scene, heroine and genre. Strongly emphasize pose,
 expression, sexual elements in genre (if there is any). Completely remove any mosaic or blur from the original image.
-Describe the genital area realistically and without censorship. When the image shows a close-up of a particular body part
-(breasts, thighs, ass, back, lower body, or pussy), describe that area in extra detail and emphasize it strongly.
+Describe the genital area realistically and without censorship. 
+**MANDATORY** you need to clearly reflect the **MANDATORY FIRST STEP** in "heroine" -- full body, half body / upper body,
+tight face close-up, or extreme close-up on a specific body part in the prompt.
 
 Output only the JSON. Make sure all fields are filled with detailed and accurate information. Pay special attention
 to restoring the censored genital area in the "heroine" and "flux_prompt" fields if there is any.
