@@ -1,9 +1,35 @@
 #!/usr/bin/env python3
-"""Run the shared FLUX.2 img2img workflow over a folder of images.
+r"""Batch-run the shared FLUX.2 img2img workflow through ComfyUI's API.
 
-The workflow JSON stays read-only. This script converts the saved ComfyUI
-canvas workflow to an API prompt at runtime, then patches per-image values by
-stable node names/titles rather than node IDs.
+Usage from the ComfyUI repo root:
+
+    .\.venv\Scripts\python.exe scripts\workflows\run_img2img_refine.py \
+        --input-dir "F:\sample_images\test_run_02\normal" \
+        --denoise 0.45 \
+        --repeat-count 1 \
+        --output-dir "_test_run_02_img2img/normal"
+
+ComfyUI must already be running at --server, default http://127.0.0.1:8188.
+
+Input folder contract:
+  - Each image is processed once per --repeat-count.
+  - The script strips a trailing version suffix such as "_v01" from the image
+    stem to get the clean name.
+  - Prompt JSON is read from <input-dir>/descriptions/<clean-name>.json.
+  - That JSON must contain a non-empty "flux_prompt" field, or the image is
+    skipped with a red terminal error.
+
+Output behavior:
+  - --output-dir is a ComfyUI output subfolder, not an arbitrary absolute path.
+  - If --output-dir is omitted, outputs are written under flux2_img2img/.
+  - A seconds timestamp is appended to each output prefix.
+
+Workflow contract:
+  - The workflow JSON stays read-only.
+  - The saved UI workflow is converted to an API prompt at runtime.
+  - Per-run values are patched by the saved workflow node names below, not IDs.
+    Keep the WORKFLOW_NODE_NAME_* constants in sync with the node titles in
+    user/default/workflows/example/img2img_flux_2.json.
 """
 
 from __future__ import annotations
@@ -30,6 +56,9 @@ SKIP_WIDGET_INPUT_TYPES = {"IMAGEUPLOAD"}
 SKIP_WIDGET_INPUT_NAMES = {"control_after_generate"}
 MAX_SEED = 0xFFFFFFFFFFFFFFFF
 
+# These are the saved workflow node names used as override targets.
+# Use the node title when a title is present; otherwise use the workflow's
+# "Node name for S&R" value. Do not use node IDs here.
 WORKFLOW_NODE_NAME_LOAD_IMAGE = "Load Input Image"
 WORKFLOW_NODE_NAME_SAVE_OUTPUT_IMAGE = "Save Output Image"
 WORKFLOW_NODE_NAME_CLIP_TEXT_ENCODE_PROMPT = "CLIP Text Encode - Prompt"
@@ -38,6 +67,8 @@ WORKFLOW_NODE_NAME_WIDTH = "Width"
 WORKFLOW_NODE_NAME_HEIGHT = "Height"
 WORKFLOW_NODE_NAME_DENOISE = "Denoise"
 
+# API input names on the resolved nodes. These are socket/widget field names,
+# not node names.
 INPUT_IMAGE = "image"
 INPUT_FILENAME_PREFIX = "filename_prefix"
 INPUT_TEXT = "text"
@@ -387,7 +418,14 @@ def wait_for_history(base_url: str, prompt_id: str, timeout_s: int) -> dict[str,
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Batch-run the shared FLUX.2 img2img workflow without editing it."
+        description="Batch-run the shared FLUX.2 img2img workflow without editing it.",
+        epilog=(
+            "Example: .\\.venv\\Scripts\\python.exe "
+            "scripts\\workflows\\run_img2img_refine.py "
+            "--input-dir F:\\sample_images\\test_run_02\\normal "
+            "--denoise 0.45 --repeat-count 1 "
+            "--output-dir _test_run_02_img2img/normal"
+        ),
     )
     parser.add_argument("--input-dir", type=Path, required=True)
     parser.add_argument("--workflow", type=Path, default=DEFAULT_WORKFLOW)
