@@ -22,7 +22,8 @@ class WebcamCapture(nodes.LoadImage):
     CATEGORY = "image"
 
     def load_capture(self, image, **kwargs):
-        return super().load_image(folder_paths.get_annotated_filepath(image))
+        image_tensor, _ = self.load_image_tensors(folder_paths.get_annotated_filepath(image))
+        return (image_tensor,)
 
     @classmethod
     def IS_CHANGED(cls, image, width, height, capture_on_queue):

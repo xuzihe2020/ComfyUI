@@ -364,7 +364,7 @@
         106
       ],
       "flags": {},
-      "order": 11,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -697,7 +697,7 @@
         200
       ],
       "flags": {},
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -1066,7 +1066,7 @@
         154
       ],
       "flags": {},
-      "order": 12,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -1135,65 +1135,6 @@
       ]
     },
     {
-      "id": 2,
-      "type": "PreviewImage",
-      "pos": [
-        -573.888848279732,
-        663.7632558055298
-      ],
-      "size": [
-        396.09469322918585,
-        280.21709610975483
-      ],
-      "flags": {},
-      "order": 13,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 2
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 33,
-      "type": "MaskPreview+",
-      "pos": [
-        -571.5808900609411,
-        989.0951609163099
-      ],
-      "size": [
-        391.0602657994244,
-        294.5573295451409
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 35
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfyui_essentials",
-        "ver": "1.1.0",
-        "Node name for S&R": "MaskPreview+"
-      }
-    },
-    {
       "id": 1,
       "type": "LoadImage",
       "pos": [
@@ -1202,7 +1143,7 @@
       ],
       "size": [
         304.45918028981214,
-        326
+        558
       ],
       "flags": {},
       "order": 8,
@@ -1214,6 +1155,60 @@
           "type": "COMBO",
           "widget": {
             "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "clean_name",
+          "name": "clean_name",
+          "type": "STRING",
+          "widget": {
+            "name": "clean_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "root_dir",
+          "name": "root_dir",
+          "type": "STRING",
+          "widget": {
+            "name": "root_dir"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "folder_name",
+          "name": "folder_name",
+          "type": "STRING",
+          "widget": {
+            "name": "folder_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "filename_suffix",
+          "name": "filename_suffix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_suffix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strip_double_underscore_suffix",
+          "name": "strip_double_underscore_suffix",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "strip_double_underscore_suffix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strip_version_suffix",
+          "name": "strip_version_suffix",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "strip_version_suffix"
           },
           "link": null
         },
@@ -1245,6 +1240,36 @@
           "links": [
             35
           ]
+        },
+        {
+          "localized_name": "clean_name",
+          "name": "clean_name",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "root_dir",
+          "name": "root_dir",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "output_path",
+          "name": "output_path",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "source_path",
+          "name": "source_path",
+          "type": "STRING",
+          "links": null
         }
       ],
       "title": "Load Input Image",
@@ -1252,12 +1277,80 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "image": "clipspace/clipspace-painted-masked-1783176068425.png [input]"
+        "image": "clipspace/clipspace-painted-masked-1783176068425.png [input]",
+        "load_image_source_clean_name": "char_01",
+        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input"
       },
       "widgets_values": [
-        "clipspace/clipspace-painted-masked-1783176068425.png [input]",
+        "char_01.jpg",
+        "char_01",
+        "C:\\Users\\Tony Xu\\workspace\\comfyui\\input",
+        "",
+        "",
+        true,
+        true,
         "image"
       ]
+    },
+    {
+      "id": 2,
+      "type": "PreviewImage",
+      "pos": [
+        -550.9337409870766,
+        917.0895121910543
+      ],
+      "size": [
+        396.09469322918585,
+        280.21709610975483
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 33,
+      "type": "MaskPreview+",
+      "pos": [
+        -80.5050958393809,
+        1075.9967543269265
+      ],
+      "size": [
+        391.0602657994244,
+        294.5573295451409
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 35
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfyui_essentials",
+        "ver": "1.1.0",
+        "Node name for S&R": "MaskPreview+"
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -1509,8 +1602,8 @@
       "bounding": [
         -592.4593812292641,
         228.70718629789917,
-        1022.4493059535808,
-        1131.8065737003185
+        1031.4675317886777,
+        1151.4823670841986
       ],
       "color": "#3f789e",
       "flags": {}
@@ -1569,8 +1662,8 @@
     "ds": {
       "scale": 1.3553011792861098,
       "offset": [
-        1230.673928929696,
-        -16.517137631587616
+        1126.5559600152021,
+        -373.96125034564153
       ]
     }
   },

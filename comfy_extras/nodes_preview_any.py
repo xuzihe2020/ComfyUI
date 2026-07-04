@@ -38,10 +38,29 @@ class PreviewAny():
         torch.set_printoptions()
         return {"ui": {"text": (value,)}, "result": (value,)}
 
+class PreviewString:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {"value": (IO.STRING, {"forceInput": True})},
+        }
+
+    RETURN_TYPES = ()
+    FUNCTION = "main"
+    OUTPUT_NODE = True
+
+    CATEGORY = "utilities"
+    SEARCH_ALIASES = ["preview string", "preview text", "show string", "show text", "inspect string", "debug string"]
+
+    def main(self, value=""):
+        return {"ui": {"text": (str(value),)}}
+
 NODE_CLASS_MAPPINGS = {
     "PreviewAny": PreviewAny,
+    "PreviewString": PreviewString,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "PreviewAny": "Preview as Text",
+    "PreviewString": "Preview String",
 }

@@ -7,6 +7,7 @@ import json
 import glob
 import hashlib
 import inspect
+import re
 
 import traceback
 import math
@@ -1695,19 +1696,45 @@ class LoadImage:
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
         files = folder_paths.filter_files_content_types(files, ["image"])
         return {"required":
-                    {"image": (sorted(files), {"image_upload": True})},
+                    {"image": (sorted(files), {"image_upload": True}),
+                     "clean_name": ("STRING", {"default": "", "tooltip": "Read-only display value derived from the selected source image filename."}),
+                     "root_dir": ("STRING", {"default": "", "tooltip": "Read-only display value derived from the selected source image folder."}),
+                     "folder_name": ("STRING", {"default": "", "tooltip": "Folder to save derived mask files in, relative to the loaded image folder."}),
+                     "filename_suffix": ("STRING", {"default": "", "tooltip": "Suffix appended to the cleaned source image name."}),
+                     "strip_double_underscore_suffix": ("BOOLEAN", {"default": True, "tooltip": "Remove everything from the first double underscore in the source filename."}),
+                     "strip_version_suffix": ("BOOLEAN", {"default": True, "tooltip": "Remove a trailing _v01-style version suffix from the source filename."})},
                 }
 
     CATEGORY = "image"
     ESSENTIALS_CATEGORY = "Basics"
     SEARCH_ALIASES = ["load image", "open image", "import image", "image input", "upload image", "read image", "image loader"]
 
-    RETURN_TYPES = ("IMAGE", "MASK")
+    RETURN_TYPES = ("IMAGE", "MASK", "STRING", "STRING", "STRING", "STRING", "STRING")
+    RETURN_NAMES = ("IMAGE", "MASK", "clean_name", "root_dir", "output_path", "filename_prefix", "source_path")
     FUNCTION = "load_image"
 
-    def load_image(self, image):
-        image_path = folder_paths.get_annotated_filepath(image)
+    @staticmethod
+    def clean_filename(filename, strip_double_underscore_suffix=True, strip_version_suffix=True):
+        stem = os.path.splitext(os.path.basename(filename))[0]
+        if strip_double_underscore_suffix:
+            stem = stem.split("__", 1)[0]
+        if strip_version_suffix:
+            stem = re.sub(r"_v\d+$", "", stem, flags=re.IGNORECASE)
+        return stem or "image"
 
+    @staticmethod
+    def derive_save_paths(image_path, folder_name="", filename_suffix="", strip_double_underscore_suffix=True, strip_version_suffix=True, clean_name="", root_dir=""):
+        source_path = os.path.abspath(image_path)
+        root_dir = str(root_dir).strip() or os.path.dirname(source_path)
+        clean_name = str(clean_name).strip() or LoadImage.clean_filename(source_path, strip_double_underscore_suffix, strip_version_suffix)
+
+        folder_name = str(folder_name).strip()
+        output_path = root_dir if folder_name in ("", ".") else os.path.join(root_dir, folder_name)
+
+        filename_prefix = f"{clean_name}{filename_suffix}"
+        return clean_name, root_dir, output_path, filename_prefix, source_path
+
+    def load_image_tensors(self, image_path):
         dtype = comfy.model_management.intermediate_dtype()
         device = comfy.model_management.intermediate_device()
 
@@ -1749,16 +1776,31 @@ class LoadImage:
 
         return (output_image.to(device=device, dtype=dtype), output_mask.to(device=device, dtype=dtype))
 
+    def load_image(self, image, clean_name="", root_dir="", folder_name="", filename_suffix="", strip_double_underscore_suffix=True, strip_version_suffix=True):
+        image_path = folder_paths.get_annotated_filepath(image)
+        image_tensor, mask_tensor = self.load_image_tensors(image_path)
+        return (
+            image_tensor,
+            mask_tensor,
+            *self.derive_save_paths(image_path, folder_name, filename_suffix, strip_double_underscore_suffix, strip_version_suffix, clean_name, root_dir),
+        )
+
     @classmethod
-    def IS_CHANGED(s, image):
+    def IS_CHANGED(s, image, clean_name="", root_dir="", folder_name="", filename_suffix="", strip_double_underscore_suffix=True, strip_version_suffix=True, **kwargs):
         image_path = folder_paths.get_annotated_filepath(image)
         m = hashlib.sha256()
         with open(image_path, 'rb') as f:
             m.update(f.read())
+        m.update(str(clean_name).encode())
+        m.update(str(root_dir).encode())
+        m.update(str(folder_name).encode())
+        m.update(str(filename_suffix).encode())
+        m.update(str(strip_double_underscore_suffix).encode())
+        m.update(str(strip_version_suffix).encode())
         return m.digest().hex()
 
     @classmethod
-    def VALIDATE_INPUTS(s, image):
+    def VALIDATE_INPUTS(s, image, **kwargs):
         if not folder_paths.exists_annotated_filepath(image):
             return "Invalid image file: {}".format(image)
 
@@ -1776,7 +1818,7 @@ class LoadImageMask(LoadImage):
         types = super().INPUT_TYPES()
         return {
             "required": {
-                **types["required"],
+                "image": types["required"]["image"],
                 "channel": (s._color_channels, )
             }
         }
@@ -1786,7 +1828,7 @@ class LoadImageMask(LoadImage):
     FUNCTION = "load_image_mask"
 
     def load_image_mask(self, image, channel):
-        image_tensor, mask_tensor = super().load_image(image)
+        image_tensor, mask_tensor = self.load_image_tensors(folder_paths.get_annotated_filepath(image))
         c = channel[0].upper()
 
         if c == 'A':
@@ -2387,6 +2429,7 @@ async def init_builtin_extra_nodes():
         "nodes_attention_multiply.py",
         "nodes_advanced_samplers.py",
         "nodes_webcam.py",
+        "load_image_derived_display",
         "nodes_audio.py",
         "nodes_sd3.py",
         "nodes_gits.py",

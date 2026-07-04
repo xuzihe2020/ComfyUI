@@ -1,8 +1,8 @@
 {
   "id": "manual_mask_create_save_png",
   "revision": 0,
-  "last_node_id": 9,
-  "last_link_id": 8,
+  "last_node_id": 11,
+  "last_link_id": 12,
   "nodes": [
     {
       "id": 1,
@@ -25,6 +25,60 @@
           "type": "COMBO",
           "widget": {
             "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "clean_name",
+          "name": "clean_name",
+          "type": "STRING",
+          "widget": {
+            "name": "clean_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "root_dir",
+          "name": "root_dir",
+          "type": "STRING",
+          "widget": {
+            "name": "root_dir"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "folder_name",
+          "name": "folder_name",
+          "type": "STRING",
+          "widget": {
+            "name": "folder_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "filename_suffix",
+          "name": "filename_suffix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_suffix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strip_double_underscore_suffix",
+          "name": "strip_double_underscore_suffix",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "strip_double_underscore_suffix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strip_version_suffix",
+          "name": "strip_version_suffix",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "strip_version_suffix"
           },
           "link": null
         },
@@ -55,6 +109,42 @@
             2,
             3
           ]
+        },
+        {
+          "localized_name": "clean_name",
+          "name": "clean_name",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "root_dir",
+          "name": "root_dir",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "output_path",
+          "name": "output_path",
+          "type": "STRING",
+          "links": [
+            9,
+            11
+          ]
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "links": [
+            10,
+            12
+          ]
+        },
+        {
+          "localized_name": "source_path",
+          "name": "source_path",
+          "type": "STRING",
+          "links": null
         }
       ],
       "properties": {
@@ -62,6 +152,12 @@
       },
       "widgets_values": [
         "example.png",
+        "",
+        "",
+        "masks",
+        "_mask",
+        true,
+        true,
         "image"
       ]
     },
@@ -348,7 +444,7 @@
           "widget": {
             "name": "output_path"
           },
-          "link": null
+          "link": 9
         },
         {
           "localized_name": "filename_prefix",
@@ -357,7 +453,7 @@
           "widget": {
             "name": "filename_prefix"
           },
-          "link": null
+          "link": 10
         },
         {
           "localized_name": "filename_delimiter",
@@ -511,6 +607,62 @@
         "false",
         "true"
       ]
+    },
+    {
+      "id": 10,
+      "type": "PreviewString",
+      "pos": [
+        10,
+        230
+      ],
+      "size": [
+        360,
+        88
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "value",
+          "name": "value",
+          "type": "STRING",
+          "link": 11
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewString"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 11,
+      "type": "PreviewString",
+      "pos": [
+        10,
+        340
+      ],
+      "size": [
+        360,
+        88
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "value",
+          "name": "value",
+          "type": "STRING",
+          "link": 12
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewString"
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -577,6 +729,38 @@
       9,
       0,
       "IMAGE"
+    ],
+    [
+      9,
+      1,
+      4,
+      9,
+      1,
+      "STRING"
+    ],
+    [
+      10,
+      1,
+      5,
+      9,
+      2,
+      "STRING"
+    ],
+    [
+      11,
+      1,
+      4,
+      10,
+      0,
+      "STRING"
+    ],
+    [
+      12,
+      1,
+      5,
+      11,
+      0,
+      "STRING"
     ]
   ],
   "groups": [],

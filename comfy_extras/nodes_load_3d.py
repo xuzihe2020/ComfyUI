@@ -66,9 +66,9 @@ class Load3D(IO.ComfyNode):
         normal_path = folder_paths.get_annotated_filepath(image['normal'])
 
         load_image_node = nodes.LoadImage()
-        output_image, ignore_mask = load_image_node.load_image(image=image_path)
-        ignore_image, output_mask = load_image_node.load_image(image=mask_path)
-        normal_image, ignore_mask2 = load_image_node.load_image(image=normal_path)
+        output_image, ignore_mask = load_image_node.load_image_tensors(image_path)
+        ignore_image, output_mask = load_image_node.load_image_tensors(mask_path)
+        normal_image, ignore_mask2 = load_image_node.load_image_tensors(normal_path)
 
         video = None
 
