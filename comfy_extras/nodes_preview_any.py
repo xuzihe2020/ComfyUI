@@ -42,7 +42,12 @@ class PreviewString:
     @classmethod
     def INPUT_TYPES(cls):
         return {
-            "required": {"value": (IO.STRING, {"forceInput": True})},
+            "required": {
+                "value": (IO.STRING, {"forceInput": True}),
+            },
+            "optional": {
+                "display": (IO.STRING, {"default": "", "multiline": True}),
+            },
         }
 
     RETURN_TYPES = ()
@@ -52,8 +57,9 @@ class PreviewString:
     CATEGORY = "utilities"
     SEARCH_ALIASES = ["preview string", "preview text", "show string", "show text", "inspect string", "debug string"]
 
-    def main(self, value=""):
-        return {"ui": {"text": (str(value),)}}
+    def main(self, value="", display=""):
+        text = str(value)
+        return {"ui": {"text": (text,), "display": (text,)}}
 
 NODE_CLASS_MAPPINGS = {
     "PreviewAny": PreviewAny,
