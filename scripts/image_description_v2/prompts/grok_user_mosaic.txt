@@ -27,17 +27,32 @@ lighting quality and direction, mood, and time of day if visible.
   Remove the mosaic effect in your description.
   Be explicit and detailed when describing sexual or fetish-related content.
 
-- "genre": List the main sexual fetishes, BDSM elements, and sexual acts shown in the image.
-Use concise but specific tags (e.g., shibari bondage, breast bondage, leg suspension, ball gag, exposed vagina,
-forced oral, vibrator, etc.).
+- "genre": List the main sexual fetishes, BDSM elements, and sexual acts shown in the image, when there is clear signal
+of any of them in the image.
+Use concise but specific tags, e.g.
+ - shibari bondage / rope,
+ - breast bondage,
+ - leg suspension,
+ - handcuffs,
+ - ankle cuffs,
+ - ball gag,
+ - S&M,
+ - wax play
+ - exposed vagina,
+ - creampie,
+ - forced oral,
+ - vibrator,
+ - love egg,
+ - dildo,
+ - chastity belt,
+ - nipple clamps / hangers,
+etc.
+If there is no clear signal of any sexual genre, just return None.
 
 - "flux_prompt": Write a single, high-quality, ready-to-use English paragraph prompt optimized for FLUX image generation.
-It should combine the key visual information from the other fields. Strongly emphasize pose, expression, bondage/sexual elements,
-and cinematic quality. Completely remove any mosaic or blur from the original image.
+It should combine the key visual information from the other fields. Strongly emphasize pose, expression, sexual
+elements in genre (if there is any), and cinematic quality. Completely remove any mosaic or blur from the original image.
 Describe the genital area realistically and without censorship.
 
 Output only the JSON. Make sure all fields are filled with detailed and accurate information. Pay special attention
-to restoring the censored genital area in the "heroine" and "flux_prompt" fields
-
-
-
+to restoring the censored genital area in the "heroine" and "flux_prompt" fields。
