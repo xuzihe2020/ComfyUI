@@ -1696,7 +1696,7 @@ class LoadImage:
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
         files = folder_paths.filter_files_content_types(files, ["image"])
         return {"required":
-                    {"image": (sorted(files), {"image_upload": True}),
+                    {"image": (sorted(files), {"image_upload": True, "tooltip": "Input image filename or absolute local image path."}),
                      "clean_name": ("STRING", {"default": "", "tooltip": "Read-only display value derived from the selected source image filename."}),
                      "root_dir": ("STRING", {"default": "", "tooltip": "Read-only display value derived from the selected source image folder."}),
                      "folder_name": ("STRING", {"default": "", "tooltip": "Folder to save derived mask files in, relative to the loaded image folder."}),
@@ -1724,8 +1724,10 @@ class LoadImage:
 
     @staticmethod
     def derive_save_paths(image_path, folder_name="", filename_suffix="", strip_double_underscore_suffix=True, strip_version_suffix=True, clean_name="", root_dir=""):
-        source_path = os.path.abspath(image_path)
-        root_dir = str(root_dir).strip() or os.path.dirname(source_path)
+        loaded_path = os.path.abspath(image_path)
+        root_dir = str(root_dir).strip()
+        source_path = os.path.abspath(os.path.join(root_dir, os.path.basename(loaded_path))) if root_dir else loaded_path
+        root_dir = root_dir or os.path.dirname(source_path)
         clean_name = str(clean_name).strip() or LoadImage.clean_filename(source_path, strip_double_underscore_suffix, strip_version_suffix)
 
         folder_name = str(folder_name).strip()
@@ -1733,6 +1735,18 @@ class LoadImage:
 
         filename_prefix = f"{clean_name}{filename_suffix}"
         return clean_name, root_dir, output_path, filename_prefix, source_path
+
+    @staticmethod
+    def resolve_image_path(image):
+        image = str(image).strip()
+        if os.path.isabs(image):
+            return os.path.abspath(image)
+
+        local_path = os.path.abspath(image)
+        if os.path.isfile(local_path):
+            return local_path
+
+        return folder_paths.get_annotated_filepath(image)
 
     def load_image_tensors(self, image_path):
         dtype = comfy.model_management.intermediate_dtype()
@@ -1777,7 +1791,7 @@ class LoadImage:
         return (output_image.to(device=device, dtype=dtype), output_mask.to(device=device, dtype=dtype))
 
     def load_image(self, image, clean_name="", root_dir="", folder_name="", filename_suffix="", strip_double_underscore_suffix=True, strip_version_suffix=True):
-        image_path = folder_paths.get_annotated_filepath(image)
+        image_path = self.resolve_image_path(image)
         image_tensor, mask_tensor = self.load_image_tensors(image_path)
         return (
             image_tensor,
@@ -1787,7 +1801,7 @@ class LoadImage:
 
     @classmethod
     def IS_CHANGED(s, image, clean_name="", root_dir="", folder_name="", filename_suffix="", strip_double_underscore_suffix=True, strip_version_suffix=True, **kwargs):
-        image_path = folder_paths.get_annotated_filepath(image)
+        image_path = s.resolve_image_path(image)
         m = hashlib.sha256()
         with open(image_path, 'rb') as f:
             m.update(f.read())
@@ -1801,8 +1815,9 @@ class LoadImage:
 
     @classmethod
     def VALIDATE_INPUTS(s, image, **kwargs):
-        if not folder_paths.exists_annotated_filepath(image):
-            return "Invalid image file: {}".format(image)
+        image_path = s.resolve_image_path(image)
+        if not os.path.isfile(image_path):
+            return "Invalid image file: {}".format(image_path)
 
         return True
 

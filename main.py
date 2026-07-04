@@ -232,6 +232,7 @@ import comfy.model_management
 import comfyui_version
 import app.logger
 import hook_breaker_ac10a0
+from app import local_file_picker
 
 import comfy.memory_management
 import comfy.model_patcher
@@ -491,6 +492,7 @@ def start_comfyui(asyncio_loop=None):
         logging.info(f"Setting temp directory to: {temp_dir}")
         folder_paths.set_temp_directory(temp_dir)
     cleanup_temp()
+    local_file_picker.ensure_daemon()
 
     if not asyncio_loop:
         asyncio_loop = asyncio.new_event_loop()

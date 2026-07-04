@@ -112,10 +112,16 @@ function makeReadOnly(widget) {
     widget._derivedDisplayReadOnly = true;
 }
 
-function setStoredSource(node, cleanName, rootDir) {
+function setStoredSource(node, cleanName, rootDir, sourcePath = undefined, imageValue = undefined) {
     node.properties ??= {};
     node.properties.load_image_source_clean_name = cleanName ?? "";
     node.properties.load_image_source_root_dir = rootDir ?? "";
+    if (sourcePath !== undefined) {
+        node.properties.load_image_source_path = sourcePath ?? "";
+    }
+    if (imageValue !== undefined) {
+        node.properties.load_image_source_image = imageValue ?? "";
+    }
 }
 
 function restoreStoredSource(node, cleanNameWidget, rootDirWidget) {
@@ -145,6 +151,136 @@ function ensureWidget(node, name) {
     if (imageIndex >= 0) {
         node.widgets = node.widgets.filter((candidate) => candidate !== widget);
         node.widgets.splice(imageIndex + (name === "clean_name" ? 1 : 2), 0, widget);
+    }
+
+    return widget;
+}
+
+function isAbsolutePath(value) {
+    const text = String(value ?? "");
+    return /^[A-Za-z]:[\\/]/.test(text) || text.startsWith("\\\\") || text.startsWith("/");
+}
+
+function dirname(value) {
+    const text = String(value ?? "");
+    const index = Math.max(text.lastIndexOf("\\"), text.lastIndexOf("/"));
+    return index >= 0 ? text.slice(0, index) : "";
+}
+
+function getStoredSourcePath(node, imageValue) {
+    const sourceImage = node.properties?.load_image_source_image;
+    const sourcePath = node.properties?.load_image_source_path;
+    if (!sourcePath || sourceImage !== imageValue) {
+        return "";
+    }
+    return sourcePath;
+}
+
+function setImageWidgetValue(node, imageName) {
+    const imageWidget = findWidget(node, "image");
+    if (!imageWidget || !imageName) {
+        return;
+    }
+
+    imageWidget.value = imageName;
+    imageWidget.label = imageName;
+
+    preserveImageWidgetValue(imageWidget);
+
+    imageWidget.callback?.(imageName);
+    node._loadImageDerivedDisplayLastImage = imageName;
+    scheduleDerivedUpdate(node, "local_file_picker");
+    app.graph?.setDirtyCanvas(true, true);
+}
+
+function preserveImageWidgetValue(imageWidget) {
+    const path = imageWidget?.value;
+    if (!path) {
+        return;
+    }
+
+    if (Array.isArray(imageWidget.options?.values) && !imageWidget.options.values.includes(path)) {
+        imageWidget.options.values = [path, ...imageWidget.options.values];
+    }
+}
+
+async function pickLocalImage(node, pickerWidget) {
+    const imageWidget = findWidget(node, "image");
+    const rootDirWidget = findWidget(node, "root_dir");
+    const currentImage = imageWidget?.value ?? "";
+    const sourcePath = getStoredSourcePath(node, currentImage);
+    const initialDir = rootDirWidget?.value || (isAbsolutePath(sourcePath) ? dirname(sourcePath) : "");
+    const previousValue = pickerWidget?.value;
+
+    if (pickerWidget) {
+        pickerWidget.value = "opening...";
+    }
+
+    try {
+        const stripDoubleWidget = findWidget(node, "strip_double_underscore_suffix");
+        const stripVersionWidget = findWidget(node, "strip_version_suffix");
+        const params = new URLSearchParams({
+            initial_dir: initialDir,
+            strip_double_underscore_suffix: String(stripDoubleWidget?.value ?? true),
+            strip_version_suffix: String(stripVersionWidget?.value ?? true),
+        });
+        const response = await api.fetchApi(`/local_file_picker/pick_load_image?${params.toString()}`, {
+            cache: "no-store",
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.image) {
+            setStoredSource(node, data.clean_name, data.root_dir, data.source_path, data.image);
+            const cleanNameWidget = findWidget(node, "clean_name");
+            const rootDirWidget = findWidget(node, "root_dir");
+            if (cleanNameWidget) {
+                setReadOnlyValue(cleanNameWidget, data.clean_name);
+            }
+            if (rootDirWidget) {
+                setReadOnlyValue(rootDirWidget, data.root_dir);
+            }
+            setImageWidgetValue(node, data.image);
+        }
+    } catch (error) {
+        console.warn("[LoadImage local file picker] Failed to pick local image", error);
+    } finally {
+        if (pickerWidget) {
+            pickerWidget.value = previousValue ?? "choose local source";
+        }
+    }
+}
+
+function ensureLocalFilePickerButton(node) {
+    let widget = findWidget(node, "choose local source");
+    if (!widget) {
+        widget = node.addWidget("button", "choose local source", "choose local source", () => {
+            pickLocalImage(node, widget);
+        });
+    } else {
+        widget.type = "button";
+        widget.value = "choose local source";
+        widget.callback = () => pickLocalImage(node, widget);
+    }
+
+    widget.serialize = false;
+    widget.options = {
+        ...(widget.options ?? {}),
+        local_file_picker: true,
+    };
+
+    if (!widget._localFilePickerReordered) {
+        const uploadIndex = node.widgets.findIndex((candidate) => candidate.name === "upload");
+        const imageIndex = node.widgets.findIndex((candidate) => candidate.name === "image");
+        const insertIndex = uploadIndex >= 0 ? uploadIndex + 1 : imageIndex + 1;
+        if (insertIndex > 0) {
+            node.widgets = node.widgets.filter((candidate) => candidate !== widget);
+            node.widgets.splice(insertIndex, 0, widget);
+        }
+        widget._localFilePickerReordered = true;
     }
 
     return widget;
@@ -221,6 +357,10 @@ async function updateDerivedDisplay(node, reason = "update") {
         strip_double_underscore_suffix: String(stripDoubleWidget?.value ?? true),
         strip_version_suffix: String(stripVersionWidget?.value ?? true),
     });
+    const sourcePath = getStoredSourcePath(node, imageWidget.value);
+    if (sourcePath) {
+        params.set("source_path", sourcePath);
+    }
 
     try {
         const response = await api.fetchApi(`/load_image/derived_display?${params.toString()}`, {
@@ -234,7 +374,7 @@ async function updateDerivedDisplay(node, reason = "update") {
         const data = await response.json();
         setReadOnlyValue(cleanNameWidget, data.clean_name);
         setReadOnlyValue(rootDirWidget, data.root_dir);
-        setStoredSource(node, data.clean_name, data.root_dir);
+        setStoredSource(node, data.clean_name, data.root_dir, data.source_path, imageWidget.value);
         app.graph?.setDirtyCanvas(true, false);
     } catch (error) {
         console.warn("[LoadImage derived display] Failed to update derived fields", error);
@@ -242,6 +382,8 @@ async function updateDerivedDisplay(node, reason = "update") {
 }
 
 function setupLoadImageDerivedDisplay(node) {
+    preserveImageWidgetValue(findWidget(node, "image"));
+    ensureLocalFilePickerButton(node);
     const cleanNameWidget = ensureWidget(node, "clean_name");
     const rootDirWidget = ensureWidget(node, "root_dir");
 
