@@ -1,8 +1,8 @@
 {
-  "id": "80576762-7adf-4303-9d12-26f735fce9bc",
+  "id": "img2img_flux_2_mask_repaint",
   "revision": 0,
-  "last_node_id": 33,
-  "last_link_id": 35,
+  "last_node_id": 35,
+  "last_link_id": 38,
   "nodes": [
     {
       "id": 7,
@@ -126,7 +126,7 @@
         46
       ],
       "flags": {},
-      "order": 17,
+      "order": 18,
       "mode": 0,
       "inputs": [
         {
@@ -156,51 +156,6 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "BasicGuider"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 13,
-      "type": "VAEEncode",
-      "pos": [
-        780,
-        520
-      ],
-      "size": [
-        140,
-        46
-      ],
-      "flags": {},
-      "order": 16,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "pixels",
-          "name": "pixels",
-          "type": "IMAGE",
-          "link": 3
-        },
-        {
-          "localized_name": "vae",
-          "name": "vae",
-          "type": "VAE",
-          "link": 4
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "LATENT",
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            14
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "VAEEncode"
       },
       "widgets_values": []
     },
@@ -364,7 +319,7 @@
         106
       ],
       "flags": {},
-      "order": 11,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -469,7 +424,7 @@
         "Node name for S&R": "SplitSigmasDenoise"
       },
       "widgets_values": [
-        0.45
+        0.7
       ]
     },
     {
@@ -484,7 +439,7 @@
         86
       ],
       "flags": {},
-      "order": 20,
+      "order": 22,
       "mode": 0,
       "inputs": [
         {
@@ -540,7 +495,7 @@
         299.16753875030486
       ],
       "flags": {},
-      "order": 23,
+      "order": 25,
       "mode": 0,
       "inputs": [
         {
@@ -570,7 +525,7 @@
         154
       ],
       "flags": {},
-      "order": 22,
+      "order": 24,
       "mode": 0,
       "inputs": [
         {
@@ -651,7 +606,7 @@
         46
       ],
       "flags": {},
-      "order": 19,
+      "order": 21,
       "mode": 0,
       "inputs": [
         {
@@ -686,57 +641,6 @@
       "widgets_values": []
     },
     {
-      "id": 10,
-      "type": "CLIPTextEncode",
-      "pos": [
-        959.1425145310982,
-        -22.149838449212726
-      ],
-      "size": [
-        430,
-        200
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 5
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            6
-          ]
-        }
-      ],
-      "title": "CLIP Text Encode - Prompt",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "Photorealistic extreme close-up of a beautiful young East Asian woman lying on her back on white sheets, head tilted, eyes closed in ecstasy, mouth open with flushed wet lips, sweat glistening on her skin, thick shibari rope tightly knotted around her neck and pressing into her flesh, topless with bare shoulders, cinematic soft lighting, sharp detail, sensual submissive expression, high-resolution, no mosaic or blur. "
-      ]
-    },
-    {
       "id": 18,
       "type": "SamplerCustomAdvanced",
       "pos": [
@@ -748,7 +652,7 @@
         184
       ],
       "flags": {},
-      "order": 18,
+      "order": 20,
       "mode": 0,
       "inputs": [
         {
@@ -779,7 +683,7 @@
           "localized_name": "latent_image",
           "name": "latent_image",
           "type": "LATENT",
-          "link": 14
+          "link": 38
         }
       ],
       "outputs": [
@@ -847,7 +751,7 @@
         "Node name for S&R": "RandomNoise"
       },
       "widgets_values": [
-        431646694655915,
+        551350092181824,
         "randomize"
       ]
     },
@@ -863,7 +767,7 @@
         246
       ],
       "flags": {},
-      "order": 21,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {
@@ -893,7 +797,7 @@
         270
       ],
       "flags": {},
-      "order": 24,
+      "order": 26,
       "mode": 0,
       "inputs": [
         {
@@ -1019,42 +923,6 @@
       ]
     },
     {
-      "id": 26,
-      "type": "PrimitiveNode",
-      "pos": [
-        96.12884623401447,
-        934.8443630802464
-      ],
-      "size": [
-        262.4245939356922,
-        82
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "FLOAT",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "links": [
-            26
-          ]
-        }
-      ],
-      "title": "Denoise",
-      "properties": {
-        "Run widget replace on values": false
-      },
-      "widgets_values": [
-        0.45,
-        "fixed"
-      ]
-    },
-    {
       "id": 5,
       "type": "ImageScale",
       "pos": [
@@ -1066,7 +934,7 @@
         154
       ],
       "flags": {},
-      "order": 12,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -1146,7 +1014,7 @@
         280.21709610975483
       ],
       "flags": {},
-      "order": 13,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -1176,14 +1044,14 @@
         294.5573295451409
       ],
       "flags": {},
-      "order": 9,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
           "localized_name": "mask",
           "name": "mask",
           "type": "MASK",
-          "link": 35
+          "link": 36
         }
       ],
       "outputs": [],
@@ -1191,7 +1059,195 @@
         "cnr_id": "comfyui_essentials",
         "ver": "1.1.0",
         "Node name for S&R": "MaskPreview+"
-      }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 35,
+      "type": "SetLatentNoiseMask",
+      "pos": [
+        1151.3427928707615,
+        691.14929596407
+      ],
+      "size": [
+        300,
+        80
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 14
+        },
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 37
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            38
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "SetLatentNoiseMask"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 13,
+      "type": "VAEEncode",
+      "pos": [
+        791.5082740594337,
+        539.4755407159646
+      ],
+      "size": [
+        140,
+        46
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "pixels",
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 3
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "VAEEncode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 34,
+      "type": "MaskBlur+",
+      "pos": [
+        527.3289480781135,
+        718.3225001559906
+      ],
+      "size": [
+        260,
+        90
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 35
+        },
+        {
+          "localized_name": "amount",
+          "name": "amount",
+          "type": "INT",
+          "widget": {
+            "name": "amount"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "device",
+          "name": "device",
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            36,
+            37
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_essentials",
+        "ver": "1.1.0",
+        "Node name for S&R": "MaskBlur+"
+      },
+      "widgets_values": [
+        32,
+        "auto"
+      ]
+    },
+    {
+      "id": 26,
+      "type": "PrimitiveNode",
+      "pos": [
+        96.12884623401447,
+        934.8443630802464
+      ],
+      "size": [
+        262.4245939356922,
+        82
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "links": [
+            26
+          ]
+        }
+      ],
+      "title": "Denoise",
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [
+        0.7,
+        "fixed"
+      ]
     },
     {
       "id": 1,
@@ -1252,11 +1308,62 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "image": "clipspace/clipspace-painted-masked-1783176068425.png [input]"
+        "image": "clipspace/clipspace-painted-masked-1783180129304.png [input]"
       },
       "widgets_values": [
-        "clipspace/clipspace-painted-masked-1783176068425.png [input]",
+        "clipspace/clipspace-painted-masked-1783180129304.png [input]",
         "image"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "CLIPTextEncode",
+      "pos": [
+        959.1425145310982,
+        -22.149838449212726
+      ],
+      "size": [
+        430,
+        200
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 5
+        },
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "title": "CLIP Text Encode - Prompt",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "Medium low-angle shot of a beautiful Japanese woman with long black hair lying on her back on a bed in a dimly lit bedroom, legs spread wide and held open by two hands, naked body glistening, small breasts with erect nipples, face showing ecstasy with eyes closed and mouth open moaning, a thick erect penis penetrating deep into her exposed wet vagina with public hair, red bedsheets, warm lamp light, polka dot curtains, highly detailed realistic skin texture, sharp focus, photorealistic, cinematic lighting, no censorship\\nExtreme sharp detail, ultra realistic, 8khigh-resolution, no mosaic or censorship, no blur."
       ]
     }
   ],
@@ -1369,8 +1476,8 @@
       14,
       13,
       0,
-      18,
-      4,
+      35,
+      0,
       "LATENT"
     ],
     [
@@ -1497,9 +1604,33 @@
       35,
       1,
       1,
+      34,
+      0,
+      "MASK"
+    ],
+    [
+      36,
+      34,
+      0,
       33,
       0,
       "MASK"
+    ],
+    [
+      37,
+      34,
+      0,
+      35,
+      1,
+      "MASK"
+    ],
+    [
+      38,
+      35,
+      0,
+      18,
+      4,
+      "LATENT"
     ]
   ],
   "groups": [
@@ -1567,10 +1698,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.3553011792861098,
+      "scale": 2.4379435107783523,
       "offset": [
-        1230.673928929696,
-        -16.517137631587616
+        -512.4289713095435,
+        162.70149894334568
       ]
     }
   },
