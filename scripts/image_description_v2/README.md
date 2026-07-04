@@ -73,6 +73,12 @@ PowerShell:
 $env:XAI_API_KEY = "sk-..."
 ```
 
+The script also loads `XAI_API_KEY` from the repository `.env` file by default:
+
+```text
+XAI_API_KEY=sk-...
+```
+
 ## Usage
 
 ```bash

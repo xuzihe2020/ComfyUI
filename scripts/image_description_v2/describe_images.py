@@ -46,6 +46,7 @@ from typing import Any
 DEFAULT_BASE_URL = "https://api.x.ai/v1"
 DEFAULT_MODEL = "grok-4.3"  # override with --model; must be a vision-capable Grok model
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
+DEFAULT_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 PROMPT_VARIANT_STD = "std"
 PROMPT_VARIANT_MOSAIC = "mosaic"
 
@@ -89,6 +90,31 @@ def configure_stdio() -> None:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+def load_env_file(path: Path) -> None:
+    """Load simple KEY=VALUE pairs from .env without overwriting real env vars."""
+    if not path.is_file():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line[len("export "):].strip()
+        if "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key or key in os.environ:
+            continue
+
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+            value = value[1:-1]
+        os.environ[key] = value
 
 
 def description_schema() -> dict[str, Any]:
@@ -458,6 +484,8 @@ def process_image(
 # --------------------------------------------------------------------------- #
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    load_env_file(DEFAULT_ENV_FILE)
+
     p = argparse.ArgumentParser(
         description="Describe images with Grok and write validated v2 JSON outputs.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -473,7 +501,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     p.add_argument("--model", default=DEFAULT_MODEL, help="Vision-capable Grok model id.")
     p.add_argument("--base-url", default=DEFAULT_BASE_URL, help="xAI OpenAI-compatible base URL.")
-    p.add_argument("--api-key", default=os.environ.get("XAI_API_KEY", ""), help="xAI API key (or set XAI_API_KEY).")
+    p.add_argument(
+        "--api-key",
+        default="",
+        help="xAI API key, or set XAI_API_KEY in the environment or repo .env file.",
+    )
     p.add_argument("--language", default="English", help="Language for Grok's description values.")
     p.add_argument("--temperature", type=float, default=0.2, help="Sampling temperature for Grok.")
     p.add_argument(
@@ -504,7 +536,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--dry-run", action="store_true",
         help="Do not call Grok; just resolve prompts/inputs and report what would run.",
     )
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    if not args.api_key:
+        args.api_key = os.environ.get("XAI_API_KEY", "")
+    return args
 
 
 def main(argv: list[str] | None = None) -> int:
