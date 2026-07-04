@@ -6,7 +6,7 @@
     "Comfy.Canvas.NavigationMode": "standard",
     "Comfy.Canvas.LeftMouseClickBehavior": "select",
     "Comfy.Canvas.MouseWheelScroll": "panning",
-    "Comfy.RightSidePanel.IsOpen": false,
+    "Comfy.RightSidePanel.IsOpen": true,
     "Comfy.Queue.History.Expanded": false,
     "Comfy.Workflow.WarnBlueprintOverwrite": false
 }

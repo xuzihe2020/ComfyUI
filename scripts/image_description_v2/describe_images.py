@@ -67,6 +67,10 @@ FIELD_SCENE = "scene"
 FIELD_HEROINE = "heroine"
 FIELD_GENRE = "genre"
 FIELD_FLUX_PROMPT = "flux_prompt"
+STATIC_QUALITY_PROMPT = (
+    "Extreme sharp detail, ultra realistic, 8khigh-resolution, "
+    "no mosaic or censorship, no blur."
+)
 
 REQUIRED_FIELDS = (
     FIELD_CINEMATOGRAPHY,
@@ -367,6 +371,16 @@ def parse_and_validate_response(content: str) -> dict[str, Any]:
     return {field: data[field] for field in REQUIRED_FIELDS}
 
 
+def add_static_quality_prompt(data: dict[str, Any]) -> dict[str, Any]:
+    """Ensure saved flux_prompt ends with the fixed quality block."""
+    prompt = str(data[FIELD_FLUX_PROMPT]).strip()
+    lines = [line.rstrip() for line in prompt.splitlines()]
+    while lines and lines[-1].strip() == STATIC_QUALITY_PROMPT:
+        lines.pop()
+    data[FIELD_FLUX_PROMPT] = "\n".join([*lines, STATIC_QUALITY_PROMPT])
+    return data
+
+
 def call_grok_with_validation(
     base_url: str,
     api_key: str,
@@ -474,6 +488,7 @@ def process_image(
         error_path.write_text(f"{exc}\n", encoding="utf-8")
         return "error"
 
+    data = add_static_quality_prompt(data)
     json_path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"+ done: {image.name} -> {json_path.name}")
     return "done"

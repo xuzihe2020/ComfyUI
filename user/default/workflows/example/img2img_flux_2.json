@@ -1,8 +1,8 @@
 {
   "id": "80576762-7adf-4303-9d12-26f735fce9bc",
   "revision": 0,
-  "last_node_id": 29,
-  "last_link_id": 30,
+  "last_node_id": 30,
+  "last_link_id": 33,
   "nodes": [
     {
       "id": 5,
@@ -16,7 +16,7 @@
         154
       ],
       "flags": {},
-      "order": 11,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -206,7 +206,7 @@
         46
       ],
       "flags": {},
-      "order": 16,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -340,7 +340,7 @@
         184
       ],
       "flags": {},
-      "order": 17,
+      "order": 18,
       "mode": 0,
       "inputs": [
         {
@@ -438,7 +438,7 @@
         "Node name for S&R": "RandomNoise"
       },
       "widgets_values": [
-        574146229307741,
+        571208922492389,
         "randomize"
       ]
     },
@@ -454,7 +454,7 @@
         246
       ],
       "flags": {},
-      "order": 12,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -484,7 +484,7 @@
         500
       ],
       "flags": {},
-      "order": 19,
+      "order": 20,
       "mode": 0,
       "inputs": [
         {
@@ -579,7 +579,7 @@
         58
       ],
       "flags": {},
-      "order": 13,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {
@@ -629,7 +629,7 @@
         106
       ],
       "flags": {},
-      "order": 10,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
@@ -693,7 +693,7 @@
         82
       ],
       "flags": {},
-      "order": 14,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {
@@ -749,7 +749,7 @@
         200
       ],
       "flags": {},
-      "order": 9,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
@@ -788,100 +788,6 @@
       ]
     },
     {
-      "id": 3,
-      "type": "PrimitiveInt",
-      "pos": [
-        39.07458528376627,
-        685.0169566260126
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "value",
-          "name": "value",
-          "type": "INT",
-          "widget": {
-            "name": "value"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "INT",
-          "name": "INT",
-          "type": "INT",
-          "links": [
-            19,
-            21
-          ]
-        }
-      ],
-      "title": "width",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "PrimitiveInt"
-      },
-      "widgets_values": [
-        1920,
-        "fixed"
-      ]
-    },
-    {
-      "id": 4,
-      "type": "PrimitiveInt",
-      "pos": [
-        45.443577751465284,
-        808.5712321667919
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "value",
-          "name": "value",
-          "type": "INT",
-          "widget": {
-            "name": "value"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "INT",
-          "name": "INT",
-          "type": "INT",
-          "links": [
-            20,
-            22
-          ]
-        }
-      ],
-      "title": "height",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "PrimitiveInt"
-      },
-      "widgets_values": [
-        964,
-        "fixed"
-      ]
-    },
-    {
       "id": 26,
       "type": "PrimitiveNode",
       "pos": [
@@ -893,7 +799,7 @@
         82
       ],
       "flags": {},
-      "order": 7,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -929,7 +835,7 @@
         314
       ],
       "flags": {},
-      "order": 8,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
@@ -991,7 +897,7 @@
         46
       ],
       "flags": {},
-      "order": 18,
+      "order": 19,
       "mode": 0,
       "inputs": [
         {
@@ -1034,10 +940,10 @@
       ],
       "size": [
         254.29478603876578,
-        70.26807100823089
+        86
       ],
       "flags": {},
-      "order": 20,
+      "order": 21,
       "mode": 0,
       "inputs": [
         {
@@ -1078,21 +984,118 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "BatchImagesNode"
-      }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 3,
+      "type": "PrimitiveInt",
+      "pos": [
+        39.07458528376627,
+        685.0169566260126
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "value",
+          "name": "value",
+          "type": "INT",
+          "widget": {
+            "name": "value"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "INT",
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            19,
+            21,
+            31
+          ]
+        }
+      ],
+      "title": "width",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "PrimitiveInt"
+      },
+      "widgets_values": [
+        1920,
+        "fixed"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "PrimitiveInt",
+      "pos": [
+        45.443577751465284,
+        808.5712321667919
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "value",
+          "name": "value",
+          "type": "INT",
+          "widget": {
+            "name": "value"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "INT",
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            20,
+            22,
+            32
+          ]
+        }
+      ],
+      "title": "height",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "PrimitiveInt"
+      },
+      "widgets_values": [
+        964,
+        "fixed"
+      ]
     },
     {
       "id": 28,
       "type": "PreviewImage",
       "pos": [
-        1670.0,
-        1020.0
+        1687.4406804824207,
+        1137.0189677548672
       ],
       "size": [
         579.1592967469014,
         299.16753875030486
       ],
       "flags": {},
-      "order": 22,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {
@@ -1114,15 +1117,15 @@
       "id": 29,
       "type": "ImageGrid",
       "pos": [
-        1324.540097894821,
-        1020.0
+        1328.6435456419981,
+        1136.0689505629991
       ],
       "size": [
         315,
         154
       ],
       "flags": {},
-      "order": 21,
+      "order": 22,
       "mode": 0,
       "inputs": [
         {
@@ -1147,7 +1150,7 @@
           "widget": {
             "name": "cell_width"
           },
-          "link": null
+          "link": 31
         },
         {
           "localized_name": "cell_height",
@@ -1156,7 +1159,7 @@
           "widget": {
             "name": "cell_height"
           },
-          "link": null
+          "link": 32
         },
         {
           "localized_name": "padding",
@@ -1174,7 +1177,8 @@
           "name": "images",
           "type": "IMAGE",
           "links": [
-            30
+            30,
+            33
           ]
         }
       ],
@@ -1187,7 +1191,47 @@
         1,
         1920,
         964,
-        0
+        40
+      ]
+    },
+    {
+      "id": 30,
+      "type": "SaveImage",
+      "pos": [
+        1690.604590052011,
+        1526.7804170125403
+      ],
+      "size": [
+        578.625093299017,
+        262.3598590763763
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 33
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0"
+      },
+      "widgets_values": [
+        "ComfyUI"
       ]
     }
   ],
@@ -1399,6 +1443,30 @@
       28,
       0,
       "IMAGE"
+    ],
+    [
+      31,
+      3,
+      0,
+      29,
+      2,
+      "INT"
+    ],
+    [
+      32,
+      4,
+      0,
+      29,
+      3,
+      "INT"
+    ],
+    [
+      33,
+      29,
+      0,
+      30,
+      0,
+      "IMAGE"
     ]
   ],
   "groups": [
@@ -1466,10 +1534,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.166929988070638,
+      "scale": 1.438638690243578,
       "offset": [
-        -592.0410680227699,
-        -780.3581644823837
+        -990.092513147916,
+        -998.2346521452736
       ]
     }
   },
