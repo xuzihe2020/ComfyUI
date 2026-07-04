@@ -5,25 +5,14 @@ clip seek a single time to the keyframe at or before the clip start, then
 stream-decode forward only through that clip's frames. We never decode the whole
 file and never seek per output frame.
 
-Two sampling modes select which frame(s) to keep per second (``fps`` = n frames
-per second, an integer):
-
-* ``even`` (default): divide each 1-second window into ``n + 1`` equal chunks and
-  take the ``n`` interior boundary points as targets, i.e. times ``k / (n + 1)``
-  for ``k = 1..n`` within the second. For ``n = 1`` that is the midpoint (0.5s).
-  The decoded frame nearest each target time is kept.
-* ``random``: split each second into ``n`` equal sub-windows and keep one frame
-  chosen uniformly at random from each, via reservoir sampling (single pass,
-  O(1) memory).
-
-Either way exactly one frame is encoded (PNG or JPEG) per emitted target, so at
-most one decoded frame is held in memory at a time.
+Sampling is uniform by frame density per minute. ``frames_per_minute=60`` keeps
+one frame per second, ``12`` keeps one every five seconds, and ``120`` keeps two
+per second. The decoded frame nearest each target time is encoded as PNG/JPEG.
 """
 
 from __future__ import annotations
 
 import math
-import random
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -39,12 +28,10 @@ RESAMPLE_LANCZOS = getattr(Image, "Resampling", Image).LANCZOS
 
 @dataclass
 class SampleParams:
-    fps: int = 1
-    sampling: str = "even"  # "even" | "random"
+    frames_per_minute: int = 60
     image_format: str = "png"  # "png" (lossless) | "jpeg" (lossy)
     quality: int = 95  # JPEG only; ignored for PNG
     scale: float = 1.0  # 1.0 keeps native resolution; lower values shrink
-    seed: int | None = None
     per_video_subdir: bool = True
 
 
@@ -75,7 +62,6 @@ def sample_video(
     """Sample every clip of one video. Never raises; failures land in ``result.error``."""
     video = Path(video)
     result = VideoResult(video=video, duration=None)
-    rng = random.Random(params.seed)
 
     try:
         with av.open(str(video)) as container:
@@ -101,7 +87,6 @@ def sample_video(
                     target_dir,
                     prefix,
                     params,
-                    rng,
                     result,
                 )
                 result.frames_saved += saved
@@ -128,7 +113,6 @@ def _sample_clip(
     target_dir: Path,
     prefix: str,
     params: SampleParams,
-    rng: random.Random,
     result: VideoResult,
 ) -> int:
     clip_start = clip.start
@@ -152,7 +136,7 @@ def _sample_clip(
             result.warnings.append(msg)
             clip_end = duration
 
-    n = params.fps
+    frames_per_minute = params.frames_per_minute
     time_base = float(stream.time_base)
 
     # Seek to the keyframe at or before the clip start (input seeking on the stream).
@@ -185,66 +169,28 @@ def _sample_clip(
         image.save(out_path, **save_kwargs)
         return 1
 
-    if params.sampling == "random":
-        return _collect_random(container, stream, clip_start, clip_end, n, time_base, rng, save)
-    return _collect_even(container, stream, clip_start, clip_end, n, time_base, save)
+    return _collect_uniform(
+        container,
+        stream,
+        clip_start,
+        clip_end,
+        frames_per_minute,
+        time_base,
+        save,
+    )
 
 
-def _collect_random(
-    container, stream, clip_start, clip_end, n, time_base, rng, save
+def _collect_uniform(
+    container, stream, clip_start, clip_end, frames_per_minute, time_base, save
 ) -> int:
-    """One uniformly-random frame per 1/n-second sub-window (reservoir, k=1)."""
-    bucket_dur = 1.0 / n
-    current_bucket = None
-    chosen_frame = None
-    chosen_time = 0.0
-    seen_in_bucket = 0
-    saved = 0
-
-    for frame in container.decode(stream):
-        if frame.pts is None:
-            continue
-        t = frame.pts * time_base
-        if t < clip_start:
-            continue
-        if clip_end is not None and t >= clip_end:
-            break
-
-        bucket = int((t - clip_start) / bucket_dur)
-        if bucket != current_bucket:
-            if chosen_frame is not None:
-                saved += save(chosen_frame, chosen_time)
-            current_bucket = bucket
-            chosen_frame = None
-            seen_in_bucket = 0
-
-        seen_in_bucket += 1
-        if rng.random() < 1.0 / seen_in_bucket:
-            chosen_frame = frame
-            chosen_time = t
-
-    if chosen_frame is not None:
-        saved += save(chosen_frame, chosen_time)
-    return saved
-
-
-def _collect_even(container, stream, clip_start, clip_end, n, time_base, save) -> int:
-    """Keep the frame nearest each evenly-spaced per-second target time.
-
-    Targets per second i (relative to clip start): clip_start + i + k/(n+1),
-    for k = 1..n. Generated lazily so an open-ended clip (unknown duration) works.
-    """
-    sec_i = 0
-    k = 1
+    """Keep the decoded frame nearest each uniform target time."""
+    step = 60.0 / frames_per_minute
+    target_index = 0
 
     def next_target() -> float:
-        nonlocal sec_i, k
-        g = clip_start + sec_i + k / (n + 1)
-        k += 1
-        if k > n:
-            k = 1
-            sec_i += 1
-        return g
+        nonlocal target_index
+        target_index += 1
+        return clip_start + (target_index - 1) * step
 
     def target_in_range(g: float) -> bool:
         return clip_end is None or g < clip_end
@@ -289,7 +235,7 @@ def _collect_even(container, stream, clip_start, clip_end, n, time_base, save) -
     return saved
 
 
-def estimate_frame_count(clip, duration: float | None, fps: int) -> int:
+def estimate_frame_count(clip, duration: float | None, frames_per_minute: int) -> int:
     """Upper-bound estimate of frames a clip will yield (for --dry-run)."""
     start = clip.start
     end = clip.end if clip.end is not None else duration
@@ -300,4 +246,4 @@ def estimate_frame_count(clip, duration: float | None, fps: int) -> int:
         if start >= duration:
             return 0
     span = max(0.0, end - start)
-    return int(math.ceil(span * fps))
+    return int(math.ceil(span * frames_per_minute / 60.0))

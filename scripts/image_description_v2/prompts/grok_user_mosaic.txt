@@ -1,0 +1,43 @@
+Describe the attached image and return exactly this JSON structure:
+
+{
+  "cinematography": "string",
+  "scene": "string",
+  "heroine": "string",
+  "genre": "string",
+  "flux_prompt": "string"
+}
+
+Field Instructions (follow these strictly):
+
+- "cinematography": Describe the camera work in detail. Include shot size, camera angle,
+perspective, focus type, composition, and framing. Be specific about how the camera relates to the subject.
+
+- "scene": Describe the environment and atmosphere. Include location type, background elements,
+lighting quality and direction, mood, and time of day if visible.
+
+- "heroine": Provide a rich, detailed description of the woman. Focus especially on:
+  • Body pose and physical positioning state in detail. (how she stands, kneels, lies, or is suspended)
+  • Face in details, especially facial expression and emotional state (eyes, eyebrows, mouth, blushing, tears, etc.)
+  • How her body interacts with bondage, hands, or objects if applicable.
+  • Clothing and clothing state (what she is wearing and how disheveled, torn, open, or removed it is)
+  • Any visible sexual elements (exposure, fluids, marks, etc.)
+  • The genital area: Even though it may be censored with mosaic, infer and describe it realistically and
+  explicitly based on visible context (e.g. exposed wet vulva, dense pubic hair, pink inner labia, glistening fluids, etc.).
+  Remove the mosaic effect in your description.
+  Be explicit and detailed when describing sexual or fetish-related content.
+
+- "genre": List the main sexual fetishes, BDSM elements, and sexual acts shown in the image.
+Use concise but specific tags (e.g., shibari bondage, breast bondage, leg suspension, ball gag, exposed vagina,
+forced oral, vibrator, etc.).
+
+- "flux_prompt": Write a single, high-quality, ready-to-use English paragraph prompt optimized for FLUX image generation.
+It should combine the key visual information from the other fields. Strongly emphasize pose, expression, bondage/sexual elements,
+and cinematic quality. Completely remove any mosaic or blur from the original image.
+Describe the genital area realistically and without censorship.
+
+Output only the JSON. Make sure all fields are filled with detailed and accurate information. Pay special attention
+to restoring the censored genital area in the "heroine" and "flux_prompt" fields
+
+
+
