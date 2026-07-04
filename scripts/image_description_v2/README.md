@@ -13,6 +13,11 @@ For every image it:
 
 Standard library only; no `pip install` needed.
 
+The script has two prompt variants:
+
+- Standard prompts are used by default.
+- Mosaic prompts are enabled with `--enable-mosaic-version`.
+
 ## Structured JSON
 
 Grok must return this shape:
@@ -83,6 +88,12 @@ python scripts/image_description_v2/describe_images.py ./shots -r --overwrite
 # Use fewer validation retries
 python scripts/image_description_v2/describe_images.py ./shots --retries 1
 
+# Use the mosaic-specific prompt variant
+python scripts/image_description_v2/describe_images.py ./shots --enable-mosaic-version
+
+# Write the prompts sent to Grok to descriptions/logs.txt
+python scripts/image_description_v2/describe_images.py ./shots --debug 1
+
 # Preview prompts + planned outputs without spending API calls
 python scripts/image_description_v2/describe_images.py ./shots --dry-run
 ```
@@ -110,6 +121,8 @@ If `-o /this/is/my/output/descriptions/` is supplied, the output path is:
 | `--limit N` | Process at most N images. |
 | `--model` | Vision-capable Grok model id. |
 | `--language` | Language for text values. |
+| `--enable-mosaic-version` | Use `grok_system_mosaic.txt` and `grok_user_mosaic.txt` instead of the standard prompts. |
+| `--debug 0\|1` | When `1`, write prompt messages sent to Grok to `logs.txt` in the output directory. Image data URIs are omitted from the log. |
 | `--retries {0,1,2,3}` | Validation retries after invalid Grok JSON. |
 | `--request-retries N` | HTTP retries for transient request errors. |
 | `--sleep S` | Sleep S seconds between images. |

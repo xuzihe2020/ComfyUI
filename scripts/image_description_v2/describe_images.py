@@ -46,6 +46,8 @@ from typing import Any
 DEFAULT_BASE_URL = "https://api.x.ai/v1"
 DEFAULT_MODEL = "grok-4.3"  # override with --model; must be a vision-capable Grok model
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
+PROMPT_VARIANT_STD = "std"
+PROMPT_VARIANT_MOSAIC = "mosaic"
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 MIME_BY_EXT = {
@@ -80,6 +82,13 @@ class GrokValidationError(ValueError):
 
 class ValidationRetriesExhausted(RuntimeError):
     """Raised when Grok keeps returning invalid JSON after all retry attempts."""
+
+
+def configure_stdio() -> None:
+    """Avoid Windows console crashes on non-ASCII image names."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
 
 
 def description_schema() -> dict[str, Any]:
@@ -136,6 +145,51 @@ def output_base(image: Path, input_dir: Path) -> str:
 def load_prompt(name: str, language: str) -> str:
     raw = (PROMPTS_DIR / name).read_text(encoding="utf-8")
     return raw.replace("{language}", language).strip()
+
+
+def prompt_names(enable_mosaic_version: bool) -> tuple[str, str, str]:
+    variant = PROMPT_VARIANT_MOSAIC if enable_mosaic_version else PROMPT_VARIANT_STD
+    return variant, f"grok_system_{variant}.txt", f"grok_user_{variant}.txt"
+
+
+def append_debug_log(
+    logs_path: Path | None,
+    image: Path,
+    attempt: int,
+    messages: list[dict[str, Any]],
+) -> None:
+    if logs_path is None:
+        return
+
+    safe_messages = []
+    for message in messages:
+        safe_message = {"role": message.get("role"), "content": message.get("content")}
+        content = safe_message["content"]
+        if not isinstance(content, list):
+            safe_messages.append(safe_message)
+            continue
+
+        safe_content = []
+        for part in content:
+            safe_part = dict(part)
+            if part.get("type") == "image_url":
+                url = part.get("image_url", {}).get("url", "")
+                safe_part["image_url"] = {
+                    "url": f"<data-uri omitted, {len(url)} chars>",
+                    "detail": part.get("image_url", {}).get("detail"),
+                }
+            safe_content.append(safe_part)
+        safe_message["content"] = safe_content
+        safe_messages.append(safe_message)
+
+    entry = {
+        "image": str(image),
+        "attempt": attempt,
+        "messages": safe_messages,
+    }
+    with logs_path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(entry, ensure_ascii=False, indent=2))
+        fh.write("\n\n")
 
 
 # --------------------------------------------------------------------------- #
@@ -298,12 +352,15 @@ def call_grok_with_validation(
     validation_retries: int,
     request_retries: int,
     timeout: int,
+    debug_logs_path: Path | None,
+    image: Path,
 ) -> dict[str, Any]:
     messages = initial_messages(system_prompt, user_prompt, image_data_uri)
     last_error = "unknown validation error"
     last_content = ""
 
     for attempt in range(0, validation_retries + 1):
+        append_debug_log(debug_logs_path, image, attempt + 1, messages)
         body = build_request_body(model=model, messages=messages, temperature=temperature)
         content = post_chat_completion(
             base_url=base_url,
@@ -379,6 +436,8 @@ def process_image(
             validation_retries=args.retries,
             request_retries=args.request_retries,
             timeout=args.timeout,
+            debug_logs_path=args.debug_logs_path,
+            image=image,
         )
     except ValidationRetriesExhausted as exc:
         print(f"  x fatal: {image.name}: {exc}", file=sys.stderr)
@@ -428,6 +487,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--request-retries", type=int, default=3, help="Total attempts per HTTP request on transient errors.")
     p.add_argument("--timeout", type=int, default=120, help="Per-request timeout in seconds.")
     p.add_argument("--sleep", type=float, default=0.0, help="Seconds to sleep between images.")
+    p.add_argument(
+        "--enable-mosaic-version",
+        action="store_true",
+        help="Use the mosaic prompt variant instead of the standard prompt variant.",
+    )
+    p.add_argument(
+        "--debug",
+        type=int,
+        choices=(0, 1),
+        default=0,
+        help="When 1, write prompts sent to Grok to logs.txt in the output directory.",
+    )
 
     p.add_argument(
         "--dry-run", action="store_true",
@@ -437,6 +508,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> int:
+    configure_stdio()
     args = parse_args(argv)
 
     input_dir: Path = args.input_dir
@@ -447,8 +519,10 @@ def main(argv: list[str] | None = None) -> int:
     output_dir: Path = args.output_dir or (input_dir / "descriptions")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    system_prompt = load_prompt("grok_system.txt", args.language)
-    user_prompt = load_prompt("grok_user.txt", args.language)
+    prompt_variant, system_prompt_name, user_prompt_name = prompt_names(args.enable_mosaic_version)
+    system_prompt = load_prompt(system_prompt_name, args.language)
+    user_prompt = load_prompt(user_prompt_name, args.language)
+    args.debug_logs_path = output_dir / "logs.txt" if args.debug else None
 
     images = image_paths(input_dir, args.recursive)
     if args.limit > 0:
@@ -458,7 +532,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"No images ({', '.join(sorted(IMAGE_EXTS))}) found in {input_dir}.", file=sys.stderr)
         return 1
 
-    print(f"Model: {args.model}   Images: {len(images)}   Output: {output_dir}")
+    print(
+        f"Model: {args.model}   Images: {len(images)}   Output: {output_dir}   "
+        f"Prompt variant: {prompt_variant}"
+    )
+    if args.debug_logs_path is not None:
+        print(f"Debug logs: {args.debug_logs_path}")
 
     if args.dry_run:
         print("\n--- DRY RUN: no Grok calls will be made ---")
@@ -472,6 +551,9 @@ def main(argv: list[str] | None = None) -> int:
     if not args.api_key:
         print("error: no API key. Set XAI_API_KEY or pass --api-key.", file=sys.stderr)
         return 2
+
+    if args.debug_logs_path is not None:
+        args.debug_logs_path.write_text("", encoding="utf-8")
 
     counts = {"done": 0, "skipped": 0, "error": 0}
     for i, image in enumerate(images, start=1):
