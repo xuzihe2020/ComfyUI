@@ -70,6 +70,8 @@ WORKFLOW_NODE_NAME_DENOISE = "Denoise"
 # API input names on the resolved nodes. These are socket/widget field names,
 # not node names.
 INPUT_IMAGE = "image"
+INPUT_CLEAN_NAME = "clean_name"
+INPUT_ROOT_DIR = "root_dir"
 INPUT_FILENAME_PREFIX = "filename_prefix"
 INPUT_TEXT = "text"
 INPUT_NOISE_SEED = "noise_seed"
@@ -372,6 +374,8 @@ def patch_prompt(
 
     patches = [
         (api_node(prompt, load_node), INPUT_IMAGE, str(image_path.resolve()), WORKFLOW_NODE_NAME_LOAD_IMAGE),
+        (api_node(prompt, load_node), INPUT_CLEAN_NAME, clean_image_name(image_path), WORKFLOW_NODE_NAME_LOAD_IMAGE),
+        (api_node(prompt, load_node), INPUT_ROOT_DIR, str(image_path.resolve().parent), WORKFLOW_NODE_NAME_LOAD_IMAGE),
         (api_node(prompt, save_node), INPUT_FILENAME_PREFIX, save_prefix, WORKFLOW_NODE_NAME_SAVE_OUTPUT_IMAGE),
         (api_node(prompt, prompt_node), INPUT_TEXT, prompt_text, WORKFLOW_NODE_NAME_CLIP_TEXT_ENCODE_PROMPT),
         (api_node(prompt, random_node), INPUT_NOISE_SEED, seed, WORKFLOW_NODE_NAME_RANDOM_NOISE),

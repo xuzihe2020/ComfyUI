@@ -249,20 +249,28 @@ async function pickLocalImage(node, pickerWidget) {
         console.warn("[LoadImage local file picker] Failed to pick local image", error);
     } finally {
         if (pickerWidget) {
-            pickerWidget.value = previousValue ?? "choose local source";
+            pickerWidget.value = previousValue ?? "choose file to upload";
         }
     }
 }
 
-function ensureLocalFilePickerButton(node) {
-    let widget = findWidget(node, "choose local source");
+function removeExtraLocalFilePickerButton(node) {
+    const widget = findWidget(node, "choose local source");
+    if (widget) {
+        node.widgets = node.widgets?.filter((candidate) => candidate !== widget);
+    }
+}
+
+function patchUploadButtonForLocalFilePicker(node) {
+    removeExtraLocalFilePickerButton(node);
+
+    let widget = findWidget(node, "upload");
     if (!widget) {
-        widget = node.addWidget("button", "choose local source", "choose local source", () => {
+        widget = node.addWidget("button", "upload", "choose file to upload", () => {
             pickLocalImage(node, widget);
         });
     } else {
-        widget.type = "button";
-        widget.value = "choose local source";
+        widget.value = "choose file to upload";
         widget.callback = () => pickLocalImage(node, widget);
     }
 
@@ -271,17 +279,6 @@ function ensureLocalFilePickerButton(node) {
         ...(widget.options ?? {}),
         local_file_picker: true,
     };
-
-    if (!widget._localFilePickerReordered) {
-        const uploadIndex = node.widgets.findIndex((candidate) => candidate.name === "upload");
-        const imageIndex = node.widgets.findIndex((candidate) => candidate.name === "image");
-        const insertIndex = uploadIndex >= 0 ? uploadIndex + 1 : imageIndex + 1;
-        if (insertIndex > 0) {
-            node.widgets = node.widgets.filter((candidate) => candidate !== widget);
-            node.widgets.splice(insertIndex, 0, widget);
-        }
-        widget._localFilePickerReordered = true;
-    }
 
     return widget;
 }
@@ -383,7 +380,7 @@ async function updateDerivedDisplay(node, reason = "update") {
 
 function setupLoadImageDerivedDisplay(node) {
     preserveImageWidgetValue(findWidget(node, "image"));
-    ensureLocalFilePickerButton(node);
+    patchUploadButtonForLocalFilePicker(node);
     const cleanNameWidget = ensureWidget(node, "clean_name");
     const rootDirWidget = ensureWidget(node, "root_dir");
 
