@@ -1,6 +1,7 @@
 {
   "favorites": [
     "workflows/example/img2img_mosaic_fix_flux_2.json",
-    "workflows/example/img2img_flux_2.json"
+    "workflows/example/img2img_flux_2.json",
+    "workflows/utility/manual_mask_create_save_png.json"
   ]
 }

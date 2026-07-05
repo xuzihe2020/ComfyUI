@@ -1346,6 +1346,57 @@
       ]
     },
     {
+      "id": 10,
+      "type": "CLIPTextEncode",
+      "pos": [
+        465.758706005174,
+        -18.722023317376067
+      ],
+      "size": [
+        430,
+        200
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 5
+        },
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "title": "CLIP Text Encode - Prompt",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "Medium low-angle shot of a beautiful Japanese woman with long black hair lying on her back on a bed in a dimly lit bedroom, legs spread wide and held open by two hands, naked body glistening, small breasts with erect nipples, face showing ecstasy with eyes closed and mouth open moaning, a thick erect penis penetrating deep into her exposed wet vagina, red bedsheets, warm lamp light, polka dot curtains, highly detailed realistic skin texture, sharp focus, photorealistic, cinematic lighting, no censorship\\nExtreme sharp detail, ultra realistic, 8khigh-resolution, no mosaic or censorship, no blur."
+      ]
+    },
+    {
       "id": 36,
       "type": "LoadImageMask",
       "pos": [
@@ -1399,6 +1450,7 @@
           ]
         }
       ],
+      "title": "Load Mask Image",
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
@@ -1408,57 +1460,6 @@
         "01-45-09.992_mask.png",
         "red",
         "image"
-      ]
-    },
-    {
-      "id": 10,
-      "type": "CLIPTextEncode",
-      "pos": [
-        465.758706005174,
-        -18.722023317376067
-      ],
-      "size": [
-        430,
-        200
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 5
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            6
-          ]
-        }
-      ],
-      "title": "CLIP Text Encode - Prompt",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "Medium low-angle shot of a beautiful Japanese woman with long black hair lying on her back on a bed in a dimly lit bedroom, legs spread wide and held open by two hands, naked body glistening, small breasts with erect nipples, face showing ecstasy with eyes closed and mouth open moaning, a thick erect penis penetrating deep into her exposed wet vagina, red bedsheets, warm lamp light, polka dot curtains, highly detailed realistic skin texture, sharp focus, photorealistic, cinematic lighting, no censorship\\nExtreme sharp detail, ultra realistic, 8khigh-resolution, no mosaic or censorship, no blur."
       ]
     }
   ],
@@ -1773,10 +1774,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.0127688860759207,
+      "scale": 1.3374355911063418,
       "offset": [
-        -942.2335331867043,
-        -628.6321890904503
+        1470.4903388548091,
+        -721.2443463959074
       ]
     }
   },
