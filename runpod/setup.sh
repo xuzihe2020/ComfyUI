@@ -52,7 +52,7 @@ echo "### 5/6  custom nodes via the repo's manifest installer"
 # and comfyui_controlnet_aux, whose native deps are force-installed via
 # ALWAYS_FIX_DEPENDENCIES). This is the repo's own clone+install path.
 cd "$COMFY"
-python script/install_custom_nodes.py
+python scripts/install_custom_nodes.py
 
 echo "### 6/6  verify NVIDIA / torch / CUDA"
 nvidia-smi || { echo "!! nvidia-smi failed — driver/GPU not visible"; exit 1; }
