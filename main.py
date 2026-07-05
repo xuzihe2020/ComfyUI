@@ -569,5 +569,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logging.info("\nStopped server")
     finally:
+        local_file_picker.shutdown_daemon()
         asset_seeder.shutdown()
         cleanup_temp()

@@ -15,6 +15,7 @@ PORT = int(os.environ.get("COMFYUI_LOCAL_FILE_PICKER_PORT", "31987"))
 BASE_URL = f"http://{HOST}:{PORT}"
 
 _started_process = None
+_shutdown_in_progress = False
 
 
 def _request_json(path, timeout=0.5):
@@ -72,26 +73,64 @@ def ensure_daemon():
     return False
 
 
-def shutdown_daemon():
-    global _started_process
-    if _started_process is None:
+def _wait_for_process(process, timeout):
+    deadline = time.monotonic() + timeout
+    while process.poll() is None:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False
+        try:
+            process.wait(timeout=min(remaining, 0.1))
+        except subprocess.TimeoutExpired:
+            pass
+        except KeyboardInterrupt:
+            logging.info("Interrupted while stopping local file picker daemon; forcing shutdown")
+            return False
+    return True
+
+
+def _force_stop_process(process):
+    if process.poll() is not None:
         return
 
     try:
+        process.terminate()
+    except OSError:
+        pass
+
+    if _wait_for_process(process, 1):
+        return
+
+    if process.poll() is None:
+        try:
+            process.kill()
+        except OSError:
+            pass
+
+    _wait_for_process(process, 1)
+
+
+def shutdown_daemon():
+    global _started_process, _shutdown_in_progress
+    if _shutdown_in_progress or _started_process is None:
+        return
+
+    _shutdown_in_progress = True
+    process = _started_process
+    _started_process = None
+
+    try:
         _request_json("/shutdown", timeout=0.25)
+    except KeyboardInterrupt:
+        logging.info("Interrupted while requesting local file picker daemon shutdown; forcing shutdown")
     except Exception:
         pass
 
     try:
-        _started_process.wait(timeout=2)
-    except subprocess.TimeoutExpired:
-        _started_process.terminate()
-        try:
-            _started_process.wait(timeout=2)
-        except subprocess.TimeoutExpired:
-            _started_process.kill()
+        if not _wait_for_process(process, 2):
+            _force_stop_process(process)
     finally:
-        _started_process = None
+        _shutdown_in_progress = False
 
 
 def pick_file(initial_dir=""):
