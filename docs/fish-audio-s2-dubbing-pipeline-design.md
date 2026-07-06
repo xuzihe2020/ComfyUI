@@ -9,8 +9,9 @@ target is a controlled test loop:
 
 ```text
 short source clip
-  -> source audio / reference voice
-  -> transcript and translation inputs
+  -> source audio (transcript + emotion reference only)
+  -> curated dubbing voice reference (person B, studio quality)
+  -> transcript and translation inputs with sentence-level emotion tags
   -> Fish Audio S2 voice-cloned target speech
   -> preview and saved audio
   -> optional mux back onto the clip
@@ -21,12 +22,13 @@ Once voice quality is proven on real clips, the pipeline can grow into:
 ```text
 video clip
   -> audio extraction
-  -> ASR with timestamps
+  -> ASR with start timestamps
   -> speaker segmentation
+  -> sentence-level emotion/tone extraction from source audio
   -> translation and line adaptation
-  -> emotion/style tagging
+  -> inline tag injection
   -> segment-level Fish S2 synthesis
-  -> duration alignment
+  -> start-anchored placement and overlap control
   -> mixdown
   -> lip sync or audio mux
 ```
@@ -35,8 +37,16 @@ video clip
 
 - Generate high-quality Chinese or English dubbed speech from Japanese source
   dialogue.
-- Preserve speaker timbre using short reference audio from the source clip.
-- Preserve or approximate emotional delivery using Fish S2 inline control tags.
+- Use a curated, studio-quality dubbing voice (person B) as the Fish S2 clone
+  reference instead of extracting reference audio from the source clip. Clean
+  person B references are easier to obtain and clone more stably than noisy
+  in-clip audio with BGM and overlapping dialogue.
+- Approximate the source performance's emotional delivery by extracting
+  sentence-level emotion, tone, pacing, and vocalization cues from the raw
+  source audio and injecting them into the target text as Fish S2 inline
+  control tags. Raw audio cannot be passed to Fish S2 as an emotion signal, so
+  inline tags are the emotion channel. Coarse but correct beats precise but
+  wrong.
 - Keep ComfyUI as the preview and model execution surface where practical.
 - Keep brittle production logic, such as timeline assembly and validation, in
   repo-controlled scripts.
@@ -49,6 +59,11 @@ video clip
 
 ## Non-Goals For The First Milestone
 
+- Cloning the original in-clip speaker's voice. The dubbing voice is a curated
+  person B reference; original-speaker timbre preservation can be revisited
+  later.
+- Frame-accurate end timestamps or exact source-duration matching. Only start
+  timestamps must be accurate; see the timing section.
 - Fully automatic speaker diarization.
 - Fully automatic translation quality control.
 - Full lip-sync video regeneration.
@@ -244,10 +259,10 @@ Purpose:
 Inputs:
 
 - short source clip
-- a clean 10-30 second reference audio sample for one speaker
-- reference transcript in the original language
+- a clean, studio-quality 10-30 second dubbing voice sample (person B)
+- reference transcript matching the dubbing voice sample
 - target text in Chinese or English
-- optional Fish S2 inline tags
+- optional Fish S2 inline tags from manually listening to the source line
 
 ComfyUI workflow:
 
@@ -434,12 +449,25 @@ Canonical data model:
       "emotion": {
         "label": "angry",
         "intensity": 0.65,
-        "tags": ["angry but controlled", "low voice"]
+        "tags": ["angry but controlled", "low voice"],
+        "confidence": 0.82,
+        "source": "model"
       }
     }
   ]
 }
 ```
+
+Data model notes:
+
+- `start` is the placement anchor and must be accurate.
+- `end` is informational. It is used to compute the overlap budget (the gap to
+  the next segment's start), not as a hard duration target for the generated
+  audio.
+- `emotion` is sentence-level source-performance data extracted from the raw
+  audio by the emotion extraction stage and drives inline tag injection.
+  `source` records who produced it (`model`, `model_llm`, or
+  `human_corrected`); `confidence` drives the correction queue.
 
 Segment synthesis loop:
 
@@ -449,8 +477,8 @@ for each segment:
   queue Fish S2 voice clone workflow
   save segment wav/flac
   measure generated duration
-  compare to source segment duration
-  retry or mark for alignment
+  compare to the overlap budget (gap to the next segment start)
+  retry or mark for adjustment only when the budget is exceeded
 ```
 
 Mixdown loop:
@@ -458,8 +486,9 @@ Mixdown loop:
 ```text
 create silent base track with source clip duration
 place generated segment audio at segment.start
+check each segment against the next segment's start for overlap
 apply optional gain normalization
-apply optional time-stretch for small duration mismatches
+apply optional time-stretch only when a segment overruns its overlap budget
 export dubbed_track.wav
 ```
 
@@ -473,6 +502,20 @@ This assembly logic should be a script, not a ComfyUI workflow. It needs
 repeatable timeline math, duration checks, retry policy, and logging.
 
 ## ASR And Translation Strategy
+
+### Transcript Requirements
+
+Priority order for the ASR stage:
+
+1. Text capture accuracy. The transcript must capture the spoken dialog as
+   completely and correctly as possible: no dropped lines, minimal
+   hallucinated text, sensible sentence segmentation.
+2. Start timestamp accuracy. Each transcript line must be pinned to the
+   correct starting point in the source audio, because start timestamps drive
+   segment placement in the mixdown.
+3. End timestamps are informational only. Dubbed lines in another language
+   will not match source durations anyway, so end times are used only to
+   compute the overlap budget, never as a synthesis target.
 
 ### Initial Manual Mode
 
@@ -501,9 +544,12 @@ Useful nodes/features:
 - SRT export
 - subtitle preview
 
-Alternative:
+Alternatives:
 
 - repo script using `faster-whisper`
+- repo script using `SenseVoice` (FunAudioLLM), which also emits
+  utterance-level emotion and audio-event labels alongside the transcript and
+  can cover part of source emotion extraction in the same pass
 
 Prefer the script route for production because the transcript becomes structured
 pipeline data, not only a ComfyUI node output.
@@ -567,6 +613,104 @@ The adaptation prompt should ask for:
 Fish S2 supports inline tags. The pipeline should treat these as data, not as
 random prose appended by hand.
 
+### Source Emotion Extraction
+
+Fish S2 cannot take the raw source audio as an emotion input, and with a
+person B clone reference the source performance is not in the reference
+either, so inline tags are the only emotion channel. The pipeline therefore
+needs a sentence-level extraction step that turns the source performance into
+structured emotion data:
+
+```text
+source segment audio
+  -> emotion label + intensity
+  -> tone / pacing / vocalization notes (whisper, shouting, laugh, sigh, ...)
+  -> segment.emotion in the dubbing plan
+  -> inline tags in the target text
+```
+
+Accuracy requirements are deliberately loose: capture the core emotion and the
+obvious delivery features at sentence level. A coarse correct label beats a
+fine-grained wrong one.
+
+Extraction is model-driven by design. Manual human work is a correction pass
+over model output, never the authoring path: the pipeline must produce
+`segment.emotion` automatically for every segment, and a human reviews or
+fixes only flagged or low-confidence segments in the diffable
+`dubbing_plan.json`. Hand-written tags appear only in the Phase 1 smoke test
+and the suggested first test, where the object under test is Fish S2 itself,
+not the extraction stage.
+
+#### Option A: Specialist SER Stack (local, deterministic, cheapest)
+
+Combine purpose-built models plus signal features, all local and fast:
+
+- `SenseVoice-Small` (FunAudioLLM): ASR + speech emotion recognition + audio
+  event detection in one non-autoregressive pass; trained on zh/yue/en/ja/ko;
+  emits utterance-level emotion labels (happy/sad/angry/neutral/...) and
+  event labels (laughter, crying). It can double as the transcription engine,
+  so emotion labels ride the ASR pass for free.
+- `emotion2vec+` (FunASR): dedicated 9-class speech emotion recognition with
+  confidence scores; run per segment as a second opinion or replacement.
+- Acoustic features (librosa / openSMILE) mapped mechanically to tags:
+  RMS energy percentile -> `[whisper]` / `[low voice]` / `[shouting]`;
+  pitch statistics -> `[pitch up]` / `[pitch down]`;
+  speech rate vs the clip's baseline -> pacing tags;
+  audio-event detection -> `[laugh]` / `[sigh]` vocalization tags.
+
+Strengths: free, offline, deterministic, easily rerunnable. Limits: coarse
+categorical emotion only; cannot produce nuanced tone descriptions such as
+`[sarcastic tone]`.
+
+#### Option B: Audio-Capable LLM (richest output)
+
+Send each segment's audio to an audio-understanding LLM with a structured
+prompt that constrains output to the tag taxonomy below plus intensity and
+confidence fields:
+
+- Local: `Qwen3-Omni` (30B-A3B Instruct; understands tone, emotion, and
+  paralinguistic context; heavy on VRAM) or a smaller audio captioner.
+- API: Gemini audio understanding or an OpenAI-compatible audio model. The
+  repo already has a minimal stdlib OpenAI-style client pattern to mirror
+  (`tools/lora_data_generator/components/openai_client.py`), so the API route
+  needs no new SDK dependency.
+
+Strengths: captures emotion, tone, pacing, and vocalization in one call, and
+the output maps directly onto the tag schema. Limits: hallucination risk
+(output must be schema-constrained, never free prose), API cost and privacy
+for the hosted route, VRAM for the local route.
+
+#### Option C: Hybrid Cascade (recommended)
+
+Run Option A on every segment as the baseline, and escalate to Option B only
+where it earns its cost:
+
+```text
+for each segment:
+  SenseVoice/emotion2vec label + confidence
+  acoustic features -> volume/pacing/vocalization tags
+  if confidence is low, signals conflict, or the segment is marked important:
+    audio LLM pass, schema-constrained
+  write segment.emotion { label, intensity, tags, confidence, source }
+segments below the confidence threshold -> flagged for human correction
+```
+
+This keeps the majority of segments fully automatic and local, spends LLM
+calls only on ambiguous or dramatically important lines, and gives the human
+reviewer a short, ranked correction list instead of an authoring job.
+
+Suggested later file:
+
+```text
+scripts/audio_dubbing/extract_emotion.py
+```
+
+It runs after transcription, reads `transcript.json` plus segment audio, and
+writes `segment.emotion` into the dubbing plan.
+
+Keep extraction output inside the tag taxonomy below so tag injection stays a
+mechanical mapping instead of free-form prose.
+
 Useful tag categories:
 
 - emotion:
@@ -618,12 +762,17 @@ Avoid over-tagging. Too many tags can make output unstable or theatrical.
 
 Reference quality is critical.
 
+The clone reference is a curated dubbing voice (person B), not audio extracted
+from the source clip. Studio-quality person B samples are easier to obtain,
+more stable to clone, and reusable across clips and episodes. The source clip
+audio is used only for transcripts and emotion extraction.
+
 Preferred reference clip:
 
 - 10-30 seconds.
-- Single speaker.
-- Minimal background music.
-- Minimal overlapping dialogue.
+- Single speaker, studio or near-studio recording quality.
+- No background music.
+- No overlapping dialogue.
 - Similar emotional range to the desired output.
 - Contains natural speech, not only shouting or whispering.
 
@@ -754,11 +903,19 @@ The runner should validate every patched input exists before queueing.
 
 This mirrors the existing Flux runners and saves GPU time.
 
-## Duration Alignment
+## Timing: Start-Anchored Placement
 
-Fish S2 is not guaranteed to match the original segment duration exactly.
+Fish S2 is not guaranteed to match the original segment duration, and dubbed
+languages differ in natural length anyway, so the pipeline does not chase
+exact source-duration matching.
 
-Use three alignment levels:
+Primary rule: pin every generated segment to its source `start` timestamp.
+
+The only hard timing constraint is the overlap budget: a generated segment
+should not run past the next segment's start (plus a small tolerance).
+Duration mismatch inside that budget is accepted.
+
+When a segment exceeds its overlap budget, use three correction levels:
 
 ### Level 1: Translation Length Control
 
@@ -781,11 +938,11 @@ If generated audio is too long or too short, retry with tags:
 
 Apply signal processing only for small corrections.
 
-Suggested policy:
+Suggested policy for budget overruns:
 
-- within 5 percent: leave as-is or lightly stretch
-- 5-12 percent: time-stretch
-- above 12 percent: regenerate or rewrite line
+- within 5 percent over budget: leave as-is or lightly stretch
+- 5-12 percent over: time-stretch
+- above 12 percent over: regenerate or rewrite the line
 
 Avoid aggressive time-stretching. It damages naturalness.
 
@@ -907,17 +1064,23 @@ Acceptance:
 - Generated segment audio becomes a single dubbed track.
 - Dubbed track is muxed into the source clip.
 
-### Milestone 6: ASR And Translation
+### Milestone 6: ASR, Emotion Extraction, And Translation
 
 Changes:
 
-- Add Faster-Whisper or ComfyUI-Whisper transcription path.
+- Add Faster-Whisper, SenseVoice, or ComfyUI-Whisper transcription path.
+- Add model-driven sentence-level source emotion extraction
+  (`scripts/audio_dubbing/extract_emotion.py`, hybrid cascade), with
+  low-confidence segments flagged for human correction.
 - Add translation/adaptation script.
 
 Acceptance:
 
-- Source clip produces timestamped transcript JSON.
-- Transcript becomes target-language dubbing plan.
+- Source clip produces transcript JSON with accurate text and accurate start
+  timestamps.
+- Every segment carries model-produced emotion data with `confidence` and
+  `source` fields; human edits are corrections to flagged segments only.
+- Transcript becomes a target-language dubbing plan with injected inline tags.
 
 ### Milestone 7: Lip Sync
 
@@ -965,7 +1128,9 @@ Risk:
 
 Mitigation:
 
-- Curate references per speaker.
+- Use curated studio-quality person B dubbing voices, never noisy in-clip
+  audio.
+- Curate references per character.
 - Store reference transcripts.
 - Avoid overlapping dialogue and background music.
 
@@ -973,14 +1138,15 @@ Mitigation:
 
 Risk:
 
-- Generated speech duration does not fit original video timing.
+- Generated speech overruns the gap to the next line and segments overlap.
 
 Mitigation:
 
-- Segment-level generation.
+- Segment-level generation pinned to source start timestamps.
+- Overlap budget check in the mixdown script.
 - Translation length control.
 - Retry policy.
-- Light time-stretch only for small differences.
+- Light time-stretch only for small overruns.
 
 ### Over-Tagged Speech
 
@@ -1010,8 +1176,10 @@ Mitigation:
 ## Suggested First Test
 
 1. Clip a 15-30 second Japanese conversation sample.
-2. Extract or create one clean 10-30 second reference audio per speaker.
-3. Manually transcribe the reference audio.
+2. Pick one clean, studio-quality 10-30 second dubbing voice sample
+   (person B) per character, with a matching transcript.
+3. Manually note sentence-level emotion, tone, and pacing from the source
+   line.
 4. Manually write one Chinese and one English target line.
 5. Run the Fish S2 voice clone workflow.
 6. Try three tag variants:
