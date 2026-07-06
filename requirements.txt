@@ -44,3 +44,10 @@ funasr>=1.1.5
 soundfile
 huggingface_hub
 imageio-ffmpeg
+
+# --- repo-specific: LoRA data face verification (tools/lora_data_generator) ---
+# ArcFace identity scoring of generated images vs the primary character
+# reference; runs on the onnxruntime pulled in by funasr above. Needs cv2,
+# which the ComfyUI/custom-node environment already provides (install
+# opencv-python only if `import cv2` fails in a fresh venv).
+insightface

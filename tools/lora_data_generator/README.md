@@ -24,14 +24,35 @@ rewrite the prompt before the image model sees it.
 ## Layout
 
 ```
-main.py                       CLI entry point; --mode flux2-max | gpt-image-2
+main.py                       CLI entry point; --mode flux2-max | gpt-image-2 | verify
 tool_lib/paths.py             repo root + JSON helpers
 tool_lib/jobs.py              job JSON normalization, field access, output naming
 tool_lib/references.py        reference path resolution, ordering, limits
 tool_lib/prompting.py         the shared prompt builder (single source of truth)
 components/flux2_max_runner.py  FLUX.2 Max pipeline (direct BFL API)
 components/gpt_image2_runner.py GPT Image 2 pipeline (sync + batch + fetch)
+components/face_verify.py     ArcFace face-identity scoring (post-gen + verify mode)
 ```
+
+## Face similarity
+
+After every generation (both pipelines, sync and batch fetch), each saved
+image is scored against the item's **primary character reference** (the first
+`character_reference_images` entry) with ArcFace cosine similarity and printed
+as `<image name>: <score>` (>0.5 same person, 0.3–0.5 borderline, <0.3
+different). Scores land in the per-request debug logs as `face_similarity`.
+Scoring is best-effort: no face / missing insightface prints a note and never
+fails the run.
+
+Utility mode — score any two images without generating:
+
+```
+python tools/lora_data_generator/main.py --mode verify --images a.png b.png
+```
+
+The InsightFace model pack (~330 MB) downloads once to `~/.insightface/`;
+use `--face-model-root` (or `FACE_MODEL_ROOT` in `.env`) to keep it in an
+external models folder.
 
 API clients live in the repo-root `lib/llm_client/` package (BFL and OpenAI
 clients subclass `lib/llm_client/base.py`), and .env/API-key loading in

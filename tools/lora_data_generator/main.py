@@ -38,6 +38,15 @@ GPT Image 2 through the Batch API, submit now and fetch later:
     python tools/lora_data_generator/main.py --mode gpt-image-2 \
         --fetch-batch batch_abc123
 
+After generation, every saved image is face-scored (ArcFace cosine similarity)
+against the item's primary character reference — the first character reference
+image — printed as `<image name>: <score>` and written to the debug log.
+
+Face-verify two images without generating anything (utility mode):
+
+    python tools/lora_data_generator/main.py --mode verify \
+        --images ref_closeup.png generated_fullbody.png
+
 See tools/lora_data_generator/README.md for the input JSON format and details.
 """
 
@@ -53,11 +62,11 @@ _TOOL_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(_TOOL_DIR.parents[1]))
 sys.path.insert(0, str(_TOOL_DIR))
 
-from components import flux2_max_runner, gpt_image2_runner  # noqa: E402
+from components import face_verify, flux2_max_runner, gpt_image2_runner  # noqa: E402
 from lib.envfile import DEFAULT_ENV_FILE, env_api_key, load_env_file  # noqa: E402
 from lib.llm_client import BFLClient, OpenAIClient  # noqa: E402
 
-MODES = ("flux2-max", "gpt-image-2")
+MODES = ("flux2-max", "gpt-image-2", "verify")
 
 # Default output size for both pipelines: 2:3 portrait.
 DEFAULT_WIDTH = 1024
@@ -73,7 +82,17 @@ def build_parser() -> argparse.ArgumentParser:
         prog="lora_data_generator",
         description="Generate synthetic LoRA training images via FLUX.2 Max (BFL API) or GPT Image 2 (OpenAI API).",
     )
-    parser.add_argument("--mode", choices=MODES, required=True, help="Which generation backend to use.")
+    parser.add_argument(
+        "--mode",
+        choices=MODES,
+        required=True,
+        help="Generation backend, or 'verify' to face-score two images without generating.",
+    )
+    parser.add_argument(
+        "--face-model-root",
+        help="Directory for the InsightFace model pack (~330 MB); models land under "
+        "<root>/models/buffalo_l. Default: ~/.insightface (or FACE_MODEL_ROOT in .env).",
+    )
     parser.add_argument("--input-json", type=Path, help="Job JSON (single object, list, or items/jobs/prompts).")
     parser.add_argument("--limit", type=int, help="Process at most N jobs. Default: unlimited.")
     parser.add_argument(
@@ -150,11 +169,27 @@ def build_parser() -> argparse.ArgumentParser:
     gpt.add_argument("--fetch-batch", metavar="BATCH_ID", help="Fetch results of a previously submitted batch and exit.")
     gpt.add_argument("--base-url", default=OpenAIClient.DEFAULT_BASE_URL, help="OpenAI API base URL.")
 
+    verify = parser.add_argument_group("verify options (face similarity utility)")
+    verify.add_argument(
+        "--images",
+        nargs=2,
+        type=Path,
+        metavar=("IMAGE_A", "IMAGE_B"),
+        help="Two images to face-score against each other (--mode verify).",
+    )
+
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+
+    if args.mode == "verify":
+        if not args.images:
+            raise SystemExit("--mode verify requires --images IMAGE_A IMAGE_B.")
+        load_env_file(args.env_file)  # picks up FACE_MODEL_ROOT if set
+        return face_verify.verify_pair(args.images[0], args.images[1], args.face_model_root)
+
     if args.limit is not None and args.limit < 1:
         raise SystemExit("--limit must be positive when provided.")
     if args.repeat < 1:

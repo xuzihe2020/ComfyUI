@@ -26,6 +26,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from components import face_verify
 from lib.llm_client import BFLClient
 from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_stem, normalize_items
 from tool_lib.paths import load_json, resolve_repo_path, unique_path
@@ -70,8 +71,9 @@ def write_log(log_dir: Path, name: str, payload: dict[str, Any]) -> Path:
 
 
 def run(args: argparse.Namespace) -> int:
-    # API keys are loaded from .env and resolved by main.py.
-    client = BFLClient(args.flux_api_key, base_url=args.bfl_base_url)
+    # API keys are loaded from .env and resolved by main.py. Dry runs never
+    # call the API and may run without a key, so build the client lazily.
+    client = None if args.dry_run else BFLClient(args.flux_api_key, base_url=args.bfl_base_url)
 
     input_json = resolve_repo_path(args.input_json)
     items = normalize_items(load_json(input_json))
@@ -169,6 +171,11 @@ def run(args: argparse.Namespace) -> int:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
 
+            print(f"[{run_index}/{total_runs}] done {base_stem}{repeat_text}: saved {target.name} in {output_dir}{log_text}")
+            face_entries = face_verify.score_saved_images(
+                refs, [target], getattr(args, "face_model_root", None)
+            )
+
             if log_path:
                 log_payload.update(
                     {
@@ -177,10 +184,10 @@ def run(args: argparse.Namespace) -> int:
                         "input_mp": submitted.get("input_mp"),
                         "output_mp": submitted.get("output_mp"),
                         "saved_images": [str(target)],
+                        "face_similarity": face_entries,
                     }
                 )
                 write_log(log_dir, log_path.name, log_payload)
-            print(f"[{run_index}/{total_runs}] done {base_stem}{repeat_text}: saved {target.name} in {output_dir}{log_text}")
 
     if not args.dry_run and total_cost:
         print(f"total billed cost reported by BFL: {round(total_cost, 6)}")

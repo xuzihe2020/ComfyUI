@@ -39,6 +39,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from components import face_verify
 from lib.llm_client import OpenAIClient
 from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_stem, normalize_items
 from tool_lib.paths import load_json, resolve_repo_path, unique_path
@@ -296,7 +297,8 @@ def run_sync(args: argparse.Namespace) -> int:
     runs, _ = build_runs(args, transport="sync")
     log_dir = resolve_repo_path(args.log_dir or DEFAULT_LOG_DIR)
     encoder = RefEncoder()
-    client = make_client(args)
+    # Dry runs never call the API and may run without a key.
+    client = None if args.dry_run else make_client(args)
     total_cost = 0.0
     total_cached = 0
 
@@ -338,20 +340,23 @@ def run_sync(args: argparse.Namespace) -> int:
         total_cached += cached
         if cost is not None:
             total_cost += cost
+
+        cost_text = f", est ${cost:.4f}" if cost is not None else ""
+        cached_text = f", cached {cached} tok" if cached else ""
+        names = ", ".join(path.name for path in saved) or "none"
+        print(f"{label} done {run['stem']} ({summary} refs): saved {names}{cost_text}{cached_text}")
+        face_entries = face_verify.score_saved_images(refs, saved, getattr(args, "face_model_root", None))
+
         if log_path:
             run["log_payload"].update(
                 {
                     "usage": usage,
                     "estimated_cost_usd": cost,
                     "saved_images": [str(path) for path in saved],
+                    "face_similarity": face_entries,
                 }
             )
             write_log(log_dir, log_path.name, run["log_payload"])
-
-        cost_text = f", est ${cost:.4f}" if cost is not None else ""
-        cached_text = f", cached {cached} tok" if cached else ""
-        names = ", ".join(path.name for path in saved) or "none"
-        print(f"{label} done {run['stem']} ({summary} refs): saved {names}{cost_text}{cached_text}")
 
     if not args.dry_run and total_cost:
         print(f"total estimated cost: ${total_cost:.4f} (cached input tokens: {total_cached})")
@@ -530,14 +535,27 @@ def fetch_results(client: OpenAIClient, batch: dict[str, Any], batch_dir: Path |
             total_cached += cached
             if cost is not None:
                 total_cost += cost
+            stem_text = entry.get("output_stem") or custom_id
+            print(f"saved {stem_text}: {len(saved)} image(s)" + (f", est ${cost:.4f}" if cost is not None else ""))
+            # The batch manifest recorded the reference list at submit time.
+            character_reference = next(
+                (
+                    Path(ref["path"])
+                    for ref in entry.get("references") or []
+                    if ref.get("kind") == "character" and ref.get("path")
+                ),
+                None,
+            )
+            face_entries = face_verify.score_against_reference(
+                character_reference, saved, getattr(args, "face_model_root", None)
+            )
             results_log[custom_id] = {
                 "stem": entry.get("output_stem"),
                 "saved_images": [str(path) for path in saved],
                 "usage": usage,
                 "estimated_cost_usd": cost,
+                "face_similarity": face_entries,
             }
-            stem_text = entry.get("output_stem") or custom_id
-            print(f"saved {stem_text}: {len(saved)} image(s)" + (f", est ${cost:.4f}" if cost is not None else ""))
 
     error_file_id = batch.get("error_file_id")
     if error_file_id:
