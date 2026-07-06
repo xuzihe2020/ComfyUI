@@ -10,6 +10,7 @@ import av
 
 from components.frame_sampler import get_duration
 from lib.logging_utils import get_logger
+from lib.path_utils import safe_output_stem
 from lib.timecode import format_for_filename, format_timecode
 
 logger = get_logger(__name__)
@@ -79,9 +80,10 @@ def export_video_clips(
             duration = get_duration(container, video_stream)
             result.duration = duration
 
-            target_dir = out_dir / video.stem if params.per_video_subdir else out_dir
+            output_stem = safe_output_stem(video.stem)
+            target_dir = out_dir / output_stem if params.per_video_subdir else out_dir
             target_dir.mkdir(parents=True, exist_ok=True)
-            prefix = "" if params.per_video_subdir else f"{video.stem}_"
+            prefix = "" if params.per_video_subdir else f"{output_stem}_"
 
             for clip in clips:
                 if not _clip_has_video_span(clip, duration, result):

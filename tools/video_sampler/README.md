@@ -105,7 +105,9 @@ python tools/video_sampler/main.py /data/videos -o out \
 
 ### Output Layout
 
-By default each video gets its own subdirectory.
+By default each video gets its own subdirectory. The subdirectory name is derived
+from the video stem, with Windows-unsafe characters and trailing spaces/dots
+sanitized.
 
 Sample mode filenames are the frame timestamp (`HH-MM-SS.mmm.<ext>`, `.png` or
 `.jpg`), so they sort chronologically:
@@ -126,8 +128,8 @@ out/
     clip_000_00-01-00.000_00-05-20.000.webm
 ```
 
-With `--flat`, files go directly in the output dir and are prefixed by the video
-stem.
+With `--flat`, files go directly in the output dir and are prefixed by the
+sanitized video stem.
 
 ## Layout
 
