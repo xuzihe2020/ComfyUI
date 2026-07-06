@@ -13,8 +13,8 @@ with usage visible in the vendor consoles (dashboard.bfl.ai / platform.openai.co
 The old ComfyUI canvas workflow under `user/default/workflows/prod/lora_references/`
 still works interactively in the GUI, but this tool no longer uses it.
 
-Prompt construction (`lib/prompting.py`) and reference-image resolution and
-indexing (`lib/references.py`) are shared by both pipelines. A run with the
+Prompt construction (`tool_lib/prompting.py`) and reference-image resolution and
+indexing (`tool_lib/references.py`) are shared by both pipelines. A run with the
 same `--input-json` sends **byte-identical prompt text** and the **same
 reference images in the same order** to both models, so output comparisons are
 apples-to-apples. The GPT pipeline deliberately uses the Images API rather than
@@ -25,16 +25,17 @@ rewrite the prompt before the image model sees it.
 
 ```
 main.py                       CLI entry point; --mode flux2-max | gpt-image-2
-lib/paths.py                  repo root + JSON helpers
-lib/envfile.py                .env loading, API key lookup
-lib/jobs.py                   job JSON normalization, field access, output naming
-lib/references.py             reference path resolution, ordering, limits
-lib/prompting.py              the shared prompt builder (single source of truth)
-components/bfl_client.py      stdlib BFL REST client (submit, poll, download)
+tool_lib/paths.py             repo root + JSON helpers
+tool_lib/jobs.py              job JSON normalization, field access, output naming
+tool_lib/references.py        reference path resolution, ordering, limits
+tool_lib/prompting.py         the shared prompt builder (single source of truth)
 components/flux2_max_runner.py  FLUX.2 Max pipeline (direct BFL API)
-components/openai_client.py   stdlib OpenAI REST client (images, files, batches)
 components/gpt_image2_runner.py GPT Image 2 pipeline (sync + batch + fetch)
 ```
+
+API clients live in the repo-root `lib/llm_client/` package (BFL and OpenAI
+clients subclass `lib/llm_client/base.py`), and .env/API-key loading in
+`lib/envfile.py` — both shared by all repo scripts and tools.
 
 No third-party dependencies; runs with the repo venv python.
 

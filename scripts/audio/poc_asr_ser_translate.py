@@ -12,10 +12,9 @@ docs/fish-audio-s2-dubbing-pipeline-design.md:
     SenseVoice-Small per segment (emotion label + events such as laughter/BGM),
     optionally emotion2vec+ as a second opinion with a confidence score.
     Disagreement between the two models flags the segment for human review.
- 4. Translate segments to Chinese with Grok (xAI, OpenAI-compatible endpoint;
-    stdlib HTTP, no SDK — same conventions as scripts/image_description_v2/
-    describe_images.py). Auth via the XAI_API_KEY environment variable.
-    Skipped with a warning when no API key is set.
+ 4. Translate segments to Chinese with Grok through the shared repo client
+    (lib.llm_client). Auth via XAI_API_KEY from the environment or the
+    repo-root .env. Skipped with a warning when no API key is set.
 
 Outputs (under --out-dir, default data/dubbing/<clip stem>/):
     transcript.json   segments with start/end, source/target text, emotion
@@ -40,16 +39,17 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import shutil
 import subprocess
 import sys
-import urllib.error
-import urllib.request
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+
+from lib.envfile import env_value  # noqa: E402
+from lib.llm_client import GrokClient  # noqa: E402
 
 # SenseVoice rich-transcription tokens, e.g. "<|ja|><|ANGRY|><|Speech|>text".
 SENSEVOICE_TAG_RE = re.compile(r"<\|([^|]+)\|>")
@@ -320,24 +320,6 @@ Rules:
 TARGET_LANGUAGE_NAMES = {"zh": "Simplified Chinese", "en": "English"}
 
 
-def chat_completions(base_url: str, api_key: str, payload: dict, timeout: int = 180) -> dict:
-    request = urllib.request.Request(
-        base_url.rstrip("/") + "/chat/completions",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            return json.loads(response.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"chat API error {exc.code}: {detail[:2000]}") from exc
-
-
 def parse_llm_json(content: str) -> dict:
     content = content.strip()
     if content.startswith("```"):
@@ -347,9 +329,10 @@ def parse_llm_json(content: str) -> dict:
 
 
 def translate_segments(segments: list[dict], args: argparse.Namespace) -> dict:
-    api_key = os.environ.get(args.api_key_env, "")
+    api_key = env_value(args.api_key_env)
     if not api_key:
-        log(f"[translate] WARNING: {args.api_key_env} is not set; skipping translation")
+        log(f"[translate] WARNING: {args.api_key_env} is not set (env or repo .env); "
+            "skipping translation")
         return {"status": "skipped: no API key"}
 
     lines = [
@@ -374,9 +357,8 @@ def translate_segments(segments: list[dict], args: argparse.Namespace) -> dict:
     }
 
     log(f"[translate] {len(lines)} segments -> {target_name} via {args.llm_model}")
-    response = chat_completions(args.llm_base_url, api_key, payload)
-    content = response["choices"][0]["message"]["content"]
-    translated = parse_llm_json(content)
+    grok = GrokClient(api_key, base_url=args.llm_base_url, timeout=180)
+    translated = parse_llm_json(grok.chat_text(payload))
 
     by_id = {
         entry["id"]: entry.get("target_text")
@@ -494,10 +476,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--emotion2vec-size", default="base", choices=("base", "large"))
     parser.add_argument("--model-hub", default="hf", choices=("hf", "ms"),
                         help="Model download hub for funasr models (default: hf).")
-    parser.add_argument("--llm-base-url", default="https://api.x.ai/v1",
+    parser.add_argument("--llm-base-url", default=GrokClient.DEFAULT_BASE_URL,
                         help="OpenAI-compatible API base URL (default: xAI).")
-    parser.add_argument("--llm-model", default="grok-4.3",
-                        help="Chat model for translation (default: grok-4.3).")
+    parser.add_argument("--llm-model", default=GrokClient.DEFAULT_MODEL,
+                        help=f"Chat model for translation (default: {GrokClient.DEFAULT_MODEL}).")
     parser.add_argument("--api-key-env", default="XAI_API_KEY",
                         help="Env var holding the API key (default: XAI_API_KEY).")
     return parser.parse_args()

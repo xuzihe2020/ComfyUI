@@ -13,19 +13,20 @@ import argparse
 import base64
 import json
 import mimetypes
-import os
 import sys
 import time
-import urllib.error
-import urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
 
-DEFAULT_MODEL = "gemini-2.5-flash"
-DEFAULT_API_URL = "https://generativelanguage.googleapis.com/v1beta"
+from lib.envfile import env_value  # noqa: E402
+from lib.llm_client import APIError, GeminiClient  # noqa: E402
+
+
 DEFAULT_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
 DEFAULT_RENDERING_STYLE = (
     "3D Unity CG rendering style, like a game environment rendered in Unity, "
@@ -294,11 +295,13 @@ def parse_args() -> Settings:
     )
     parser.add_argument(
         "--api-key",
-        default=os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"),
-        help="Gemini API key. Defaults to GEMINI_API_KEY or GOOGLE_API_KEY.",
+        default=env_value("GEMINI_API_KEY", "GOOGLE_API_KEY"),
+        help="Gemini API key. Defaults to GEMINI_API_KEY or GOOGLE_API_KEY (env or repo .env).",
     )
-    parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Gemini model. Default: {DEFAULT_MODEL}")
-    parser.add_argument("--api-url", default=DEFAULT_API_URL, help=f"Gemini API base URL. Default: {DEFAULT_API_URL}")
+    parser.add_argument("--model", default=GeminiClient.DEFAULT_MODEL,
+                        help=f"Gemini model. Default: {GeminiClient.DEFAULT_MODEL}")
+    parser.add_argument("--api-url", default=GeminiClient.DEFAULT_BASE_URL,
+                        help=f"Gemini API base URL. Default: {GeminiClient.DEFAULT_BASE_URL}")
     parser.add_argument("--recursive", action="store_true", help="Scan input_dir recursively.")
     parser.add_argument("--overwrite", action="store_true", help="Reprocess images with existing JSON outputs.")
     parser.add_argument("--dry-run", action="store_true", help="List work without calling Gemini.")
@@ -421,53 +424,15 @@ def gemini_payload(image_path: Path) -> dict[str, Any]:
 
 
 def call_gemini(settings: Settings, image_path: Path) -> dict[str, Any]:
-    url = f"{settings.api_url}/models/{settings.model}:generateContent"
-    headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": settings.api_key,
-    }
-    body = json.dumps(gemini_payload(image_path)).encode("utf-8")
-
-    last_error: Exception | None = None
-    for attempt in range(1, settings.retries + 1):
-        try:
-            request = urllib.request.Request(
-                url,
-                data=body,
-                headers=headers,
-                method="POST",
-            )
-            with urllib.request.urlopen(request, timeout=settings.timeout_seconds) as response:
-                return json.loads(response.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:
-            error_text = exc.read().decode("utf-8", errors="replace")
-            if exc.code not in {429, 500, 502, 503, 504}:
-                raise RuntimeError(f"HTTP {exc.code}: {error_text[:1000]}") from exc
-            last_error = RuntimeError(f"HTTP {exc.code}: {error_text[:1000]}")
-        except Exception as exc:  # noqa: BLE001 - CLI should report the final error.
-            last_error = exc
-        if attempt >= settings.retries:
-            break
-        time.sleep(min(2 ** (attempt - 1), 8))
-
-    raise RuntimeError(f"Gemini request failed for {image_path}: {last_error}") from last_error
-
-
-def extract_text(response_json: dict[str, Any]) -> str:
+    client = GeminiClient(settings.api_key, base_url=settings.api_url, timeout=settings.timeout_seconds)
     try:
-        parts = response_json["candidates"][0]["content"]["parts"]
-    except (KeyError, IndexError, TypeError) as exc:
-        raise ValueError(f"Unexpected Gemini response shape: {json.dumps(response_json)[:1000]}") from exc
-
-    text_chunks: list[str] = []
-    for part in parts:
-        if isinstance(part, dict) and isinstance(part.get("text"), str):
-            text_chunks.append(part["text"])
-
-    text = "\n".join(text_chunks).strip()
-    if not text:
-        raise ValueError(f"Gemini response did not contain text: {json.dumps(response_json)[:1000]}")
-    return text
+        return client.generate_content(
+            settings.model,
+            gemini_payload(image_path),
+            retries=settings.retries,
+        )
+    except APIError as exc:
+        raise RuntimeError(f"Gemini request failed for {image_path}: {exc}") from exc
 
 
 def parse_json_text(text: str) -> dict[str, Any]:
@@ -630,7 +595,7 @@ def process_image(settings: Settings, image_path: Path) -> bool:
 
     print(f"process: {image_path}")
     raw_response = call_gemini(settings, image_path)
-    brief = parse_json_text(extract_text(raw_response))
+    brief = parse_json_text(GeminiClient.extract_text(raw_response))
     base_prompt = render_base_prompt(
         brief,
         settings.aspect_ratio,

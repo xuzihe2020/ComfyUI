@@ -11,8 +11,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from lib.jobs import list_field
-from lib.paths import REPO_ROOT
+from tool_lib.jobs import list_field
+from tool_lib.paths import REPO_ROOT
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 MAX_DRESSING_REFS = 2

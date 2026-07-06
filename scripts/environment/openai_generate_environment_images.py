@@ -17,17 +17,20 @@ import os
 import re
 import sys
 import time
-import urllib.error
-import urllib.request
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+
+from lib.envfile import env_value  # noqa: E402
+from lib.llm_client import APIError, OpenAIClient  # noqa: E402
+
 
 DEFAULT_MODEL = "gpt-image-2"
-DEFAULT_API_URL = "https://api.openai.com/v1"
 DEFAULT_SIZE = "1536x864"
 DEFAULT_QUALITY = "high"
 DEFAULT_OUTPUT_FORMAT = "png"
@@ -98,19 +101,20 @@ def parse_args() -> Settings:
     )
     parser.add_argument(
         "--api-key",
-        default=os.getenv("OPENAI_API_KEY"),
-        help="OpenAI API key. Defaults to OPENAI_API_KEY.",
+        default=env_value("OPENAI_API_KEY"),
+        help="OpenAI API key. Defaults to OPENAI_API_KEY (env or repo .env).",
     )
     parser.add_argument("--model", default=DEFAULT_MODEL, help=f"OpenAI image model. Default: {DEFAULT_MODEL}")
-    parser.add_argument("--api-url", default=DEFAULT_API_URL, help=f"OpenAI API base URL. Default: {DEFAULT_API_URL}")
+    parser.add_argument("--api-url", default=OpenAIClient.DEFAULT_BASE_URL,
+                        help=f"OpenAI API base URL. Default: {OpenAIClient.DEFAULT_BASE_URL}")
     parser.add_argument(
         "--organization",
-        default=os.getenv("OPENAI_ORG_ID") or os.getenv("OPENAI_ORGANIZATION") or "",
+        default=env_value("OPENAI_ORG_ID", "OPENAI_ORGANIZATION"),
         help="Optional OpenAI organization header. Defaults to OPENAI_ORG_ID/OPENAI_ORGANIZATION.",
     )
     parser.add_argument(
         "--project",
-        default=os.getenv("OPENAI_PROJECT_ID") or "",
+        default=env_value("OPENAI_PROJECT_ID"),
         help="Optional OpenAI project header. Defaults to OPENAI_PROJECT_ID.",
     )
     parser.add_argument(
@@ -435,30 +439,6 @@ def output_targets(settings: Settings, job: PromptJob, count: int) -> list[tuple
     return targets
 
 
-def multipart_body(fields: dict[str, str], image_path: Path) -> tuple[bytes, str]:
-    boundary = f"----codex-openai-image-{uuid.uuid4().hex}"
-    chunks: list[bytes] = []
-
-    for name, value in fields.items():
-        chunks.append(f"--{boundary}\r\n".encode("utf-8"))
-        chunks.append(f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode("utf-8"))
-        chunks.append(str(value).encode("utf-8"))
-        chunks.append(b"\r\n")
-
-    chunks.append(f"--{boundary}\r\n".encode("utf-8"))
-    chunks.append(
-        (
-            f'Content-Disposition: form-data; name="image[]"; '
-            f'filename="{image_path.name}"\r\n'
-            f"Content-Type: {image_mime_type(image_path)}\r\n\r\n"
-        ).encode("utf-8")
-    )
-    chunks.append(image_path.read_bytes())
-    chunks.append(b"\r\n")
-    chunks.append(f"--{boundary}--\r\n".encode("utf-8"))
-    return b"".join(chunks), f"multipart/form-data; boundary={boundary}"
-
-
 def request_fields(settings: Settings, job: PromptJob, n: int) -> dict[str, str]:
     fields = {
         "model": settings.model,
@@ -479,54 +459,56 @@ def request_fields(settings: Settings, job: PromptJob, n: int) -> dict[str, str]
 
 
 def call_openai(settings: Settings, job: PromptJob, n: int) -> dict[str, Any]:
-    url = f"{settings.api_url}/images/edits"
-    fields = request_fields(settings, job, n)
-    body, content_type = multipart_body(fields, job.source_image)
-    headers = {
-        "Authorization": f"Bearer {settings.api_key}",
-        "Content-Type": content_type,
-    }
+    extra_headers: dict[str, str] = {}
     if settings.organization:
-        headers["OpenAI-Organization"] = settings.organization
+        extra_headers["OpenAI-Organization"] = settings.organization
     if settings.project:
-        headers["OpenAI-Project"] = settings.project
+        extra_headers["OpenAI-Project"] = settings.project
+    client = OpenAIClient(
+        settings.api_key,
+        base_url=settings.api_url,
+        timeout=settings.timeout_seconds,
+        extra_headers=extra_headers,
+    )
 
-    last_error: Exception | None = None
-    for attempt in range(1, settings.retries + 1):
-        started = time.monotonic()
-        try:
-            log(
-                "openai request "
-                f"attempt={attempt}/{settings.retries} source={job.source_image.name} "
-                f"prompt={job.prompt_id} n={n} size={settings.size} "
-                f"quality={settings.quality} timeout={settings.timeout_seconds:g}s"
-            )
-            request = urllib.request.Request(url, data=body, headers=headers, method="POST")
-            with urllib.request.urlopen(request, timeout=settings.timeout_seconds) as response:
-                response_text = response.read().decode("utf-8")
-            elapsed = time.monotonic() - started
-            log(f"openai response source={job.source_image.name} prompt={job.prompt_id} elapsed={elapsed:.1f}s")
-            return json.loads(response_text)
-        except urllib.error.HTTPError as exc:
-            elapsed = time.monotonic() - started
-            error_text = exc.read().decode("utf-8", errors="replace")
-            if exc.code not in TRANSIENT_HTTP_CODES:
-                raise RuntimeError(f"HTTP {exc.code}: {error_text[:2000]}") from exc
-            last_error = RuntimeError(f"HTTP {exc.code}: {error_text[:2000]}")
-        except Exception as exc:  # noqa: BLE001 - CLI should report the final error.
-            elapsed = time.monotonic() - started
-            last_error = exc
-        if attempt >= settings.retries:
-            break
-        retry_delay = min(2 ** (attempt - 1), 8)
+    fields = list(request_fields(settings, job, n).items())
+    files = [(
+        "image[]",
+        job.source_image.name,
+        job.source_image.read_bytes(),
+        image_mime_type(job.source_image),
+    )]
+
+    def on_retry(attempt: int, delay: float, err: Exception) -> None:
         log(
             f"openai retry source={job.source_image.name} prompt={job.prompt_id} "
-            f"attempt={attempt} elapsed={elapsed:.1f}s error={last_error} "
-            f"sleep={retry_delay}s"
+            f"attempt={attempt} error={err} sleep={delay:g}s"
         )
-        time.sleep(retry_delay)
 
-    raise RuntimeError(f"OpenAI image request failed for {job.source_image}: {last_error}") from last_error
+    log(
+        "openai request "
+        f"source={job.source_image.name} prompt={job.prompt_id} n={n} "
+        f"size={settings.size} quality={settings.quality} "
+        f"timeout={settings.timeout_seconds:g}s retries={settings.retries}"
+    )
+    started = time.monotonic()
+    try:
+        response = client.post_multipart(
+            "/images/edits",
+            fields,
+            files,
+            retries=settings.retries,
+            backoff_cap=8,
+            transient_codes=TRANSIENT_HTTP_CODES,
+            on_retry=on_retry,
+        )
+    except APIError as exc:
+        raise RuntimeError(f"OpenAI image request failed for {job.source_image}: {exc}") from exc
+    log(
+        f"openai response source={job.source_image.name} prompt={job.prompt_id} "
+        f"elapsed={time.monotonic() - started:.1f}s"
+    )
+    return response
 
 
 def write_json(path: Path, data: dict[str, Any]) -> None:

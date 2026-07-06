@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from lib.jobs import get_field, normalize_text
+from tool_lib.jobs import get_field, normalize_text
 
 
 def reference_order_block(refs: list[tuple[str, Path]]) -> str:
@@ -131,7 +131,10 @@ def build_prompt(item: dict[str, Any], refs: list[tuple[str, Path]]) -> str:
         [
             order_block,
             task,
-            "The attached reference images define the same adult female character. Use the reference images as the source of truth for her facial identity, body proportions, skin tone, hair color, hairstyle, and overall appearance. Preserve her identity with high consistency across all generated images. Do not redesign her face, do not change her age, do not change her body shape, and do not change her overall visual impression.",
+            "The attached reference images define the same adult female character. Use the reference images as the "
+            "source of truth for her facial identity, body proportions, skin tone, hair color, hairstyle, and overall "
+            "appearance. Preserve her identity with high consistency across all generated images. Do not redesign her face, "
+            "do not change her age, do not change her body shape, and do not change her overall visual impression.",
             f"Reference priority:\n{reference_priority}",
             f"Character identity:\n{identity}",
             f"Outfit:\n{outfit}",

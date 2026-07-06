@@ -15,9 +15,9 @@ The prompts sent to Grok live as plain-text blobs under ``prompts/`` so they can
 be reviewed and edited without touching this code. The FLUX.2 prompt is built by
 plain, static string assembly from the JSON fields -- no model call is involved.
 
-Auth: set the ``XAI_API_KEY`` environment variable (or pass ``--api-key``).
-
-Only the Python standard library is required.
+Auth: set the ``XAI_API_KEY`` environment variable, put it in the repo-root
+``.env``, or pass ``--api-key``. API access goes through the shared
+``lib.llm_client`` package (only the Python standard library is required).
 """
 
 from __future__ import annotations
@@ -25,21 +25,22 @@ from __future__ import annotations
 import argparse
 import base64
 import json
-import os
 import sys
 import time
-import urllib.error
-import urllib.request
 from pathlib import Path
 from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+
+from lib.envfile import env_value  # noqa: E402
+from lib.llm_client import GrokClient  # noqa: E402
 
 
 # --------------------------------------------------------------------------- #
 # Config / constants
 # --------------------------------------------------------------------------- #
 
-DEFAULT_BASE_URL = "https://api.x.ai/v1"
-DEFAULT_MODEL = "grok-4.3"  # override with --model; must be a vision-capable Grok model
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
@@ -336,47 +337,8 @@ def build_request_body(
     }
 
 
-def call_grok(
-    base_url: str,
-    api_key: str,
-    body: dict[str, Any],
-    retries: int,
-    timeout: int,
-) -> dict[str, Any]:
-    """POST to /chat/completions with retry/backoff; return the parsed JSON content."""
-    url = base_url.rstrip("/") + "/chat/completions"
-    payload = json.dumps(body).encode("utf-8")
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}",
-    }
-
-    last_err: Exception | None = None
-    for attempt in range(1, retries + 1):
-        req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                response = json.loads(resp.read().decode("utf-8"))
-            content = response["choices"][0]["message"]["content"]
-            return json.loads(content)
-        except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", "replace")[:500]
-            last_err = RuntimeError(f"HTTP {exc.code}: {detail}")
-            # Retry only on rate limit / server errors.
-            if exc.code not in (429, 500, 502, 503, 504):
-                break
-        except (urllib.error.URLError, TimeoutError) as exc:
-            last_err = exc
-        except (KeyError, IndexError, json.JSONDecodeError) as exc:
-            last_err = RuntimeError(f"unexpected response shape: {exc}")
-            break
-
-        if attempt < retries:
-            backoff = min(2 ** attempt, 30)
-            print(f"  ... retry {attempt}/{retries - 1} after {backoff}s ({last_err})", file=sys.stderr)
-            time.sleep(backoff)
-
-    raise RuntimeError(f"Grok request failed: {last_err}")
+def log_retry(attempt: int, delay: float, err: Exception) -> None:
+    print(f"  ... retry {attempt} after {delay:.0f}s ({err})", file=sys.stderr)
 
 
 # --------------------------------------------------------------------------- #
@@ -506,6 +468,7 @@ def process_image(
     input_dir: Path,
     output_dir: Path,
     args: argparse.Namespace,
+    grok: GrokClient,
     system_prompt: str,
     user_prompt: str,
     prefix: str,
@@ -540,13 +503,8 @@ def process_image(
     )
 
     try:
-        data = call_grok(
-            base_url=args.base_url,
-            api_key=args.api_key,
-            body=body,
-            retries=args.retries,
-            timeout=args.timeout,
-        )
+        content = grok.chat_text(body, retries=args.retries, on_retry=log_retry)
+        data = json.loads(content)
     except Exception as exc:  # noqa: BLE001 - want to log and continue the batch
         print(f"  x error: {image.name}: {exc}", file=sys.stderr)
         error_path.write_text(f"{exc}\n", encoding="utf-8")
@@ -577,9 +535,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--overwrite", action="store_true", help="Re-run images that already have output.")
     p.add_argument("--limit", type=int, default=0, help="Process at most N images (0 = all).")
 
-    p.add_argument("--model", default=DEFAULT_MODEL, help="Vision-capable Grok model id.")
-    p.add_argument("--base-url", default=DEFAULT_BASE_URL, help="xAI OpenAI-compatible base URL.")
-    p.add_argument("--api-key", default=os.environ.get("XAI_API_KEY", ""), help="xAI API key (or set XAI_API_KEY).")
+    p.add_argument("--model", default=GrokClient.DEFAULT_MODEL, help="Vision-capable Grok model id.")
+    p.add_argument("--base-url", default=GrokClient.DEFAULT_BASE_URL, help="xAI OpenAI-compatible base URL.")
+    p.add_argument("--api-key", default=env_value("XAI_API_KEY"),
+                   help="xAI API key (or set XAI_API_KEY in the environment or repo .env).")
     p.add_argument("--language", default="English", help="Language for Grok's description values.")
     p.add_argument("--temperature", type=float, default=0.2, help="Sampling temperature for Grok.")
     p.add_argument("--retries", type=int, default=4, help="Total attempts per image on transient errors.")
@@ -660,14 +619,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if not args.api_key:
-        print("error: no API key. Set XAI_API_KEY or pass --api-key.", file=sys.stderr)
+        print("error: no API key. Set XAI_API_KEY (env or repo .env) or pass --api-key.", file=sys.stderr)
         return 2
+
+    grok = GrokClient(args.api_key, base_url=args.base_url, timeout=args.timeout)
 
     counts = {"done": 0, "skipped": 0, "error": 0}
     for i, image in enumerate(images, start=1):
         print(f"[{i}/{len(images)}] {image.relative_to(input_dir)}")
         result = process_image(
-            image, input_dir, output_dir, args, system_prompt, user_prompt, prefix, suffix
+            image, input_dir, output_dir, args, grok, system_prompt, user_prompt, prefix, suffix
         )
         counts[result] += 1
         if args.sleep > 0 and i < len(images) and result != "skipped":

@@ -1,12 +1,24 @@
-"""Load .env credentials without overwriting real environment variables."""
+"""Cross-repo .env infrastructure: credential loading and API-key lookup.
+
+Three integration levels, used across scripts, tools, and lib.llm_client:
+
+- load_env_file(path=DEFAULT_ENV_FILE): parse KEY=VALUE pairs into os.environ
+  without overwriting real environment variables (real env always wins).
+  Tools with a --env-file flag call this with a custom path.
+- env_api_key(*keys): first non-placeholder value among env var names.
+- env_value(*keys): one-shot convenience for argparse defaults — loads the
+  repo .env, then resolves like env_api_key.
+
+lib.llm_client's BaseAPIClient.from_env() builds on the first two, so every
+client picks up keys from the repo .env automatically.
+"""
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
-from lib.paths import REPO_ROOT
-
+REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENV_FILE = REPO_ROOT / ".env"
 _PLACEHOLDER_MARKERS = ("replace_with", "dummy")
 
@@ -43,3 +55,13 @@ def env_api_key(*keys: str) -> str:
         if value and not any(marker in value.lower() for marker in _PLACEHOLDER_MARKERS):
             return value
     return ""
+
+
+def env_value(*keys: str) -> str:
+    """Load the repo .env, then return the first non-placeholder value among keys.
+
+    Convenience for argparse defaults in scripts:
+        parser.add_argument("--api-key", default=env_value("XAI_API_KEY"), ...)
+    """
+    load_env_file()
+    return env_api_key(*keys)

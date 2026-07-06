@@ -39,17 +39,16 @@ import time
 from pathlib import Path
 from typing import Any
 
-from components.openai_client import OpenAIClient
-from lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_stem, normalize_items
-from lib.paths import load_json, resolve_repo_path, unique_path
-from lib.prompting import build_prompt
-from lib.references import ensure_extensions, ref_summary, reference_log_entries, reference_paths
+from lib.llm_client import OpenAIClient
+from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_stem, normalize_items
+from tool_lib.paths import load_json, resolve_repo_path, unique_path
+from tool_lib.prompting import build_prompt
+from tool_lib.references import ensure_extensions, ref_summary, reference_log_entries, reference_paths
 
 MODEL = "gpt-image-2"
 IMAGES_EDIT_ENDPOINT = "/v1/images/edits"
 IMAGES_GENERATE_ENDPOINT = "/v1/images/generations"
 DEFAULT_LOG_DIR = Path("logs/gpt_image2_lora_references")
-OPENAI_API_KEY_ENV_KEYS = ("OPENAI_API_KEY",)
 SUPPORTED_SIZES = {"1024x1024", "1024x1536", "1536x1024"}
 GPT_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 MIME_BY_SUFFIX = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}

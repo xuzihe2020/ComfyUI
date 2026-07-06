@@ -30,23 +30,23 @@ from __future__ import annotations
 import argparse
 import base64
 import json
-import os
 import sys
 import time
-import urllib.error
-import urllib.request
 from pathlib import Path
 from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+
+from lib.envfile import env_value  # noqa: E402
+from lib.llm_client import GrokClient  # noqa: E402
 
 
 # --------------------------------------------------------------------------- #
 # Config / constants
 # --------------------------------------------------------------------------- #
 
-DEFAULT_BASE_URL = "https://api.x.ai/v1"
-DEFAULT_MODEL = "grok-4.3"  # override with --model; must be a vision-capable Grok model
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
-DEFAULT_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 PROMPT_VARIANT_STD = "std"
 PROMPT_VARIANT_MOSAIC = "mosaic"
 
@@ -94,31 +94,6 @@ def configure_stdio() -> None:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
-
-
-def load_env_file(path: Path) -> None:
-    """Load simple KEY=VALUE pairs from .env without overwriting real env vars."""
-    if not path.is_file():
-        return
-
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line.startswith("export "):
-            line = line[len("export "):].strip()
-        if "=" not in line:
-            continue
-
-        key, value = line.split("=", 1)
-        key = key.strip()
-        if not key or key in os.environ:
-            continue
-
-        value = value.strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
-            value = value[1:-1]
-        os.environ[key] = value
 
 
 def description_schema() -> dict[str, Any]:
@@ -289,49 +264,8 @@ def build_request_body(
     }
 
 
-def post_chat_completion(
-    base_url: str,
-    api_key: str,
-    body: dict[str, Any],
-    request_retries: int,
-    timeout: int,
-) -> str:
-    """POST to /chat/completions and return the raw assistant content string."""
-    url = base_url.rstrip("/") + "/chat/completions"
-    payload = json.dumps(body).encode("utf-8")
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}",
-    }
-
-    attempts = max(1, request_retries)
-    last_err: Exception | None = None
-    for attempt in range(1, attempts + 1):
-        req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                response = json.loads(resp.read().decode("utf-8"))
-            content = response["choices"][0]["message"]["content"]
-            if not isinstance(content, str):
-                raise RuntimeError("unexpected response shape: message content is not a string")
-            return content
-        except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", "replace")[:500]
-            last_err = RuntimeError(f"HTTP {exc.code}: {detail}")
-            if exc.code not in (429, 500, 502, 503, 504):
-                break
-        except (urllib.error.URLError, TimeoutError) as exc:
-            last_err = exc
-        except (KeyError, IndexError, json.JSONDecodeError) as exc:
-            last_err = RuntimeError(f"unexpected response shape: {exc}")
-            break
-
-        if attempt < attempts:
-            backoff = min(2 ** attempt, 30)
-            print(f"  ... request retry {attempt}/{attempts - 1} after {backoff}s ({last_err})", file=sys.stderr)
-            time.sleep(backoff)
-
-    raise RuntimeError(f"Grok request failed: {last_err}")
+def log_request_retry(attempt: int, delay: float, err: Exception) -> None:
+    print(f"  ... request retry {attempt} after {delay:.0f}s ({err})", file=sys.stderr)
 
 
 # --------------------------------------------------------------------------- #
@@ -395,6 +329,7 @@ def call_grok_with_validation(
     debug_logs_path: Path | None,
     image: Path,
 ) -> dict[str, Any]:
+    grok = GrokClient(api_key, base_url=base_url, timeout=timeout)
     messages = initial_messages(system_prompt, user_prompt, image_data_uri)
     last_error = "unknown validation error"
     last_content = ""
@@ -402,13 +337,7 @@ def call_grok_with_validation(
     for attempt in range(0, validation_retries + 1):
         append_debug_log(debug_logs_path, image, attempt + 1, messages)
         body = build_request_body(model=model, messages=messages, temperature=temperature)
-        content = post_chat_completion(
-            base_url=base_url,
-            api_key=api_key,
-            body=body,
-            request_retries=request_retries,
-            timeout=timeout,
-        )
+        content = grok.chat_text(body, retries=request_retries, on_retry=log_request_retry)
         last_content = content
 
         try:
@@ -499,8 +428,6 @@ def process_image(
 # --------------------------------------------------------------------------- #
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    load_env_file(DEFAULT_ENV_FILE)
-
     p = argparse.ArgumentParser(
         description="Describe images with Grok and write validated v2 JSON outputs.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -514,8 +441,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--overwrite", action="store_true", help="Re-run images that already have output.")
     p.add_argument("--limit", type=int, default=0, help="Process at most N images (0 = all).")
 
-    p.add_argument("--model", default=DEFAULT_MODEL, help="Vision-capable Grok model id.")
-    p.add_argument("--base-url", default=DEFAULT_BASE_URL, help="xAI OpenAI-compatible base URL.")
+    p.add_argument("--model", default=GrokClient.DEFAULT_MODEL, help="Vision-capable Grok model id.")
+    p.add_argument("--base-url", default=GrokClient.DEFAULT_BASE_URL, help="xAI OpenAI-compatible base URL.")
     p.add_argument(
         "--api-key",
         default="",
@@ -553,7 +480,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     args = p.parse_args(argv)
     if not args.api_key:
-        args.api_key = os.environ.get("XAI_API_KEY", "")
+        args.api_key = env_value("XAI_API_KEY")
     return args
 
 

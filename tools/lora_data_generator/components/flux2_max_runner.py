@@ -26,16 +26,14 @@ import time
 from pathlib import Path
 from typing import Any
 
-from components.bfl_client import BFLClient
-from lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_stem, normalize_items
-from lib.paths import load_json, resolve_repo_path, unique_path
-from lib.prompting import build_prompt
-from lib.references import ensure_extensions, ref_summary, reference_log_entries, reference_paths
+from lib.llm_client import BFLClient
+from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_stem, normalize_items
+from tool_lib.paths import load_json, resolve_repo_path, unique_path
+from tool_lib.prompting import build_prompt
+from tool_lib.references import ensure_extensions, ref_summary, reference_log_entries, reference_paths
 
 BFL_ENDPOINT = "/v1/flux-2-max"
-DEFAULT_BASE_URL = "https://api.bfl.ai"
 DEFAULT_LOG_DIR = Path("logs/flux2_max_lora_references")
-FLUX_API_KEY_ENV_KEYS = ("FLUX_API_KEY", "BFL_API_KEY")
 BFL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 MAX_INPUT_IMAGES = 8
 MIN_DIMENSION = 64

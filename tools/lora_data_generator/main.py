@@ -47,11 +47,15 @@ import argparse
 import sys
 from pathlib import Path
 
-# Make `components` and `lib` importable regardless of the caller's CWD.
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Make `components`/`tool_lib` (tool-local) and the repo-root `lib` package
+# (shared API clients, .env loading) importable regardless of the caller's CWD.
+_TOOL_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(_TOOL_DIR.parents[1]))
+sys.path.insert(0, str(_TOOL_DIR))
 
 from components import flux2_max_runner, gpt_image2_runner  # noqa: E402
 from lib.envfile import DEFAULT_ENV_FILE, env_api_key, load_env_file  # noqa: E402
+from lib.llm_client import BFLClient, OpenAIClient  # noqa: E402
 
 MODES = ("flux2-max", "gpt-image-2")
 
@@ -127,7 +131,7 @@ def build_parser() -> argparse.ArgumentParser:
         choices=range(0, 6),
         help="BFL moderation strictness, 0 (strictest) to 5. Omitted from the request unless set (API default: 2).",
     )
-    flux.add_argument("--bfl-base-url", default=flux2_max_runner.DEFAULT_BASE_URL, help="BFL API base URL.")
+    flux.add_argument("--bfl-base-url", default=BFLClient.DEFAULT_BASE_URL, help="BFL API base URL.")
 
     gpt = parser.add_argument_group("gpt-image-2 options")
     gpt.add_argument("--transport", choices=("sync", "batch"), default="sync", help="Direct requests or Batch API. Default: sync.")
@@ -144,7 +148,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     gpt.add_argument("--poll-interval", type=int, default=60, help="Batch status poll interval in seconds. Default: 60.")
     gpt.add_argument("--fetch-batch", metavar="BATCH_ID", help="Fetch results of a previously submitted batch and exit.")
-    gpt.add_argument("--base-url", default="https://api.openai.com/v1", help="OpenAI API base URL.")
+    gpt.add_argument("--base-url", default=OpenAIClient.DEFAULT_BASE_URL, help="OpenAI API base URL.")
 
     return parser
 
@@ -161,9 +165,9 @@ def main(argv: list[str] | None = None) -> int:
     load_env_file(args.env_file)
 
     if args.mode == "flux2-max":
-        args.flux_api_key = env_api_key(*flux2_max_runner.FLUX_API_KEY_ENV_KEYS)
+        args.flux_api_key = env_api_key(*BFLClient.ENV_KEYS)
         if not args.flux_api_key and not args.dry_run:
-            keys = " or ".join(flux2_max_runner.FLUX_API_KEY_ENV_KEYS)
+            keys = " or ".join(BFLClient.ENV_KEYS)
             raise SystemExit(
                 f"Missing BFL API key (from https://dashboard.bfl.ai). "
                 f"Set {keys} in {args.env_file} or the environment."
@@ -172,7 +176,7 @@ def main(argv: list[str] | None = None) -> int:
             print("note: --no-wait is gpt-image-2 batch only; flux2-max polls each task", file=sys.stderr)
         return flux2_max_runner.run(args)
 
-    args.openai_api_key = env_api_key(*gpt_image2_runner.OPENAI_API_KEY_ENV_KEYS)
+    args.openai_api_key = env_api_key(*OpenAIClient.ENV_KEYS)
     needs_key = not args.dry_run or bool(args.fetch_batch)
     if not args.openai_api_key and needs_key:
         raise SystemExit(f"Missing OpenAI API key. Set OPENAI_API_KEY in {args.env_file} or the environment.")
