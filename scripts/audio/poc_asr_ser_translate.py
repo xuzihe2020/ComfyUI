@@ -12,26 +12,28 @@ docs/fish-audio-s2-dubbing-pipeline-design.md:
     SenseVoice-Small per segment (emotion label + events such as laughter/BGM),
     optionally emotion2vec+ as a second opinion with a confidence score.
     Disagreement between the two models flags the segment for human review.
- 4. Translate segments to Chinese through an OpenAI-compatible chat API
-    (stdlib HTTP, no SDK — mirrors tools/lora_data_generator/components/
-    openai_client.py). Skipped with a warning when no API key is set.
+ 4. Translate segments to Chinese with Grok (xAI, OpenAI-compatible endpoint;
+    stdlib HTTP, no SDK — same conventions as scripts/image_description_v2/
+    describe_images.py). Auth via the XAI_API_KEY environment variable.
+    Skipped with a warning when no API key is set.
 
 Outputs (under --out-dir, default data/dubbing/<clip stem>/):
     transcript.json   segments with start/end, source/target text, emotion
     transcript.srt    for quick eyeballing in a video player
     audio_16k.wav     the extracted audio used for ASR/SER
 
-Dependencies (torch/torchaudio come from the ComfyUI venv):
-    .venv/bin/python -m pip install -r scripts/audio/requirements-poc-asr.txt
-    ffmpeg must be on PATH (macOS: brew install ffmpeg) or installed via
-    `pip install imageio-ffmpeg`.
+Dependencies live in the repo-level requirements.txt (the "repo-specific:
+audio dubbing pipeline" section) and install into the ComfyUI venv:
+    .venv/bin/python -m pip install -r requirements.txt
+ffmpeg must be on PATH (macOS: brew install ffmpeg); the imageio-ffmpeg
+requirement provides a bundled fallback binary otherwise.
 
 Example:
     .venv/bin/python scripts/audio/poc_asr_ser_translate.py \
         tmp/dubbing_clips/clip_001.mp4 --emotion2vec
 
-    OPENAI_API_KEY=... .venv/bin/python scripts/audio/poc_asr_ser_translate.py \
-        clip.mp4 --llm-model gpt-4o-mini
+    XAI_API_KEY=... .venv/bin/python scripts/audio/poc_asr_ser_translate.py \
+        clip.mp4 --llm-model grok-4.3
 """
 
 from __future__ import annotations
@@ -134,7 +136,7 @@ def run_asr(wav_path: Path, args: argparse.Namespace) -> tuple[list[dict], dict]
     except ImportError:
         raise SystemExit(
             "faster-whisper is not installed. Run:\n"
-            "  .venv/bin/python -m pip install -r scripts/audio/requirements-poc-asr.txt"
+            "  .venv/bin/python -m pip install -r requirements.txt"
         )
 
     device, compute_type = resolve_device(args.device)
@@ -210,7 +212,7 @@ def run_ser(wav_path: Path, segments: list[dict], args: argparse.Namespace) -> d
     except ImportError as exc:
         raise SystemExit(
             f"SER dependencies missing ({exc.name}). Run:\n"
-            "  .venv/bin/python -m pip install -r scripts/audio/requirements-poc-asr.txt"
+            "  .venv/bin/python -m pip install -r requirements.txt"
         )
 
     audio, sample_rate = sf.read(str(wav_path), dtype="float32")
@@ -492,12 +494,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--emotion2vec-size", default="base", choices=("base", "large"))
     parser.add_argument("--model-hub", default="hf", choices=("hf", "ms"),
                         help="Model download hub for funasr models (default: hf).")
-    parser.add_argument("--llm-base-url", default="https://api.openai.com/v1",
-                        help="OpenAI-compatible API base URL.")
-    parser.add_argument("--llm-model", default="gpt-4o-mini",
-                        help="Chat model for translation (default: gpt-4o-mini).")
-    parser.add_argument("--api-key-env", default="OPENAI_API_KEY",
-                        help="Env var holding the API key (default: OPENAI_API_KEY).")
+    parser.add_argument("--llm-base-url", default="https://api.x.ai/v1",
+                        help="OpenAI-compatible API base URL (default: xAI).")
+    parser.add_argument("--llm-model", default="grok-4.3",
+                        help="Chat model for translation (default: grok-4.3).")
+    parser.add_argument("--api-key-env", default="XAI_API_KEY",
+                        help="Env var holding the API key (default: XAI_API_KEY).")
     return parser.parse_args()
 
 

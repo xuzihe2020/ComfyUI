@@ -562,9 +562,10 @@ scripts/audio/poc_asr_ser_translate.py
 It covers video -> 16 kHz audio -> faster-whisper ASR (word-level start
 timestamps, VAD-filtered) -> per-segment SenseVoice emotion + event detection
 with optional emotion2vec+ second opinion and disagreement flagging -> ja->zh
-translation through an OpenAI-compatible chat API -> `transcript.json` +
-`transcript.srt`. Dependencies live in
-`scripts/audio/requirements-poc-asr.txt`.
+translation with Grok (xAI, OpenAI-compatible endpoint, `XAI_API_KEY` — the
+same LLM API this repo's other scripts use) -> `transcript.json` +
+`transcript.srt`. Dependencies live in the repo-level `requirements.txt`
+("repo-specific: audio dubbing pipeline" section).
 
 Suggested later production file:
 
