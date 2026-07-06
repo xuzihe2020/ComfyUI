@@ -80,6 +80,10 @@ ALWAYS_FIX_DEPENDENCIES = {
     # embeddings, etc.) that must be present before ComfyUI imports the node;
     # force its requirements.txt even under --no-deps.
     "ComfyUI-SeedVR2_VideoUpscaler",
+    # Fish S2's __init__.py auto-installs missing packages at ComfyUI startup;
+    # force its requirements.txt (plus the --no-deps post-install fix below) so
+    # that startup auto-installer never has anything to do.
+    "ComfyUI-FishAudioS2",
 }
 DIFF_MODE_FIX_EXISTING_DEPENDENCIES = {
     "ComfyUI_essentials",
@@ -118,6 +122,41 @@ OPTIONAL_ACCELERATORS = {
             ],
         },
     },
+    # Fish S2 falls back to PyTorch sdpa when no accelerator is present, so
+    # these stay best-effort. bitsandbytes (for the INT8/NF4 low-VRAM modes) is
+    # already pinned in the node's requirements.txt and needs no entry here.
+    "ComfyUI-FishAudioS2": {
+        "platforms": ["linux", "windows"],
+        "platform_pip_args": {
+            "linux": [
+                {"module": "triton", "pip_args": ["triton"]},
+                {"module": "sageattention", "pip_args": ["sageattention==2.2.0", "--no-build-isolation"]},
+                {"module": "flash_attn", "pip_args": ["flash-attn", "--no-build-isolation"]},
+            ],
+            "windows": [
+                {"module": "triton", "pip_args": ["triton-windows"]},
+                {"module": "sageattention", "pip_args": ["sageattention", "--no-build-isolation"]},
+            ],
+        },
+    },
+}
+
+
+def install_fish_audio_s2_dependencies(python_bin: str) -> None:
+    """descript-audio-codec and descript-audiotools pin protobuf<5, which
+    conflicts with other nodes in the shared environment, so they must be
+    installed with --no-deps (the Fish S2 README warns that omitting the flag
+    breaks other ComfyUI nodes). Their real runtime deps (flatten-dict, julius,
+    ffmpy, argbind, etc.) are already pinned in the node's requirements.txt."""
+    run([python_bin, "-m", "pip", "install", "descript-audio-codec", "--no-deps"])
+    run([python_bin, "-m", "pip", "install", "descript-audiotools>=0.7.2", "--no-deps"])
+
+
+# Node-specific dependency installs that need pip flags EXTRA_PIP_DEPENDENCIES
+# cannot express (it feeds one flat `pip install` command). Run whenever the
+# node's dependencies are being fixed, same gating as EXTRA_PIP_DEPENDENCIES.
+POST_INSTALL_DEPENDENCY_FIXES = {
+    "ComfyUI-FishAudioS2": install_fish_audio_s2_dependencies,
 }
 
 
@@ -236,6 +275,7 @@ def manager_install_node(
     name = node["name"]
     always_fix_deps = name in ALWAYS_FIX_DEPENDENCIES or node["folder"] in ALWAYS_FIX_DEPENDENCIES
     extra_dependencies = EXTRA_PIP_DEPENDENCIES.get(name, []) + EXTRA_PIP_DEPENDENCIES.get(node["folder"], [])
+    post_install_fix = POST_INSTALL_DEPENDENCY_FIXES.get(name) or POST_INSTALL_DEPENDENCY_FIXES.get(node["folder"])
 
     base_cmd = [python_bin, str(manager_cli)]
     if folder.exists():
@@ -245,6 +285,8 @@ def manager_install_node(
             run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
         if extra_dependencies and (always_fix_deps or not no_deps):
             run([python_bin, "-m", "pip", "install", *extra_dependencies])
+        if post_install_fix and (always_fix_deps or not no_deps):
+            post_install_fix(python_bin)
         if manager_fix_existing or always_fix_deps:
             run(base_cmd + ["fix", name, "--mode", "local"], env=manager_env())
         return
@@ -255,6 +297,8 @@ def manager_install_node(
     run(cmd, env=manager_env())
     if extra_dependencies and (always_fix_deps or not no_deps):
         run([python_bin, "-m", "pip", "install", *extra_dependencies])
+    if post_install_fix and (always_fix_deps or not no_deps):
+        post_install_fix(python_bin)
 
 
 def install_optional_accelerators(python_bin: str, node: dict) -> None:
