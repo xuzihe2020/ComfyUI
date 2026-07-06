@@ -304,6 +304,27 @@ If runner patching needs stable names, use a small number of explicit titles:
 - `Preview Generated Audio`
 - `Save Generated Audio`
 
+Proof-of-concept script (implemented):
+
+```text
+scripts/audio/poc_fish_s2_clone.py
+```
+
+It proves Fish S2 voice cloning without ComfyUI: the custom node's bundled
+`fish_speech` engine is ComfyUI-independent (every `import comfy` /
+`folder_paths` in the node has a standalone fallback), so the script imports
+the engine directly — from the installed node folder or a scratch clone via
+`--fish-src` — and wires the same call chain as `Fish S2 Voice Clone TTS`
+(`launch_thread_safe_queue` + DAC decoder + `TTSInferenceEngine`). It loads
+the s2-pro checkpoint once, synthesizes every transcript line
+(`tagged_target_text` from the ASR PoC output, or a single `--text` line)
+against the person B references, checks per-segment overlap budgets, and
+writes per-segment wavs plus a start-anchored `dubbed_track.wav` and a job
+manifest. Plain dependencies live in the repo `requirements.txt`;
+`descript-audio-codec` / `descript-audiotools` must be installed with
+`--no-deps`. The ComfyUI workflow + runner (Milestones 2-3) remain the
+interactive preview path.
+
 ### Phase 2: Scripted Single-Line Runner
 
 Create:
