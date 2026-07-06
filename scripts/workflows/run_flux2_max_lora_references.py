@@ -4,6 +4,102 @@ r"""Run the Flux.2 Max LoRA reference workflow from structured prompt JSON.
 ComfyUI must already be running at --server, default http://127.0.0.1:8188.
 The script loads repo-local .env before reading credentials.
 
+Quick start
+-----------
+Run from the ComfyUI repo root with PowerShell:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json
+
+Recommended first run: build prompts and debug logs without calling Flux.2:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json `
+     --dry-run `
+     --prompt-out-dir tmp\flux2_max_api_prompts
+
+Common run modes
+----------------
+Process only the first 5 jobs:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json `
+     --limit 5
+
+Generate 3 images for each selected prompt:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json `
+     --repeat 3
+
+Process the first 4 jobs and generate 2 repeats each:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json `
+     --limit 4 `
+     --repeat 2
+
+Queue jobs without waiting for completion:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json `
+     --no-wait
+
+Use a non-default ComfyUI server:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json `
+     --server http://127.0.0.1:8190
+
+Size and seed examples
+----------------------
+Default output size is 1024 x 1536, a 2:3 portrait frame.
+
+Override size for the whole run:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json `
+     --width 1024 `
+     --height 1536
+
+Set a fixed seed for the whole run:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json `
+     --seed 123456
+
+Notes:
+- Per-job "width", "height", "seed", and "prompt_upsampling" override CLI
+  defaults.
+- Width and height must be between 256 and 2048 and divisible by 32.
+- If no seed is fixed, each request gets a fresh random seed, including repeats.
+
+Output and logs
+---------------
+Generated images are saved by ComfyUI's SaveImage node under the ComfyUI output
+directory. The default filename prefix is:
+
+   flux2_max_lora_references/batch/<output_stem>_<timestamp>
+
+Use --output-prefix to change that output subfolder/prefix:
+
+   .\.venv\Scripts\python.exe scripts\workflows\run_flux2_max_lora_references.py `
+     --input-json path\to\flux2_jobs.json `
+     --output-prefix synthetic_lora/flux2_max/v1
+
+Every request writes a debug JSON log by default:
+
+   logs/flux2_max_lora_references/<run>_<stem>.flux2_request.json
+
+Change or disable logs:
+
+   --log-dir path\to\debug_logs
+   --no-log
+
+Use --prompt-out-dir when you also want the full ComfyUI API prompt JSON:
+
+   --prompt-out-dir tmp\flux2_max_api_prompts
+
 Auth
 ----
 Put the Flux/Comfy API key in the repository .env file:
@@ -93,8 +189,14 @@ The script builds the final Flux.2 Max prompt from these fields:
 Any of these fields may also be nested under a "chunks" object. Missing fields
 fall back to the built-in master-template defaults.
 
+The final prompt also injects an "Attached reference image order" block from the
+actual reference lists. Flux.2 receives one ordered image batch, so this block is
+what tells the model which attached images are dressing/outfit references and
+which attached images are character identity/body references.
+
 To bypass chunk assembly entirely, provide "prompt" or "positive_prompt"; that
-string is sent directly to Flux.2 Max.
+string is sent directly to Flux.2 Max after the same reference-order block is
+prepended.
 
 Optional per-job overrides
 --------------------------
@@ -112,6 +214,17 @@ Batch controls
 - --repeat N queues each selected job N times. Default: 1. Repeats use separate
   output prefixes. If no seed is fixed, each repeat receives a fresh random
   seed; if a job seed or --seed is set, repeats are deterministic.
+
+Debug logging
+-------------
+For every queued request, and for every dry-run request, the script writes a
+debug JSON file under --log-dir, default:
+
+   logs/flux2_max_lora_references
+
+Each log contains the final prompt sent to Flux.2 Max, output size, seed, output
+prefix, and the ordered reference list with role labels. API keys are never
+written to these logs.
 
 Minimal valid job
 -----------------
@@ -147,6 +260,7 @@ from typing import Any
 DEFAULT_WORKFLOW = Path("user/default/workflows/prod/lora_references/flux2_max_lora_reference_image.json")
 DEFAULT_OUTPUT_PREFIX = "flux2_max_lora_references/batch"
 DEFAULT_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
+DEFAULT_LOG_DIR = Path("logs/flux2_max_lora_references")
 DEFAULT_WIDTH = 1024
 DEFAULT_HEIGHT = 1536
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
@@ -420,10 +534,36 @@ def normalize_text(value: Any) -> str:
     return str(value).strip()
 
 
-def build_prompt(item: dict[str, Any]) -> str:
+def reference_order_block(refs: list[tuple[str, Path]]) -> str:
+    if not refs:
+        return "Attached reference image order:\nNo reference images are attached for this run."
+
+    dressing_indices = [index for index, (kind, _) in enumerate(refs, start=1) if kind == "dressing"]
+    character_indices = [index for index, (kind, _) in enumerate(refs, start=1) if kind == "character"]
+    lines = ["Attached reference image order:"]
+    for index, (kind, path) in enumerate(refs, start=1):
+        role = "dressing/outfit reference" if kind == "dressing" else "character face/body identity reference"
+        lines.append(f"- Reference image {index}: {role}. Source file: {path.name}.")
+
+    if dressing_indices:
+        values = ", ".join(f"Reference image {index}" for index in dressing_indices)
+        lines.append(f"Use {values} only for outfit, garment structure, fabric, color, styling, and dressing details.")
+    if character_indices:
+        values = ", ".join(f"Reference image {index}" for index in character_indices)
+        lines.append(f"Use {values} only for the woman's face identity, body proportions, skin tone, age impression, and overall presence.")
+    if dressing_indices and character_indices:
+        lines.append(
+            "Do not take the face, body, age, ethnicity, or hairstyle from the dressing references. "
+            "Do not let outfit details override the character identity references."
+        )
+    return "\n".join(lines)
+
+
+def build_prompt(item: dict[str, Any], refs: list[tuple[str, Path]]) -> str:
     direct_prompt = normalize_text(get_field(item, "prompt", "positive_prompt"))
+    order_block = reference_order_block(refs)
     if direct_prompt:
-        return direct_prompt
+        return "\n\n".join([order_block, direct_prompt])
 
     task = normalize_text(
         get_field(
@@ -439,9 +579,9 @@ def build_prompt(item: dict[str, Any]) -> str:
             item,
             "reference_priority",
             default=(
-                "- Face and identity: follow the face reference images exactly.\n"
-                "- Body shape and proportions: follow the body reference images exactly.\n"
-                "- Outfit: follow the outfit reference or the outfit description below.\n"
+                "- Face and identity: follow the character reference images exactly.\n"
+                "- Body shape and proportions: follow the character reference images exactly.\n"
+                "- Outfit: follow the dressing reference images or the outfit description below.\n"
                 "- If there is conflict between the written prompt and the reference images, keep the character identity from the reference images."
             ),
         )
@@ -467,7 +607,7 @@ def build_prompt(item: dict[str, Any]) -> str:
     camera_view = normalize_text(get_field(item, "camera_view", "angle", default="front 3/4 view"))
     pose = normalize_text(get_field(item, "pose", "action", default="standing naturally"))
     expression = normalize_text(get_field(item, "expression", default="neutral, relaxed expression"))
-    environment = normalize_text(get_field(item, "environment_block", "environment", "background", default="Simple clean studio background."))
+    environment = normalize_text(get_field(item, "environment_block", "environment", "background", default="Simple clean studio light-colored background."))
     lighting = normalize_text(
         get_field(
             item,
@@ -478,8 +618,7 @@ def build_prompt(item: dict[str, Any]) -> str:
                 "Use natural photorealistic lighting, soft realistic shadows, lifelike skin texture, "
                 "realistic fabric texture, and professional portrait photography quality. The image "
                 "should look like a real candid studio, editorial, or lifestyle photograph, not a "
-                "painting, not anime, not CGI, and not an overly polished fashion render. " 
-                "Use a clean light-colored seamless backdrop with soft, diffused window light"
+                "painting, not anime, not CGI, and not an overly polished fashion render."
             ),
         )
     )
@@ -511,6 +650,7 @@ def build_prompt(item: dict[str, Any]) -> str:
 
     return "\n\n".join(
         [
+            order_block,
             task,
             "The attached reference images define the same adult female character. Use the reference images as the source of truth for her facial identity, body proportions, skin tone, hair color, hairstyle, and overall appearance. Preserve her identity with high consistency across all generated images. Do not redesign her face, do not change her age, do not change her body shape, and do not change her overall visual impression.",
             f"Reference priority:\n{reference_priority}",
@@ -579,6 +719,65 @@ def output_prefix(base_prefix: str, stem: str, timestamp_s: int, repeat_index: i
     return f"{base_prefix.strip('/')}/{stem}{repeat_suffix}_{timestamp_s}"
 
 
+def flux2_node_from_prompt(prompt: dict[str, Any]) -> dict[str, Any]:
+    matches = [node for node in prompt.values() if node.get("class_type") == "Flux2MaxImageNode"]
+    if len(matches) != 1:
+        raise ValueError(f"Expected exactly one Flux2MaxImageNode in API prompt; found {len(matches)}")
+    return matches[0]
+
+
+def write_request_log(
+    log_dir: Path,
+    *,
+    run_index: int,
+    total_runs: int,
+    item_index: int,
+    repeat_index: int,
+    repeat_count: int,
+    stem: str,
+    save_prefix: str,
+    refs: list[tuple[str, Path]],
+    prompt: dict[str, Any],
+    dry_run: bool,
+) -> Path:
+    flux_node = flux2_node_from_prompt(prompt)
+    inputs = flux_node.get("inputs", {})
+    payload = {
+        "run_index": run_index,
+        "total_runs": total_runs,
+        "item_index": item_index,
+        "repeat_index": repeat_index,
+        "repeat_count": repeat_count,
+        "dry_run": dry_run,
+        "output_stem": stem,
+        "save_prefix": save_prefix,
+        "model_node": "Flux2MaxImageNode",
+        "width": inputs.get("width"),
+        "height": inputs.get("height"),
+        "seed": inputs.get("seed"),
+        "prompt_upsampling": inputs.get("prompt_upsampling"),
+        "references": [
+            {
+                "index": index,
+                "kind": kind,
+                "role": (
+                    "dressing/outfit reference"
+                    if kind == "dressing"
+                    else "character face/body identity reference"
+                ),
+                "path": str(path),
+                "filename": path.name,
+            }
+            for index, (kind, path) in enumerate(refs, start=1)
+        ],
+        "prompt": inputs.get("prompt", ""),
+    }
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / f"{run_index:05d}_{stem}.flux2_request.json"
+    log_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return log_path
+
+
 def patch_reference_load_node(node: dict[str, Any], path: Path) -> None:
     inputs = node["inputs"]
     inputs["image"] = str(path)
@@ -643,7 +842,7 @@ def patch_prompt(
     flux_node = api_node(prompt, unique_named_node(workflow, WORKFLOW_NODE_NAME_FLUX2_MAX, "Flux2 Max"))
     save_node = api_node(prompt, unique_named_node(workflow, WORKFLOW_NODE_NAME_SAVE, "save image"))
 
-    flux_node["inputs"]["prompt"] = build_prompt(item)
+    flux_node["inputs"]["prompt"] = build_prompt(item, refs)
     width = int(get_field(item, "width", default=args.width))
     height = int(get_field(item, "height", default=args.height))
     validate_flux2_dimension("width", width)
@@ -732,6 +931,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-wait", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--prompt-out-dir", type=Path)
+    parser.add_argument(
+        "--log-dir",
+        type=Path,
+        default=DEFAULT_LOG_DIR,
+        help="Write per-request debug logs here. Default: logs/flux2_max_lora_references.",
+    )
+    parser.add_argument("--no-log", action="store_true", help="Disable per-request debug logs.")
     return parser.parse_args()
 
 
@@ -762,6 +968,7 @@ def main() -> None:
     prompt_out_dir = resolve_repo_path(args.prompt_out_dir) if args.prompt_out_dir else None
     if prompt_out_dir:
         prompt_out_dir.mkdir(parents=True, exist_ok=True)
+    log_dir = resolve_repo_path(args.log_dir)
 
     client_id = uuid.uuid4().hex
     timestamp_s = int(time.time())
@@ -784,10 +991,26 @@ def main() -> None:
                     json.dumps(prompt, indent=2) + "\n",
                     encoding="utf-8",
                 )
+            log_path = None
+            if not args.no_log:
+                log_path = write_request_log(
+                    log_dir,
+                    run_index=run_index,
+                    total_runs=total_runs,
+                    item_index=index,
+                    repeat_index=repeat_index,
+                    repeat_count=args.repeat,
+                    stem=stem,
+                    save_prefix=save_prefix,
+                    refs=refs,
+                    prompt=prompt,
+                    dry_run=args.dry_run,
+                )
 
             if args.dry_run:
                 repeat_text = f" repeat {repeat_index}/{args.repeat}" if args.repeat > 1 else ""
-                print(f"[dry-run {run_index}/{total_runs}] {base_stem}{repeat_text}: built prompt with {ref_summary} refs")
+                log_text = f"; log: {log_path}" if log_path else ""
+                print(f"[dry-run {run_index}/{total_runs}] {base_stem}{repeat_text}: built prompt with {ref_summary} refs{log_text}")
                 continue
 
             response = post_json(
@@ -801,7 +1024,8 @@ def main() -> None:
             )
             prompt_id = response["prompt_id"]
             repeat_text = f" repeat {repeat_index}/{args.repeat}" if args.repeat > 1 else ""
-            print(f"[{run_index}/{total_runs}] queued {base_stem}{repeat_text} ({ref_summary} refs): {prompt_id}")
+            log_text = f"; log: {log_path}" if log_path else ""
+            print(f"[{run_index}/{total_runs}] queued {base_stem}{repeat_text} ({ref_summary} refs): {prompt_id}{log_text}")
             if not args.no_wait:
                 history = wait_for_history(args.server, prompt_id, args.timeout)
                 outputs = history.get("outputs", {})
