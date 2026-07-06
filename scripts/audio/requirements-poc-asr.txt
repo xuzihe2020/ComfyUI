@@ -1,0 +1,22 @@
+# Dependencies for scripts/audio/poc_asr_ser_translate.py
+# torch/torchaudio are NOT listed here — the ComfyUI venv already provides
+# them; installing them from this file could downgrade the CUDA build.
+#
+# Install into the ComfyUI venv:
+#   .venv/bin/python -m pip install -r scripts/audio/requirements-poc-asr.txt
+# (Windows: .\.venv\Scripts\python.exe -m pip install -r scripts\audio\requirements-poc-asr.txt)
+#
+# ffmpeg is also required: either on PATH (macOS: brew install ffmpeg) or via
+# the imageio-ffmpeg fallback below.
+
+faster-whisper>=1.0.3
+funasr>=1.1.5
+soundfile
+numpy
+huggingface_hub
+
+# ffmpeg fallback when no system ffmpeg is installed
+imageio-ffmpeg
+
+# Only needed with --model-hub ms (ModelScope downloads instead of HuggingFace):
+# modelscope

@@ -1,0 +1,83 @@
+"""Input job JSON loading, normalization, and field access shared by both pipelines.
+
+The input file may be a single job object, a list of job objects, or an object
+containing an "items", "jobs", or "prompts" list. Prompt fields may also be
+nested under a per-job "chunks" object. See the tool README for the full format.
+"""
+
+from __future__ import annotations
+
+import re
+from typing import Any
+
+
+def normalize_items(data: Any) -> list[dict[str, Any]]:
+    if isinstance(data, list):
+        items = data
+    elif isinstance(data, dict):
+        for key in ("items", "jobs", "prompts"):
+            if isinstance(data.get(key), list):
+                items = data[key]
+                break
+        else:
+            items = [data]
+    else:
+        raise ValueError("Input JSON must be an object, list, or object containing items/jobs/prompts.")
+
+    normalized: list[dict[str, Any]] = []
+    for index, item in enumerate(items, start=1):
+        if not isinstance(item, dict):
+            raise ValueError(f"Item {index} must be a JSON object.")
+        normalized.append(item)
+    return normalized
+
+
+def get_field(item: dict[str, Any], *names: str, default: Any = "") -> Any:
+    chunks = item.get("chunks")
+    for source in (item, chunks if isinstance(chunks, dict) else {}):
+        for name in names:
+            if name in source and source[name] is not None:
+                return source[name]
+    return default
+
+
+def list_field(item: dict[str, Any], *names: str) -> list[Any]:
+    value = get_field(item, *names, default=[])
+    if value in (None, ""):
+        return []
+    if not isinstance(value, list):
+        raise ValueError(f"Expected one of {names} to be a list, got {type(value).__name__}")
+    return value
+
+
+def normalize_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, list):
+        return "\n".join(str(v).strip() for v in value if str(v).strip())
+    return str(value).strip()
+
+
+def clean_stem(value: str) -> str:
+    value = re.sub(r"[^A-Za-z0-9._-]+", "_", value.strip())
+    value = value.strip("._-")
+    return value or "image"
+
+
+def item_stem(item: dict[str, Any], index: int) -> str:
+    value = get_field(item, "output_stem", "name", "id", default=f"item_{index:05d}")
+    return clean_stem(str(value))
+
+
+def output_prefix(base_prefix: str, stem: str, timestamp_s: int, repeat_index: int, repeat_count: int) -> str:
+    repeat_suffix = f"_r{repeat_index:02d}" if repeat_count > 1 else ""
+    return f"{base_prefix.strip('/')}/{stem}{repeat_suffix}_{timestamp_s}"
+
+
+def image_output_name(input_stem: str, backend: str, timestamp_s: int) -> str:
+    """Final image filename pattern shared by both pipelines:
+    {raw_json_filename}_{flux2|gpt}_{timestamp in seconds}."""
+    return f"{clean_stem(input_stem)}_{backend}_{timestamp_s}"
+
+
+SUFFIX_BY_FORMAT = {"png": ".png", "jpeg": ".jpeg", "webp": ".webp"}

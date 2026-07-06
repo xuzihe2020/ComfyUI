@@ -316,7 +316,6 @@ The runner should follow the pattern already used by:
 
 ```text
 scripts/workflows/run_img2img_refine.py
-scripts/workflows/run_flux2_max_lora_references.py
 ```
 
 Responsibilities:
@@ -554,7 +553,20 @@ Alternatives:
 Prefer the script route for production because the transcript becomes structured
 pipeline data, not only a ComfyUI node output.
 
-Suggested later file:
+Proof-of-concept script (implemented):
+
+```text
+scripts/audio/poc_asr_ser_translate.py
+```
+
+It covers video -> 16 kHz audio -> faster-whisper ASR (word-level start
+timestamps, VAD-filtered) -> per-segment SenseVoice emotion + event detection
+with optional emotion2vec+ second opinion and disagreement flagging -> ja->zh
+translation through an OpenAI-compatible chat API -> `transcript.json` +
+`transcript.srt`. Dependencies live in
+`scripts/audio/requirements-poc-asr.txt`.
+
+Suggested later production file:
 
 ```text
 scripts/audio_dubbing/transcribe_clips.py
