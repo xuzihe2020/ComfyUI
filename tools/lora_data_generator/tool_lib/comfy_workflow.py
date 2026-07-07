@@ -114,7 +114,10 @@ def convert_ui_workflow_to_api_prompt(workflow: dict[str, Any]) -> dict[str, Any
         node_id = str(ui_node["id"])
         inputs: dict[str, Any] = {}
         ui_inputs = ui_node.get("inputs") or []
-        widget_inputs = [inp for inp in ui_inputs if "widget" in inp]
+        widget_inputs = [
+            inp for inp in ui_inputs
+            if "widget" in inp and not should_skip_widget_input(inp)
+        ]
         widget_values = widget_value_stream(ui_node, len(widget_inputs))
         widget_index = 0
 
@@ -125,7 +128,8 @@ def convert_ui_workflow_to_api_prompt(workflow: dict[str, Any]) -> dict[str, Any
 
             widget_value: Any | None = None
             has_widget = "widget" in input_info
-            if has_widget:
+            skip_widget = should_skip_widget_input(input_info)
+            if has_widget and not skip_widget:
                 if widget_index >= len(widget_values):
                     raise ValueError(
                         f"Node {node_id} ({ui_node.get('type')}) has fewer widget values than widget inputs."

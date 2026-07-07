@@ -41,8 +41,8 @@ from typing import Any
 
 from components import face_verify
 from lib.llm_client import OpenAIClient
-from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_stem, normalize_items
-from tool_lib.paths import load_json, resolve_repo_path, unique_path
+from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, input_collection_stem, item_stem, load_job_items
+from tool_lib.paths import resolve_repo_path, unique_path
 from tool_lib.prompting import build_prompt
 from tool_lib.references import ensure_extensions, ref_summary, reference_log_entries, reference_paths
 
@@ -178,6 +178,7 @@ def request_log_payload(
     repeat_count: int,
     stem: str,
     input_stem: str,
+    source_json: str,
     output_dir: Path,
     refs: list[tuple[str, Path]],
     prompt_text: str,
@@ -195,6 +196,7 @@ def request_log_payload(
         "dry_run": dry_run,
         "output_stem": stem,
         "input_json_stem": input_stem,
+        "source_json": source_json,
         "output_dir": str(output_dir),
         "model": MODEL,
         "transport": transport,
@@ -233,22 +235,20 @@ def save_response_images(body: dict[str, Any], output_dir: Path, input_stem: str
 
 def build_runs(args: argparse.Namespace, transport: str) -> tuple[list[dict[str, Any]], int]:
     """Expand input items x repeats into run descriptors shared by sync and batch."""
-    input_json = resolve_repo_path(args.input_json)
-    items = normalize_items(load_json(input_json))
-    if args.limit is not None:
-        items = items[: args.limit]
-    if not items:
+    input_path = resolve_repo_path(args.input_json)
+    jobs = load_job_items(input_path, args.limit)
+    if not jobs:
         raise SystemExit("No prompt items found.")
 
-    input_stem = input_json.stem
     output_dir = resolve_repo_path(args.output_dir)
     timestamp_s = int(time.time())
-    total_runs = len(items) * args.repeat
+    total_runs = len(jobs) * args.repeat
     runs: list[dict[str, Any]] = []
     run_index = 0
-    for index, item in enumerate(items, start=1):
+    for index, job in enumerate(jobs, start=1):
+        item = job.item
         base_stem = item_stem(item, index)
-        refs = reference_paths(item, input_json.parent)
+        refs = reference_paths(item, job.base_dir)
         ensure_extensions(refs, GPT_IMAGE_EXTENSIONS, "gpt-image-2")
         prompt_text = build_prompt(item, refs)
         size = resolve_size(item, args)
@@ -263,7 +263,9 @@ def build_runs(args: argparse.Namespace, transport: str) -> tuple[list[dict[str,
                     "repeat_index": repeat_index,
                     "base_stem": base_stem,
                     "stem": stem,
-                    "input_stem": input_stem,
+                    "timestamp_s": timestamp_s,
+                    "input_stem": job.input_stem,
+                    "source_json": str(job.source_path),
                     "output_dir": output_dir,
                     "refs": refs,
                     "prompt_text": prompt_text,
@@ -275,7 +277,8 @@ def build_runs(args: argparse.Namespace, transport: str) -> tuple[list[dict[str,
                         repeat_index=repeat_index,
                         repeat_count=args.repeat,
                         stem=stem,
-                        input_stem=input_stem,
+                        input_stem=job.input_stem,
+                        source_json=str(job.source_path),
                         output_dir=output_dir,
                         refs=refs,
                         prompt_text=prompt_text,
@@ -308,7 +311,11 @@ def run_sync(args: argparse.Namespace) -> int:
         label = f"[{'dry-run ' if args.dry_run else ''}{run['run_index']}/{run['total_runs']}]"
         log_path = None
         if not args.no_log:
-            log_path = write_log(log_dir, f"{run['run_index']:05d}_{run['stem']}.gpt_request.json", run["log_payload"])
+            log_path = write_log(
+                log_dir,
+                f"{run['run_index']:05d}_{run['stem']}_{run['timestamp_s']}.gpt_request.json",
+                run["log_payload"],
+            )
 
         if args.dry_run:
             print(f"{label} {run['stem']}: built prompt with {summary} refs" + (f"; log: {log_path}" if log_path else ""))
@@ -387,7 +394,7 @@ def run_batch(args: argparse.Namespace) -> int:
         )
         manifest[custom_id] = run["log_payload"]
 
-    input_stem = resolve_repo_path(args.input_json).stem
+    input_stem = input_collection_stem(resolve_repo_path(args.input_json))
     batch_dir = batch_root(args) / f"{timestamp_s}_{input_stem}"
     batch_dir.mkdir(parents=True, exist_ok=True)
     write_log(batch_dir, "manifest.json", manifest)

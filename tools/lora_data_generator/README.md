@@ -133,8 +133,11 @@ use `main.py --mode flux2-max` instead.
 
 ## Input JSON format
 
-The file passed to `--input-json` may be a single job object, a list of jobs,
-or an object with an `items`/`jobs`/`prompts` list.
+The path passed to `--input-json` may be a single JSON file or a directory of
+`.json` files. A directory is read as all direct child `.json` files sorted by
+filename, and `--limit` applies across that combined list. Each file may contain
+a single job object, a list of jobs, or an object with an
+`items`/`jobs`/`prompts` list.
 
 ```json
 {

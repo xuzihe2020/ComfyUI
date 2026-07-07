@@ -96,7 +96,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory for the InsightFace model pack (~330 MB); models land under "
         "<root>/models/buffalo_l. Default: ~/.insightface (or FACE_MODEL_ROOT in .env).",
     )
-    parser.add_argument("--input-json", type=Path, help="Job JSON (single object, list, or items/jobs/prompts).")
+    parser.add_argument(
+        "--input-json",
+        type=Path,
+        help="Job JSON file, or a directory of .json job files. Each file may be a single object, list, or items/jobs/prompts.",
+    )
     parser.add_argument("--limit", type=int, help="Process at most N jobs. Default: unlimited.")
     parser.add_argument(
         "--repeat",

@@ -36,6 +36,7 @@ __pycache__/
 !custom_nodes/example_node.py.example
 
 # Local caches and runtime state
+/logs/
 /.cache/
 /.torch/
 /.triton/

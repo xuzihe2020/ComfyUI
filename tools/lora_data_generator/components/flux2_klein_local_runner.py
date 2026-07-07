@@ -26,7 +26,7 @@ from tool_lib.comfy_workflow import (
     read_history_image,
     wait_for_history,
 )
-from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_stem, normalize_items
+from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_stem, load_job_items
 from tool_lib.paths import REPO_ROOT, load_json, resolve_repo_path, unique_path
 from tool_lib.prompting import build_prompt
 from tool_lib.references import ensure_extensions, ref_summary, reference_log_entries, reference_paths
@@ -34,7 +34,7 @@ from tool_lib.references import ensure_extensions, ref_summary, reference_log_en
 DEFAULT_WORKFLOW = Path("user/default/workflows/prod/lora_references/flux2_klein_lora_reference_image.json")
 DEFAULT_LOG_DIR = Path("logs/flux2_klein_lora_references")
 DEFAULT_SERVER = "http://127.0.0.1:8188"
-DEFAULT_UNET_NAME = r"flux2\flux-2-klein-9b-fp8.safetensors"
+DEFAULT_UNET_NAME = r"flux2\flux_2_klein_9b.safetensors"
 DEFAULT_CLIP_NAME = r"flux2\qwen_3_8b_fp8mixed.safetensors"
 DEFAULT_VAE_NAME = r"flux2\full_encoder_small_decoder.safetensors"
 DEFAULT_WEIGHT_DTYPE = "default"
@@ -176,23 +176,22 @@ def run(args: argparse.Namespace) -> int:
     workflow = load_json(workflow_path)
     audit_workflow_graph(workflow)
 
-    input_json = resolve_repo_path(args.input_json)
-    items = normalize_items(load_json(input_json))
-    if args.limit is not None:
-        items = items[: args.limit]
-    if not items:
+    input_path = resolve_repo_path(args.input_json)
+    jobs = load_job_items(input_path, args.limit)
+    if not jobs:
         raise SystemExit("No prompt items found.")
 
     log_dir = resolve_repo_path(args.log_dir or DEFAULT_LOG_DIR)
     output_dir = resolve_repo_path(args.output_dir)
     suffix = SUFFIX_BY_FORMAT.get(args.output_format, ".png")
-    total_runs = len(items) * args.repeat
+    total_runs = len(jobs) * args.repeat
     run_index = 0
     client_id = uuid.uuid4().hex
 
-    for index, item in enumerate(items, start=1):
+    for index, job in enumerate(jobs, start=1):
+        item = job.item
         base_stem = item_stem(item, index)
-        refs = reference_paths(item, input_json.parent)
+        refs = reference_paths(item, job.base_dir)
         ensure_extensions(refs, COMFY_IMAGE_EXTENSIONS, "ComfyUI LoadImage")
         prompt_text = build_prompt(item, refs)
         summary = ref_summary(refs)
@@ -209,7 +208,7 @@ def run(args: argparse.Namespace) -> int:
             seed_value = get_field(item, "seed", default=args.seed)
             seed = random.randint(0, MAX_SEED) if seed_value is None else int(seed_value)
             timestamp_s = int(time.time())
-            stage_prefix = f"lora_data_generator/local_stage/{input_json.stem}_{run_index:05d}_{timestamp_s}"
+            stage_prefix = f"lora_data_generator/local_stage/{job.input_stem}_{run_index:05d}_{timestamp_s}"
 
             prompt = convert_ui_workflow_to_api_prompt(workflow)
             patch_prompt(
@@ -235,7 +234,8 @@ def run(args: argparse.Namespace) -> int:
                 "repeat_count": args.repeat,
                 "dry_run": args.dry_run,
                 "output_stem": stem,
-                "input_json_stem": input_json.stem,
+                "input_json_stem": job.input_stem,
+                "source_json": str(job.source_path),
                 "output_dir": str(output_dir),
                 "model": "flux-2-klein-9b-local",
                 "workflow": str(workflow_path),
@@ -253,7 +253,7 @@ def run(args: argparse.Namespace) -> int:
             }
             log_path = None
             if not args.no_log:
-                log_path = write_log(log_dir, f"{run_index:05d}_{stem}.klein_request.json", log_payload)
+                log_path = write_log(log_dir, f"{run_index:05d}_{stem}_{timestamp_s}.klein_request.json", log_payload)
 
             repeat_text = f" repeat {repeat_index}/{args.repeat}" if args.repeat > 1 else ""
             log_text = f"; log: {log_path}" if log_path else ""
@@ -269,7 +269,7 @@ def run(args: argparse.Namespace) -> int:
             saved: list[Path] = []
             for image in images:
                 data = read_history_image(args.server, image, REPO_ROOT / "output")
-                name = image_output_name(input_json.stem, "klein", int(time.time()))
+                name = image_output_name(job.input_stem, "klein", int(time.time()))
                 target = unique_path(output_dir / f"{name}{suffix}")
                 save_image_bytes(data, target, args.output_format)
                 saved.append(target)

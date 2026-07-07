@@ -36,6 +36,10 @@ def resolve_image_path(value: Any, base_dir: Path) -> Path:
             if suffix not in IMAGE_EXTENSIONS:
                 raise ValueError(f"Unsupported image extension for {candidate}")
             return candidate.resolve()
+        for suffix in sorted(IMAGE_EXTENSIONS):
+            alternate = candidate.with_suffix(suffix)
+            if alternate.is_file():
+                return alternate.resolve()
     raise FileNotFoundError(f"Reference image not found: {value}")
 
 

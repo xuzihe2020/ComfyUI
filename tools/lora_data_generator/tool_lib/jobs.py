@@ -7,8 +7,52 @@ nested under a per-job "chunks" object. See the tool README for the full format.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+import json
+from pathlib import Path
 import re
 from typing import Any
+
+
+@dataclass(frozen=True)
+class JobItem:
+    item: dict[str, Any]
+    source_path: Path
+    base_dir: Path
+    input_stem: str
+
+
+def input_json_files(path: Path) -> list[Path]:
+    if path.is_dir():
+        files = sorted(path.glob("*.json"), key=lambda item: item.name.lower())
+        if not files:
+            raise ValueError(f"Input directory contains no .json files: {path}")
+        return files
+    if path.is_file():
+        return [path]
+    raise FileNotFoundError(f"Input JSON path not found: {path}")
+
+
+def load_job_items(path: Path, limit: int | None = None) -> list[JobItem]:
+    jobs: list[JobItem] = []
+    for source_path in input_json_files(path):
+        data = json.loads(source_path.read_text(encoding="utf-8"))
+        for item in normalize_items(data):
+            jobs.append(
+                JobItem(
+                    item=item,
+                    source_path=source_path,
+                    base_dir=source_path.parent,
+                    input_stem=source_path.stem,
+                )
+            )
+            if limit is not None and len(jobs) >= limit:
+                return jobs
+    return jobs
+
+
+def input_collection_stem(path: Path) -> str:
+    return clean_stem(path.stem)
 
 
 def normalize_items(data: Any) -> list[dict[str, Any]]:
