@@ -62,11 +62,11 @@ _TOOL_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(_TOOL_DIR.parents[1]))
 sys.path.insert(0, str(_TOOL_DIR))
 
-from components import face_verify, flux2_max_runner, gpt_image2_runner  # noqa: E402
+from components import face_verify, flux2_klein_local_runner, flux2_max_runner, gpt_image2_runner  # noqa: E402
 from lib.envfile import DEFAULT_ENV_FILE, env_api_key, load_env_file  # noqa: E402
 from lib.llm_client import BFLClient, OpenAIClient  # noqa: E402
 
-MODES = ("flux2-max", "gpt-image-2", "verify")
+MODES = ("flux2-max", "gpt-image-2", "flux2-klein-local", "verify")
 
 # Default output size for both pipelines: 2:3 portrait.
 DEFAULT_WIDTH = 1024
@@ -80,7 +80,10 @@ DEFAULT_OUTPUT_DIR = Path("output/lora_data_generator")
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="lora_data_generator",
-        description="Generate synthetic LoRA training images via FLUX.2 Max (BFL API) or GPT Image 2 (OpenAI API).",
+        description=(
+            "Generate synthetic LoRA training images via FLUX.2 Max (BFL API), "
+            "GPT Image 2 (OpenAI API), or a local FLUX.2 Klein ComfyUI workflow."
+        ),
     )
     parser.add_argument(
         "--mode",
@@ -117,14 +120,15 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=DEFAULT_OUTPUT_DIR,
         help="Directory where final images are written, named "
-        "{input_json_stem}_{flux2|gpt}_{unix_seconds}.<ext>. "
+        "{input_json_stem}_{flux2|gpt|klein}_{unix_seconds}.<ext>. "
         "Repo-relative unless absolute. Default: %(default)s.",
     )
     parser.add_argument(
         "--log-dir",
         type=Path,
         help="Write per-request debug logs here. "
-        f"Defaults: {flux2_max_runner.DEFAULT_LOG_DIR} / {gpt_image2_runner.DEFAULT_LOG_DIR}.",
+        f"Defaults: {flux2_max_runner.DEFAULT_LOG_DIR} / {gpt_image2_runner.DEFAULT_LOG_DIR} / "
+        f"{flux2_klein_local_runner.DEFAULT_LOG_DIR}.",
     )
     parser.add_argument("--no-log", action="store_true", help="Disable per-request debug logs.")
     parser.add_argument("--dry-run", action="store_true", help="Build prompts and logs without calling any API.")
@@ -169,6 +173,48 @@ def build_parser() -> argparse.ArgumentParser:
     gpt.add_argument("--fetch-batch", metavar="BATCH_ID", help="Fetch results of a previously submitted batch and exit.")
     gpt.add_argument("--base-url", default=OpenAIClient.DEFAULT_BASE_URL, help="OpenAI API base URL.")
 
+    local = parser.add_argument_group("flux2-klein-local options (running ComfyUI server)")
+    local.add_argument(
+        "--server",
+        default=flux2_klein_local_runner.DEFAULT_SERVER,
+        help="ComfyUI server URL. Default: %(default)s.",
+    )
+    local.add_argument(
+        "--workflow",
+        type=Path,
+        default=flux2_klein_local_runner.DEFAULT_WORKFLOW,
+        help="ComfyUI UI workflow JSON to run. Default: %(default)s.",
+    )
+    local.add_argument(
+        "--steps",
+        type=int,
+        default=flux2_klein_local_runner.DEFAULT_STEPS,
+        help="Local Flux2Scheduler steps. Default: %(default)s.",
+    )
+    local.add_argument(
+        "--guidance",
+        type=float,
+        default=flux2_klein_local_runner.DEFAULT_GUIDANCE,
+        help="Local FluxGuidance value. Default: %(default)s.",
+    )
+    local.add_argument(
+        "--sampler-name",
+        default=flux2_klein_local_runner.DEFAULT_SAMPLER_NAME,
+        help="Local KSamplerSelect sampler_name. Default: %(default)s.",
+    )
+    local.add_argument(
+        "--reference-method",
+        default=flux2_klein_local_runner.DEFAULT_REFERENCE_METHOD,
+        choices=("offset", "index", "uxo/uno", "index_timestep_zero"),
+        help="Local Flux reference latent method. Default: %(default)s.",
+    )
+    local.add_argument("--klein-unet-name", default=flux2_klein_local_runner.DEFAULT_UNET_NAME)
+    local.add_argument("--klein-weight-dtype", default=flux2_klein_local_runner.DEFAULT_WEIGHT_DTYPE)
+    local.add_argument("--klein-clip-name", default=flux2_klein_local_runner.DEFAULT_CLIP_NAME)
+    local.add_argument("--klein-clip-type", default=flux2_klein_local_runner.DEFAULT_CLIP_TYPE)
+    local.add_argument("--klein-clip-device", default=flux2_klein_local_runner.DEFAULT_DEVICE)
+    local.add_argument("--klein-vae-name", default=flux2_klein_local_runner.DEFAULT_VAE_NAME)
+
     verify = parser.add_argument_group("verify options (face similarity utility)")
     verify.add_argument(
         "--images",
@@ -210,6 +256,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.no_wait:
             print("note: --no-wait is gpt-image-2 batch only; flux2-max polls each task", file=sys.stderr)
         return flux2_max_runner.run(args)
+
+    if args.mode == "flux2-klein-local":
+        if args.no_wait:
+            print("note: --no-wait is gpt-image-2 batch only; flux2-klein-local waits for ComfyUI history", file=sys.stderr)
+        if args.size:
+            print("note: --size is gpt-image-2 only; flux2-klein-local uses --width/--height or per-job width/height", file=sys.stderr)
+        return flux2_klein_local_runner.run(args)
 
     args.openai_api_key = env_api_key(*OpenAIClient.ENV_KEYS)
     needs_key = not args.dry_run or bool(args.fetch_batch)

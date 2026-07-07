@@ -7,11 +7,13 @@ two backends behind one CLI:
 |---|---|---|
 | `flux2-max` | FLUX.2 [max] via the official BFL API (`POST api.bfl.ai/v1/flux-2-max`) | async submit + poll per image |
 | `gpt-image-2` | OpenAI `gpt-image-2` via `POST /v1/images/edits` | direct sync requests, or the OpenAI Batch API at 50% token rates |
+| `flux2-klein-local` | Local FLUX.2 Klein 9B through ComfyUI workflow `user/default/workflows/prod/lora_references/flux2_klein_lora_reference_image.json` | queues a prompt to a running ComfyUI server |
 
-Neither pipeline requires ComfyUI: both call their vendor's REST API directly,
+The hosted pipelines do not require ComfyUI: both call their vendor's REST API directly,
 with usage visible in the vendor consoles (dashboard.bfl.ai / platform.openai.com).
-The old ComfyUI canvas workflow under `user/default/workflows/prod/lora_references/`
-still works interactively in the GUI, but this tool no longer uses it.
+The local Klein mode does require ComfyUI to already be running, defaulting to
+`http://127.0.0.1:8188`, and uses the saved UI/canvas workflow as a debuggable
+local equivalent of the hosted reference-image runs.
 
 Prompt construction (`tool_lib/prompting.py`) and reference-image resolution and
 indexing (`tool_lib/references.py`) are shared by both pipelines. A run with the
@@ -24,13 +26,15 @@ rewrite the prompt before the image model sees it.
 ## Layout
 
 ```
-main.py                       CLI entry point; --mode flux2-max | gpt-image-2 | verify
+main.py                       CLI entry point; --mode flux2-max | gpt-image-2 | flux2-klein-local | verify
 tool_lib/paths.py             repo root + JSON helpers
 tool_lib/jobs.py              job JSON normalization, field access, output naming
 tool_lib/references.py        reference path resolution, ordering, limits
 tool_lib/prompting.py         the shared prompt builder (single source of truth)
+tool_lib/comfy_workflow.py    ComfyUI UI workflow audit/convert/API helpers
 components/flux2_max_runner.py  FLUX.2 Max pipeline (direct BFL API)
 components/gpt_image2_runner.py GPT Image 2 pipeline (sync + batch + fetch)
+components/flux2_klein_local_runner.py Local FLUX.2 Klein workflow runner
 components/face_verify.py     ArcFace face-identity scoring (post-gen + verify mode)
 ```
 
@@ -92,6 +96,12 @@ GPT Image 2, synchronous:
 python tools/lora_data_generator/main.py --mode gpt-image-2 --input-json jobs.json --limit 5 --repeat 2
 ```
 
+Local FLUX.2 Klein 9B through the saved ComfyUI workflow:
+
+```
+python tools/lora_data_generator/main.py --mode flux2-klein-local --input-json jobs.json --limit 5 --repeat 2
+```
+
 GPT Image 2 through the Batch API (50% rates, completes within 24h):
 
 ```
@@ -114,6 +124,9 @@ Flux-only: `--seed`, `--safety-tolerance` (BFL moderation, 0 strictest to 5),
 GPT-only: `--transport`, `--size` (overrides `--width/--height`; includes `auto`),
 `--quality` (default `high`), `--moderation`, `--poll-interval`,
 `--fetch-batch`, `--base-url`.
+Local Klein-only: `--server`, `--workflow`, `--steps`, `--guidance`,
+`--sampler-name`, `--reference-method`, `--klein-unet-name`,
+`--klein-clip-name`, `--klein-vae-name`, and related loader overrides.
 
 This tool replaces the former `scripts/workflows/run_flux2_max_lora_references.py`;
 use `main.py --mode flux2-max` instead.
@@ -157,8 +170,10 @@ accepted at resolution time but rejected by both APIs).
 
 References are indexed dressing-first then character, and the shared prompt
 opens with an "Attached reference image order" block that tells the model what
-"Reference image N" means. Both pipelines attach the actual images in exactly
-that order.
+"Reference image N" means. All three generation pipelines attach/feed the
+actual images in exactly that order. In local Klein mode, missing reference
+slots are pruned from the API prompt at runtime so empty LoadImage/VAEEncode/
+ReferenceLatent nodes do not feed blank references into the model.
 
 Prompt fields (all optional; built-in master-template defaults fill gaps, and
 fields may be nested under `"chunks"`): `task_output_goal`/`task`/`output_goal`,
@@ -195,6 +210,9 @@ A `_NN` counter suffix de-duplicates same-second saves.
   the submit response.
 - gpt-image-2: images are written directly to `--output-dir` (sync, batch wait,
   and `--fetch-batch`).
+- flux2-klein-local: ComfyUI saves to a staging prefix under its normal output
+  folder, then the runner copies/converts the result into `--output-dir` using
+  the same final naming scheme and logs the ComfyUI `prompt_id`.
 
 Per-request debug logs mirror each other under `logs/flux2_max_lora_references/`
 and `logs/gpt_image2_lora_references/`: final prompt, ordered references with
