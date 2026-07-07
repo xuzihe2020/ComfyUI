@@ -84,9 +84,17 @@ ALWAYS_FIX_DEPENDENCIES = {
     # force its requirements.txt (plus the --no-deps post-install fix below) so
     # that startup auto-installer never has anything to do.
     "ComfyUI-FishAudioS2",
+    "ComfyUI-fish-audio-s2",
 }
 DIFF_MODE_FIX_EXISTING_DEPENDENCIES = {
     "ComfyUI_essentials",
+}
+SKIP_MANAGER_FIX_EXISTING = {
+    # Fish S2 has its own startup dependency installer. Running Manager's
+    # "fix" path for it can execute that same installer; use our pinned pip
+    # path below instead.
+    "ComfyUI-FishAudioS2",
+    "ComfyUI-fish-audio-s2",
 }
 EXTRA_PIP_DEPENDENCIES = {
     "ComfyUI_essentials": [
@@ -139,6 +147,20 @@ OPTIONAL_ACCELERATORS = {
             ],
         },
     },
+    "ComfyUI-fish-audio-s2": {
+        "platforms": ["linux", "windows"],
+        "platform_pip_args": {
+            "linux": [
+                {"module": "triton", "pip_args": ["triton"]},
+                {"module": "sageattention", "pip_args": ["sageattention==2.2.0", "--no-build-isolation"]},
+                {"module": "flash_attn", "pip_args": ["flash-attn", "--no-build-isolation"]},
+            ],
+            "windows": [
+                {"module": "triton", "pip_args": ["triton-windows"]},
+                {"module": "sageattention", "pip_args": ["sageattention", "--no-build-isolation"]},
+            ],
+        },
+    },
 }
 
 
@@ -157,6 +179,7 @@ def install_fish_audio_s2_dependencies(python_bin: str) -> None:
 # node's dependencies are being fixed, same gating as EXTRA_PIP_DEPENDENCIES.
 POST_INSTALL_DEPENDENCY_FIXES = {
     "ComfyUI-FishAudioS2": install_fish_audio_s2_dependencies,
+    "ComfyUI-fish-audio-s2": install_fish_audio_s2_dependencies,
 }
 
 
@@ -287,8 +310,11 @@ def manager_install_node(
             run([python_bin, "-m", "pip", "install", *extra_dependencies])
         if post_install_fix and (always_fix_deps or not no_deps):
             post_install_fix(python_bin)
-        if manager_fix_existing or always_fix_deps:
+        skip_manager_fix = name in SKIP_MANAGER_FIX_EXISTING or node["folder"] in SKIP_MANAGER_FIX_EXISTING
+        if (manager_fix_existing or always_fix_deps) and not skip_manager_fix:
             run(base_cmd + ["fix", name, "--mode", "local"], env=manager_env())
+        elif skip_manager_fix:
+            print(f"{name}: skipping ComfyUI-Manager fix; dependencies were handled by pinned installer commands.", flush=True)
         return
 
     cmd = base_cmd + ["install", repo, "--mode", "local", "--exit-on-fail"]
@@ -374,7 +400,8 @@ def diff_mode_existing_dependency_nodes(manifest: dict) -> list[dict]:
         folder_name = node["folder"]
         folder = CUSTOM_NODES_DIR / folder_name
         fix_existing_deps = name in DIFF_MODE_FIX_EXISTING_DEPENDENCIES or folder_name in DIFF_MODE_FIX_EXISTING_DEPENDENCIES
-        if folder.exists() and fix_existing_deps:
+        always_fix_deps = name in ALWAYS_FIX_DEPENDENCIES or folder_name in ALWAYS_FIX_DEPENDENCIES
+        if folder.exists() and (fix_existing_deps or always_fix_deps):
             print(f"{folder} already exists; checking dependencies", flush=True)
             nodes.append(node)
     return nodes

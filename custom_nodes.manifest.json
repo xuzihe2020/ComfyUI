@@ -100,8 +100,8 @@
       "platforms": ["linux", "windows"]
     },
     {
-      "name": "ComfyUI-FishAudioS2",
-      "folder": "ComfyUI-FishAudioS2",
+      "name": "ComfyUI-fish-audio-s2",
+      "folder": "ComfyUI-fish-audio-s2",
       "repo": "https://github.com/Saganaki22/ComfyUI-FishAudioS2",
       "reason": "Provides Fish Audio S2-Pro TTS, voice cloning from 10-30s reference audio, multi-speaker dialogue with per-speaker split outputs, and inline emotion/prosody tags for the local dubbing pipeline (docs/fish-audio-s2-dubbing-pipeline-design.md). Model weights are not bundled: the node auto-downloads them from HuggingFace (fishaudio/s2-pro ~11GB, drbaph/s2-pro-fp8 ~8GB) into models/fishaudioS2/<name> on first node execution; the node resolves models only from folder_paths.models_dir and ignores extra_model_paths.yaml, so external model storage needs a models/fishaudioS2 link or pre-placed folder. requirements.txt force-installed via ALWAYS_FIX_DEPENDENCIES and descript-audio-codec/descript-audiotools installed with --no-deps by the installer (protobuf<5 conflict) so the node's own startup auto-installer stays inert. CUDA-focused, so gated to linux/windows.",
       "platforms": ["linux", "windows"]
