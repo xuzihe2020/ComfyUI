@@ -35,6 +35,10 @@ __pycache__/
 /custom_nodes/
 !custom_nodes/example_node.py.example
 
+# Standalone tool repos installed by scripts/install_custom_nodes.py
+# (see the "tools" section of custom_nodes.manifest.json)
+/tools/video_sampler/
+
 # Local caches and runtime state
 /logs/
 /.cache/

@@ -18,6 +18,10 @@ folders are missing from custom_nodes/ are installed. Existing nodes can get a
 dependency fix or lightweight optional-accelerator check without running
 ComfyUI-Manager for every node.
 
+The manifest's "tools" section lists standalone tool repos (e.g. video_sampler)
+that are cloned into tools/ the same way: missing folders are cloned and their
+requirements.txt installed; existing clones are left in place.
+
 Show help/options only:
 
     python .\\scripts\\install_custom_nodes.py --help
@@ -52,6 +56,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST = REPO_ROOT / "custom_nodes.manifest.json"
 DEFAULT_EXTRA_MODEL_PATHS = REPO_ROOT / "extra_model_paths.yaml"
 CUSTOM_NODES_DIR = REPO_ROOT / "custom_nodes"
+TOOLS_DIR = REPO_ROOT / "tools"
 
 # Patched custom nodes maintained from the user's GitHub should be handled first.
 # These forks carry repo-specific fixes and compatibility patches, so the install
@@ -262,6 +267,25 @@ def clone_repo(repo: str, target: Path) -> None:
         return
     target.parent.mkdir(parents=True, exist_ok=True)
     run(["git", "clone", repo, str(target)])
+
+
+def install_tools(manifest: dict, python_bin: str, *, install_mode: str, no_deps: bool) -> None:
+    """Clone the standalone tool repos listed under "tools" in the manifest
+    into tools/. Unlike custom nodes these are plain CLI repos that ComfyUI
+    never imports, so there is no ComfyUI-Manager step: clone when the folder
+    is missing, then install requirements.txt on first clone (or in full
+    mode)."""
+    for tool in manifest.get("tools", []):
+        if not node_allowed_here(tool):
+            print(f"{tool['name']}: skipping on {current_os()} "
+                  f"(platforms={tool['platforms']})", flush=True)
+            continue
+        target = TOOLS_DIR / tool["folder"]
+        newly_cloned = not target.exists()
+        clone_repo(tool["repo"], target)
+        requirements = target / "requirements.txt"
+        if requirements.exists() and not no_deps and (newly_cloned or install_mode == "full"):
+            run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
 
 
 def install_manager(manifest: dict, python_bin: str, *, install_requirements: bool) -> Path:
@@ -489,6 +513,7 @@ def main() -> None:
 
     manifest = load_manifest(args.manifest)
     install_mode = "full" if args.full else args.install_mode
+    install_tools(manifest, comfy_python(), install_mode=install_mode, no_deps=args.no_deps)
     existing_dependency_nodes: list[dict] = []
     existing_accelerator_nodes: list[dict] = []
     if install_mode == "full":
