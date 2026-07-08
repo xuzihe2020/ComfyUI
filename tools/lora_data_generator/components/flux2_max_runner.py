@@ -32,6 +32,7 @@ from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, item_s
 from tool_lib.paths import resolve_repo_path, unique_path
 from tool_lib.prompting import build_prompt
 from tool_lib.references import ensure_extensions, ref_summary, reference_log_entries, reference_paths
+from tool_lib.run_summary import average_s, elapsed_s, now_s, write_run_summary
 
 BFL_ENDPOINT = "/v1/flux-2-max"
 DEFAULT_LOG_DIR = Path("logs/flux2_max_lora_references")
@@ -75,8 +76,10 @@ def run(args: argparse.Namespace) -> int:
     # call the API and may run without a key, so build the client lazily.
     client = None if args.dry_run else BFLClient(args.flux_api_key, base_url=args.bfl_base_url)
 
-    input_path = resolve_repo_path(args.input_json)
-    jobs = load_job_items(input_path, args.limit)
+    input_paths = [resolve_repo_path(path) for path in args.input_paths]
+    input_source = input_paths if args.input_source_kind == "files" else input_paths[0]
+    input_log = [str(path) for path in input_paths] if args.input_source_kind == "files" else str(input_paths[0])
+    jobs = load_job_items(input_source, args.limit, source_kind=args.input_source_kind)
     if not jobs:
         raise SystemExit("No prompt items found.")
 
@@ -87,6 +90,12 @@ def run(args: argparse.Namespace) -> int:
     total_runs = len(jobs) * args.repeat
     total_cost = 0.0
     run_index = 0
+    run_timestamp_s = now_s()
+    run_started_perf = time.perf_counter()
+    generated_image_count = 0
+    total_generation_s = 0.0
+    request_logs: list[str] = []
+    saved_images_all: list[str] = []
 
     for index, job in enumerate(jobs, start=1):
         item = job.item
@@ -129,6 +138,7 @@ def run(args: argparse.Namespace) -> int:
             log_path = None
             if not args.no_log:
                 log_path = write_log(log_dir, f"{run_index:05d}_{stem}_{timestamp_s}.flux2_request.json", log_payload)
+                request_logs.append(str(log_path))
 
             repeat_text = f" repeat {repeat_index}/{args.repeat}" if args.repeat > 1 else ""
             log_text = f"; log: {log_path}" if log_path else ""
@@ -147,6 +157,7 @@ def run(args: argparse.Namespace) -> int:
                 payload["safety_tolerance"] = args.safety_tolerance
             attach_references(payload, refs, encode_cache)
 
+            generation_started_perf = time.perf_counter()
             submitted = client.post_json(BFL_ENDPOINT, payload)
             request_id = submitted.get("id")
             cost = submitted.get("cost")
@@ -171,6 +182,10 @@ def run(args: argparse.Namespace) -> int:
             target = unique_path(output_dir / f"{name}{suffix}")
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
+            generation_duration_s = round(time.perf_counter() - generation_started_perf, 3)
+            total_generation_s += generation_duration_s
+            generated_image_count += 1
+            saved_images_all.append(str(target))
 
             print(f"[{run_index}/{total_runs}] done {base_stem}{repeat_text}: saved {target.name} in {output_dir}{log_text}")
             face_entries = face_verify.score_saved_images(
@@ -181,6 +196,7 @@ def run(args: argparse.Namespace) -> int:
                 log_payload.update(
                     {
                         "request_id": request_id,
+                        "generation_duration_s": generation_duration_s,
                         "cost": cost,
                         "input_mp": submitted.get("input_mp"),
                         "output_mp": submitted.get("output_mp"),
@@ -192,4 +208,33 @@ def run(args: argparse.Namespace) -> int:
 
     if not args.dry_run and total_cost:
         print(f"total billed cost reported by BFL: {round(total_cost, 6)}")
+    if not args.no_log:
+        summary_path = write_run_summary(
+            log_dir,
+            "flux2_max",
+            run_timestamp_s,
+            {
+                "mode": "flux2-max",
+                "dry_run": args.dry_run,
+                "started_at_unix_s": run_timestamp_s,
+                "elapsed_s": elapsed_s(run_started_perf),
+                "input_path": input_log,
+                "endpoint": BFL_ENDPOINT,
+                "output_dir": str(output_dir),
+                "total_runs": total_runs,
+                "completed_runs": run_index,
+                "generated_image_count": generated_image_count,
+                "total_generation_s": round(total_generation_s, 3),
+                "average_generation_s_per_image": average_s(total_generation_s, generated_image_count),
+                "average_generation_s_per_run": average_s(total_generation_s, run_index if not args.dry_run else 0),
+                "api": {
+                    "provider": "bfl",
+                    "reported_total_cost": round(total_cost, 6),
+                    "token_usage": None,
+                },
+                "request_logs": request_logs,
+                "saved_images": saved_images_all,
+            },
+        )
+        print(f"run summary: {summary_path}")
     return 0

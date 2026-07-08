@@ -45,10 +45,13 @@ from tool_lib.jobs import SUFFIX_BY_FORMAT, get_field, image_output_name, input_
 from tool_lib.paths import resolve_repo_path, unique_path
 from tool_lib.prompting import build_prompt
 from tool_lib.references import ensure_extensions, ref_summary, reference_log_entries, reference_paths
+from tool_lib.run_summary import average_s, elapsed_s, now_s, write_run_summary
 
 MODEL = "gpt-image-2"
-IMAGES_EDIT_ENDPOINT = "/v1/images/edits"
-IMAGES_GENERATE_ENDPOINT = "/v1/images/generations"
+IMAGES_EDIT_PATH = "/images/edits"
+IMAGES_GENERATE_PATH = "/images/generations"
+BATCH_IMAGES_EDIT_ENDPOINT = "/v1/images/edits"
+BATCH_IMAGES_GENERATE_ENDPOINT = "/v1/images/generations"
 DEFAULT_LOG_DIR = Path("logs/gpt_image2_lora_references")
 SUPPORTED_SIZES = {"1024x1024", "1024x1536", "1536x1024"}
 GPT_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
@@ -125,6 +128,21 @@ def cached_tokens(usage: Any) -> int:
     return 0
 
 
+def add_usage_totals(totals: dict[str, int], usage: Any) -> None:
+    if not isinstance(usage, dict):
+        return
+    for key in ("input_tokens", "output_tokens", "total_tokens"):
+        value = usage.get(key)
+        if isinstance(value, int):
+            totals[key] = totals.get(key, 0) + value
+    details = usage.get("input_tokens_details") or {}
+    if isinstance(details, dict):
+        for key in ("text_tokens", "image_tokens", "cached_tokens"):
+            value = details.get(key)
+            if isinstance(value, int):
+                totals[key] = totals.get(key, 0) + value
+
+
 class RefEncoder:
     """Read and base64-encode each reference file once per process.
 
@@ -149,8 +167,10 @@ class RefEncoder:
         return self._data_urls[path]
 
 
-def endpoint_for_refs(refs: list[tuple[str, Path]]) -> str:
-    return IMAGES_EDIT_ENDPOINT if refs else IMAGES_GENERATE_ENDPOINT
+def endpoint_for_refs(refs: list[tuple[str, Path]], *, batch: bool = False) -> str:
+    if batch:
+        return BATCH_IMAGES_EDIT_ENDPOINT if refs else BATCH_IMAGES_GENERATE_ENDPOINT
+    return IMAGES_EDIT_PATH if refs else IMAGES_GENERATE_PATH
 
 
 def build_json_body(run: dict[str, Any], encoder: RefEncoder, args: argparse.Namespace) -> dict[str, Any]:
@@ -163,10 +183,25 @@ def build_json_body(run: dict[str, Any], encoder: RefEncoder, args: argparse.Nam
         "n": 1,
     }
     if run["refs"]:
-        body["image"] = [encoder.data_url(path) for _, path in run["refs"]]
+        body["images"] = [{"image_url": encoder.data_url(path)} for _, path in run["refs"]]
     if args.moderation:
         body["moderation"] = args.moderation
     return body
+
+
+def validate_batch_json_body(endpoint: str, body: dict[str, Any]) -> None:
+    if endpoint != BATCH_IMAGES_EDIT_ENDPOINT:
+        return
+    if "image" in body:
+        raise ValueError("Batch /images/edits JSON must use 'images', not 'image'.")
+    images = body.get("images")
+    if not isinstance(images, list) or not images:
+        raise ValueError("Batch /images/edits JSON requires a non-empty 'images' array.")
+    for index, image in enumerate(images):
+        if not isinstance(image, dict):
+            raise ValueError(f"Batch /images/edits images[{index}] must be an object with image_url or file_id.")
+        if not (image.get("image_url") or image.get("file_id")):
+            raise ValueError(f"Batch /images/edits images[{index}] must include image_url or file_id.")
 
 
 def request_log_payload(
@@ -200,7 +235,7 @@ def request_log_payload(
         "output_dir": str(output_dir),
         "model": MODEL,
         "transport": transport,
-        "endpoint": endpoint_for_refs(refs),
+        "endpoint": endpoint_for_refs(refs, batch=transport == "batch"),
         "size": size,
         "quality": args.quality,
         "output_format": args.output_format,
@@ -233,10 +268,25 @@ def save_response_images(body: dict[str, Any], output_dir: Path, input_stem: str
     return saved
 
 
+def resolved_input_paths(args: argparse.Namespace) -> list[Path]:
+    return [resolve_repo_path(path) for path in args.input_paths]
+
+
+def resolve_input_source(args: argparse.Namespace) -> Path | list[Path]:
+    paths = resolved_input_paths(args)
+    return paths if args.input_source_kind == "files" else paths[0]
+
+
+def input_path_log(args: argparse.Namespace) -> str | list[str]:
+    paths = resolved_input_paths(args)
+    return [str(path) for path in paths] if args.input_source_kind == "files" else str(paths[0])
+
+
 def build_runs(args: argparse.Namespace, transport: str) -> tuple[list[dict[str, Any]], int]:
     """Expand input items x repeats into run descriptors shared by sync and batch."""
-    input_path = resolve_repo_path(args.input_json)
-    jobs = load_job_items(input_path, args.limit)
+    input_paths = [resolve_repo_path(path) for path in args.input_paths]
+    input_source = input_paths if args.input_source_kind == "files" else input_paths[0]
+    jobs = load_job_items(input_source, args.limit, source_kind=args.input_source_kind)
     if not jobs:
         raise SystemExit("No prompt items found.")
 
@@ -297,13 +347,19 @@ def make_client(args: argparse.Namespace) -> OpenAIClient:
 
 
 def run_sync(args: argparse.Namespace) -> int:
-    runs, _ = build_runs(args, transport="sync")
+    runs, run_timestamp_s = build_runs(args, transport="sync")
     log_dir = resolve_repo_path(args.log_dir or DEFAULT_LOG_DIR)
     encoder = RefEncoder()
     # Dry runs never call the API and may run without a key.
     client = None if args.dry_run else make_client(args)
+    run_started_perf = time.perf_counter()
     total_cost = 0.0
     total_cached = 0
+    total_usage: dict[str, int] = {}
+    generated_image_count = 0
+    total_generation_s = 0.0
+    request_logs: list[str] = []
+    saved_images_all: list[str] = []
 
     for run in runs:
         refs = run["refs"]
@@ -316,11 +372,13 @@ def run_sync(args: argparse.Namespace) -> int:
                 f"{run['run_index']:05d}_{run['stem']}_{run['timestamp_s']}.gpt_request.json",
                 run["log_payload"],
             )
+            request_logs.append(str(log_path))
 
         if args.dry_run:
             print(f"{label} {run['stem']}: built prompt with {summary} refs" + (f"; log: {log_path}" if log_path else ""))
             continue
 
+        generation_started_perf = time.perf_counter()
         if refs:
             fields = [
                 ("model", MODEL),
@@ -336,14 +394,19 @@ def run_sync(args: argparse.Namespace) -> int:
                 ("image[]", path.name, encoder.read_bytes(path), MIME_BY_SUFFIX[path.suffix.lower()])
                 for _, path in refs
             ]
-            response = client.post_multipart(IMAGES_EDIT_ENDPOINT, fields, files)
+            response = client.post_multipart(IMAGES_EDIT_PATH, fields, files)
         else:
-            response = client.post_json(IMAGES_GENERATE_ENDPOINT, build_json_body(run, encoder, args))
+            response = client.post_json(IMAGES_GENERATE_PATH, build_json_body(run, encoder, args))
 
         saved = save_response_images(response, run["output_dir"], run["input_stem"], args.output_format)
+        generation_duration_s = round(time.perf_counter() - generation_started_perf, 3)
+        total_generation_s += generation_duration_s
+        generated_image_count += len(saved)
+        saved_images_all.extend(str(path) for path in saved)
         usage = response.get("usage")
         cost = estimate_cost_usd(usage, batch=False)
         cached = cached_tokens(usage)
+        add_usage_totals(total_usage, usage)
         total_cached += cached
         if cost is not None:
             total_cost += cost
@@ -357,6 +420,7 @@ def run_sync(args: argparse.Namespace) -> int:
         if log_path:
             run["log_payload"].update(
                 {
+                    "generation_duration_s": generation_duration_s,
                     "usage": usage,
                     "estimated_cost_usd": cost,
                     "saved_images": [str(path) for path in saved],
@@ -367,6 +431,37 @@ def run_sync(args: argparse.Namespace) -> int:
 
     if not args.dry_run and total_cost:
         print(f"total estimated cost: ${total_cost:.4f} (cached input tokens: {total_cached})")
+    if not args.no_log:
+        summary_path = write_run_summary(
+            log_dir,
+            "gpt_image2_sync",
+            run_timestamp_s,
+            {
+                "mode": "gpt-image-2",
+                "transport": "sync",
+                "dry_run": args.dry_run,
+                "started_at_unix_s": run_timestamp_s,
+                "elapsed_s": elapsed_s(run_started_perf),
+                "input_path": input_path_log(args),
+                "output_dir": str(resolve_repo_path(args.output_dir)),
+                "total_runs": len(runs),
+                "completed_runs": len(runs),
+                "generated_image_count": generated_image_count,
+                "total_generation_s": round(total_generation_s, 3),
+                "average_generation_s_per_image": average_s(total_generation_s, generated_image_count),
+                "average_generation_s_per_run": average_s(total_generation_s, len(runs) if not args.dry_run else 0),
+                "api": {
+                    "provider": "openai",
+                    "model": MODEL,
+                    "estimated_total_cost_usd": round(total_cost, 6),
+                    "token_usage": total_usage,
+                    "cached_input_tokens": total_cached,
+                },
+                "request_logs": request_logs,
+                "saved_images": saved_images_all,
+            },
+        )
+        print(f"run summary: {summary_path}")
     return 0
 
 
@@ -377,6 +472,7 @@ def batch_root(args: argparse.Namespace) -> Path:
 def run_batch(args: argparse.Namespace) -> int:
     runs, timestamp_s = build_runs(args, transport="batch")
     encoder = RefEncoder()
+    run_started_perf = time.perf_counter()
 
     # A batch is bound to one endpoint; zero-ref runs use /images/generations,
     # so group lines per endpoint (normally a single group).
@@ -384,8 +480,9 @@ def run_batch(args: argparse.Namespace) -> int:
     manifest: dict[str, Any] = {}
     for run in runs:
         custom_id = f"r{run['run_index']:05d}"
-        endpoint = endpoint_for_refs(run["refs"])
+        endpoint = endpoint_for_refs(run["refs"], batch=True)
         body = build_json_body(run, encoder, args)
+        validate_batch_json_body(endpoint, body)
         lines_by_endpoint.setdefault(endpoint, []).append(
             json.dumps(
                 {"custom_id": custom_id, "method": "POST", "url": endpoint, "body": body},
@@ -394,14 +491,14 @@ def run_batch(args: argparse.Namespace) -> int:
         )
         manifest[custom_id] = run["log_payload"]
 
-    input_stem = input_collection_stem(resolve_repo_path(args.input_json))
+    input_stem = input_collection_stem(resolve_input_source(args))
     batch_dir = batch_root(args) / f"{timestamp_s}_{input_stem}"
     batch_dir.mkdir(parents=True, exist_ok=True)
     write_log(batch_dir, "manifest.json", manifest)
 
     request_files: list[tuple[str, Path, bytes]] = []
     for endpoint, lines in lines_by_endpoint.items():
-        suffix = "edits" if endpoint == IMAGES_EDIT_ENDPOINT else "generations"
+        suffix = "edits" if endpoint == BATCH_IMAGES_EDIT_ENDPOINT else "generations"
         requests_path = batch_dir / f"requests_{suffix}.jsonl"
         requests_data = ("\n".join(lines) + "\n").encode("utf-8")
         requests_path.write_bytes(requests_data)
@@ -413,6 +510,31 @@ def run_batch(args: argparse.Namespace) -> int:
 
     if args.dry_run:
         print("[dry-run] not uploading; inspect the request JSONL and manifest.json above")
+        if not args.no_log:
+            summary_path = write_run_summary(
+                batch_dir,
+                "gpt_image2_batch_submit",
+                timestamp_s,
+                {
+                    "mode": "gpt-image-2",
+                    "transport": "batch",
+                    "dry_run": True,
+                    "started_at_unix_s": timestamp_s,
+                    "elapsed_s": elapsed_s(run_started_perf),
+                    "input_path": input_path_log(args),
+                    "batch_dir": str(batch_dir),
+                    "total_runs": len(runs),
+                    "prepared_request_files": [str(path) for _, path, _ in request_files],
+                    "api": {
+                        "provider": "openai",
+                        "model": MODEL,
+                        "estimated_total_cost_usd": 0.0,
+                        "token_usage": {},
+                        "cached_input_tokens": 0,
+                    },
+                },
+            )
+            print(f"run summary: {summary_path}")
         return 0
 
     client = make_client(args)
@@ -422,7 +544,7 @@ def run_batch(args: argparse.Namespace) -> int:
         batch = client.create_batch(
             uploaded["id"],
             endpoint,
-            metadata={"source": "lora_data_generator", "input_json": input_stem},
+            metadata={"source": "lora_data_generator", "input": input_stem},
         )
         submitted_batches.append(
             {
@@ -438,6 +560,32 @@ def run_batch(args: argparse.Namespace) -> int:
         print(f"resume later with: --mode gpt-image-2 --fetch-batch {batch['id']}")
     write_log(batch_dir, "submitted.json", {"batches": submitted_batches})
     print(f"batch state saved to {batch_dir / 'submitted.json'}")
+    if not args.no_log:
+        summary_path = write_run_summary(
+            batch_dir,
+            "gpt_image2_batch_submit",
+            timestamp_s,
+            {
+                "mode": "gpt-image-2",
+                "transport": "batch",
+                "dry_run": False,
+                "started_at_unix_s": timestamp_s,
+                "elapsed_s": elapsed_s(run_started_perf),
+                "input_path": input_path_log(args),
+                "batch_dir": str(batch_dir),
+                "total_runs": len(runs),
+                "submitted_batches": submitted_batches,
+                "prepared_request_files": [str(path) for _, path, _ in request_files],
+                "api": {
+                    "provider": "openai",
+                    "model": MODEL,
+                    "estimated_total_cost_usd": 0.0,
+                    "token_usage": {},
+                    "cached_input_tokens": 0,
+                },
+            },
+        )
+        print(f"run summary: {summary_path}")
 
     if args.no_wait:
         return 0
@@ -499,8 +647,8 @@ def run_fetch_batch(args: argparse.Namespace) -> int:
     status = batch.get("status")
     if status not in TERMINAL_BATCH_STATUSES:
         counts = batch.get("request_counts") or {}
-        print(f"batch {args.fetch_batch} is {status} ({counts.get('completed', 0)}/{counts.get('total', '?')} done); try again later")
-        return 0
+        print(f"batch {args.fetch_batch} is {status} ({counts.get('completed', 0)}/{counts.get('total', '?')} done); waiting...")
+        return wait_and_fetch(client, args.fetch_batch, batch_dir, args)
     if status != "completed":
         errors = batch.get("errors")
         print(f"batch {args.fetch_batch} ended as {status}" + (f"; errors: {json.dumps(errors)}" if errors else ""))
@@ -509,6 +657,8 @@ def run_fetch_batch(args: argparse.Namespace) -> int:
 
 
 def fetch_results(client: OpenAIClient, batch: dict[str, Any], batch_dir: Path | None, args: argparse.Namespace) -> int:
+    run_timestamp_s = now_s()
+    run_started_perf = time.perf_counter()
     manifest: dict[str, Any] = {}
     if batch_dir and (batch_dir / "manifest.json").is_file():
         manifest = json.loads((batch_dir / "manifest.json").read_text(encoding="utf-8"))
@@ -518,6 +668,8 @@ def fetch_results(client: OpenAIClient, batch: dict[str, Any], batch_dir: Path |
     failures: list[str] = []
     total_cost = 0.0
     total_cached = 0
+    total_usage: dict[str, int] = {}
+    saved_images_all: list[str] = []
     results_log: dict[str, Any] = {}
 
     output_file_id = batch.get("output_file_id")
@@ -532,13 +684,15 @@ def fetch_results(client: OpenAIClient, batch: dict[str, Any], batch_dir: Path |
             response = record.get("response") or {}
             body = response.get("body") or {}
             if record.get("error") or response.get("status_code") != 200:
-                failures.append(f"{custom_id}: {json.dumps(record.get('error') or body)[:300]}")
+                failures.append(f"{custom_id}: {json.dumps(record.get('error') or body, ensure_ascii=False)}")
                 continue
             saved = save_response_images(body, output_dir, input_stem, args.output_format)
             saved_count += len(saved)
+            saved_images_all.extend(str(path) for path in saved)
             usage = body.get("usage")
             cost = estimate_cost_usd(usage, batch=True)
             cached = cached_tokens(usage)
+            add_usage_totals(total_usage, usage)
             total_cached += cached
             if cost is not None:
                 total_cost += cost
@@ -569,10 +723,51 @@ def fetch_results(client: OpenAIClient, batch: dict[str, Any], batch_dir: Path |
         for line in client.file_content(error_file_id).decode("utf-8").splitlines():
             if line.strip():
                 record = json.loads(line)
-                failures.append(f"{record.get('custom_id')}: {json.dumps(record.get('error') or record.get('response'))[:300]}")
+                failures.append(f"{record.get('custom_id')}: {json.dumps(record.get('error') or record.get('response'), ensure_ascii=False)}")
 
     if batch_dir:
         write_log(batch_dir, "results.json", {"batch_id": batch.get("id"), "results": results_log, "failures": failures})
+
+    batch_elapsed_s = None
+    created_at = batch.get("created_at")
+    completed_at = batch.get("completed_at")
+    if isinstance(created_at, int) and isinstance(completed_at, int) and completed_at >= created_at:
+        batch_elapsed_s = completed_at - created_at
+
+    if not args.no_log:
+        summary_dir = batch_dir or resolve_repo_path(args.log_dir or DEFAULT_LOG_DIR)
+        summary_path = write_run_summary(
+            summary_dir,
+            "gpt_image2_batch_results",
+            run_timestamp_s,
+            {
+                "mode": "gpt-image-2",
+                "transport": "batch",
+                "dry_run": False,
+                "fetch_batch": batch.get("id"),
+                "started_at_unix_s": run_timestamp_s,
+                "elapsed_s": elapsed_s(run_started_perf),
+                "batch_api_elapsed_s": batch_elapsed_s,
+                "output_dir": str(output_dir),
+                "batch_dir": str(batch_dir) if batch_dir else None,
+                "request_counts": batch.get("request_counts"),
+                "generated_image_count": saved_count,
+                "failure_count": len(failures),
+                "total_generation_s": batch_elapsed_s,
+                "average_generation_s_per_image": average_s(float(batch_elapsed_s), saved_count) if batch_elapsed_s is not None else None,
+                "api": {
+                    "provider": "openai",
+                    "model": MODEL,
+                    "estimated_total_cost_usd": round(total_cost, 6),
+                    "token_usage": total_usage,
+                    "cached_input_tokens": total_cached,
+                    "batch_discount_applied": True,
+                },
+                "saved_images": saved_images_all,
+                "failures": failures,
+            },
+        )
+        print(f"run summary: {summary_path}")
 
     print(
         f"batch {batch.get('id')}: saved {saved_count} image(s), {len(failures)} failure(s)"

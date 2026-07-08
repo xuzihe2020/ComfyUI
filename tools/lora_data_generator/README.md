@@ -17,11 +17,11 @@ local equivalent of the hosted reference-image runs.
 
 Prompt construction (`tool_lib/prompting.py`) and reference-image resolution and
 indexing (`tool_lib/references.py`) are shared by both pipelines. A run with the
-same `--input-json` sends **byte-identical prompt text** and the **same
-reference images in the same order** to both models, so output comparisons are
-apples-to-apples. The GPT pipeline deliberately uses the Images API rather than
-the Responses API image tool, because the latter lets the mainline model
-rewrite the prompt before the image model sees it.
+same `--input-json` file or `--input-dir` folder sends **byte-identical prompt
+text** and the **same reference images in the same order** to both models, so
+output comparisons are apples-to-apples. The GPT pipeline deliberately uses the
+Images API rather than the Responses API image tool, because the latter lets the
+mainline model rewrite the prompt before the image model sees it.
 
 ## Layout
 
@@ -81,6 +81,8 @@ Dry-run first (builds prompts and debug logs, calls no API):
 ```
 python tools/lora_data_generator/main.py --mode flux2-max --input-json jobs.json --dry-run
 python tools/lora_data_generator/main.py --mode gpt-image-2 --input-json jobs.json --dry-run
+python tools/lora_data_generator/main.py --mode flux2-klein-local --input-dir path/to/jobs_folder --limit 5 --dry-run
+python tools/lora_data_generator/main.py --mode gpt-image-2 --input-files job_a.json job_b.json --transport batch --dry-run
 ```
 
 FLUX.2 Max via the BFL API (each run prints the actual billed cost and
@@ -111,13 +113,17 @@ python tools/lora_data_generator/main.py --mode gpt-image-2 --input-json jobs.js
 # submit and exit immediately:
 python tools/lora_data_generator/main.py --mode gpt-image-2 --input-json jobs.json --transport batch --no-wait
 
+# submit selected JSON files exactly once each, in the order provided:
+python tools/lora_data_generator/main.py --mode gpt-image-2 --transport batch --input-files job_a.json job_b.json job_c.json --no-wait
+
 # fetch results later (batch id is printed at submit time and saved to submitted.json):
 python tools/lora_data_generator/main.py --mode gpt-image-2 --fetch-batch batch_abc123
 ```
 
 Common flags: `--limit N`, `--repeat N`, `--width/--height` (defaults defined in
-`main.py`: 1024x1536), `--env-file`, `--output-dir`, `--output-format`,
-`--log-dir`, `--no-log`, `--dry-run`, `--timeout`,
+`main.py`: 1024x1536), `--input-json FILE`, `--input-dir DIR`,
+`--input-files FILE [FILE ...]`, `--env-file`, `--output-dir`,
+`--output-format`, `--log-dir`, `--no-log`, `--dry-run`, `--timeout`,
 `--no-wait` (gpt batch only).
 Flux-only: `--seed`, `--safety-tolerance` (BFL moderation, 0 strictest to 5),
 `--bfl-base-url`.
@@ -133,10 +139,12 @@ use `main.py --mode flux2-max` instead.
 
 ## Input JSON format
 
-The path passed to `--input-json` may be a single JSON file or a directory of
-`.json` files. A directory is read as all direct child `.json` files sorted by
-filename, and `--limit` applies across that combined list. Each file may contain
-a single job object, a list of jobs, or an object with an
+Use `--input-json FILE` for one JSON file, `--input-dir DIR` for a directory of
+`.json` files, or `--input-files FILE [FILE ...]` for an explicit curated list.
+A directory is read as all direct child `.json` files sorted by filename.
+`--input-files` preserves the order you provide. `--limit` applies across the
+combined list when used, and `--repeat` defaults to 1. Each file may contain a
+single job object, a list of jobs, or an object with an
 `items`/`jobs`/`prompts` list.
 
 ```json
@@ -180,11 +188,11 @@ ReferenceLatent nodes do not feed blank references into the model.
 
 Prompt fields (all optional; built-in master-template defaults fill gaps, and
 fields may be nested under `"chunks"`): `task_output_goal`/`task`/`output_goal`,
-`reference_priority`, `identity_lock`/`character_identity`/`identity`,
+optional `reference_priority`, `identity_lock`/`character_identity`/`identity`,
 `outfit_block`/`outfit`, `shot_type`/`shot`/`framing`, `camera_view`/`angle`,
 `pose`/`action`, `expression`, `environment_block`/`environment`/`background`,
 `lighting_camera_realism`/`lighting`/`photography_style`,
-`anti_drift_constraints`/`consistency_requirements`,
+optional `anti_drift_constraints`/`consistency_requirements`,
 `avoid`/`negative_constraints`. Providing `prompt`/`positive_prompt` bypasses
 chunk assembly (the reference-order block is still prepended).
 
@@ -202,7 +210,7 @@ Final images from both pipelines are written to `--output-dir` (default
 `output/lora_data_generator/`, repo-relative unless absolute), named:
 
 ```
-{input_json_stem}_{flux2|gpt}_{unix_seconds}.{png|jpeg|webp}
+{input_json_stem}_{flux2|gpt|klein}_{unix_seconds}.{png|jpeg|webp}
 ```
 
 A `_NN` counter suffix de-duplicates same-second saves.
@@ -218,9 +226,18 @@ A `_NN` counter suffix de-duplicates same-second saves.
   the same final naming scheme and logs the ComfyUI `prompt_id`.
 
 Per-request debug logs mirror each other under `logs/flux2_max_lora_references/`
-and `logs/gpt_image2_lora_references/`: final prompt, ordered references with
-role labels, size/seed/quality, and (GPT) the raw `usage` block plus an
-estimated USD cost. API keys are never written to logs.
+`logs/gpt_image2_lora_references/`, and `logs/flux2_klein_lora_references/`:
+final prompt, ordered references with role labels, size/seed/quality, and (GPT)
+the raw `usage` block plus an estimated USD cost. API keys are never written to
+logs.
+
+Each run also writes a run-level summary named
+`run_summary_<mode>_<unix_seconds>.json` in the same log folder. It records
+elapsed seconds, generated image count, total/average generation seconds, saved
+image paths, request log paths, and backend cost stats. BFL summaries include
+the reported total `cost`; GPT sync/fetch summaries include aggregate token
+usage, cached input tokens, and estimated USD cost; local Klein summaries have
+`"api": null`.
 
 Batch state lives in `logs/gpt_image2_lora_references/batches/<ts>_<input>/`:
 `requests.jsonl` (uploaded bodies), `manifest.json` (custom_id -> job mapping),

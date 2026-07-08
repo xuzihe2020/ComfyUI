@@ -9,7 +9,8 @@ One CLI, two backends selected with --mode:
                 through the 50%-priced Batch API (--transport batch).
 
 Both modes share the same input JSON format, prompt construction, and
-reference image ordering (lib/), so a run with the same --input-json is an
+reference image ordering (lib/), so a run with the same --input-json or
+--input-dir is an
 apples-to-apples comparison between the two models.
 
 Examples
@@ -72,8 +73,8 @@ MODES = ("flux2-max", "gpt-image-2", "flux2-klein-local", "verify")
 DEFAULT_WIDTH = 1024
 DEFAULT_HEIGHT = 1536
 
-# Final images from both pipelines land here (repo-relative unless absolute),
-# named {input_json_stem}_{flux2|gpt}_{unix_seconds}.<ext>.
+# Final images from all generation pipelines land here (repo-relative unless absolute),
+# named {input_json_stem}_{flux2|gpt|klein}_{unix_seconds}.<ext>.
 DEFAULT_OUTPUT_DIR = Path("output/lora_data_generator")
 
 
@@ -99,7 +100,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--input-json",
         type=Path,
-        help="Job JSON file, or a directory of .json job files. Each file may be a single object, list, or items/jobs/prompts.",
+        help="Single job JSON file. Use --input-dir for a folder of .json job files.",
+    )
+    parser.add_argument(
+        "--input-dir",
+        type=Path,
+        help="Directory of direct child .json job files, sorted by filename. Use --input-json for one file.",
+    )
+    parser.add_argument(
+        "--input-files",
+        nargs="+",
+        type=Path,
+        help="Explicit JSON files to process in the order provided. Use this for a curated subset.",
     )
     parser.add_argument("--limit", type=int, help="Process at most N jobs. Default: unlimited.")
     parser.add_argument(
@@ -171,7 +183,8 @@ def build_parser() -> argparse.ArgumentParser:
     gpt.add_argument(
         "--moderation",
         choices=("auto", "low"),
-        help="Content moderation strictness. Omitted from the request unless set.",
+        default="low",
+        help="Content moderation strictness. Default: low.",
     )
     gpt.add_argument("--poll-interval", type=int, default=60, help="Batch status poll interval in seconds. Default: 60.")
     gpt.add_argument("--fetch-batch", metavar="BATCH_ID", help="Fetch results of a previously submitted batch and exit.")
@@ -244,8 +257,26 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--limit must be positive when provided.")
     if args.repeat < 1:
         raise SystemExit("--repeat must be positive.")
-    if args.input_json is None and not (args.mode == "gpt-image-2" and args.fetch_batch):
-        raise SystemExit("--input-json is required (except with --mode gpt-image-2 --fetch-batch).")
+    if not (args.mode == "gpt-image-2" and args.fetch_batch):
+        input_sources = [bool(args.input_json), bool(args.input_dir), bool(args.input_files)]
+        if sum(input_sources) != 1:
+            raise SystemExit("Provide exactly one of --input-json FILE, --input-dir DIR, or --input-files FILE [FILE ...].")
+        if args.input_json:
+            args.input_path = args.input_json
+            args.input_paths = [args.input_json]
+            args.input_source_kind = "file"
+        elif args.input_dir:
+            args.input_path = args.input_dir
+            args.input_paths = [args.input_dir]
+            args.input_source_kind = "dir"
+        else:
+            args.input_path = args.input_files[0]
+            args.input_paths = args.input_files
+            args.input_source_kind = "files"
+    else:
+        args.input_path = None
+        args.input_paths = []
+        args.input_source_kind = None
 
     load_env_file(args.env_file)
 

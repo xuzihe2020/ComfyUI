@@ -1,12 +1,14 @@
 """Input job JSON loading, normalization, and field access shared by both pipelines.
 
-The input file may be a single job object, a list of job objects, or an object
-containing an "items", "jobs", or "prompts" list. Prompt fields may also be
-nested under a per-job "chunks" object. See the tool README for the full format.
+An input JSON file may be a single job object, a list of job objects, or an
+object containing an "items", "jobs", or "prompts" list. An input directory is
+expanded as sorted direct child .json files. Prompt fields may also be nested
+under a per-job "chunks" object. See the tool README for the full format.
 """
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 import json
 from pathlib import Path
@@ -22,20 +24,48 @@ class JobItem:
     input_stem: str
 
 
-def input_json_files(path: Path) -> list[Path]:
-    if path.is_dir():
+def input_json_files(path: Path | Sequence[Path], source_kind: str) -> list[Path]:
+    if source_kind == "file":
+        if not isinstance(path, Path):
+            raise ValueError("--input-json expects exactly one JSON file path.")
+        if path.is_file():
+            return [path]
+        if path.is_dir():
+            raise IsADirectoryError(f"--input-json expects a JSON file, got a directory. Use --input-dir instead: {path}")
+        raise FileNotFoundError(f"Input JSON file not found: {path}")
+
+    if source_kind == "dir":
+        if not isinstance(path, Path):
+            raise ValueError("--input-dir expects exactly one directory path.")
+        if path.is_file():
+            raise NotADirectoryError(f"--input-dir expects a directory, got a file. Use --input-json instead: {path}")
+        if not path.is_dir():
+            raise FileNotFoundError(f"Input JSON directory not found: {path}")
         files = sorted(path.glob("*.json"), key=lambda item: item.name.lower())
         if not files:
             raise ValueError(f"Input directory contains no .json files: {path}")
         return files
-    if path.is_file():
-        return [path]
-    raise FileNotFoundError(f"Input JSON path not found: {path}")
+
+    if source_kind == "files":
+        if isinstance(path, Path):
+            paths = [path]
+        else:
+            paths = list(path)
+        if not paths:
+            raise ValueError("--input-files requires at least one JSON file.")
+        for item in paths:
+            if item.is_dir():
+                raise IsADirectoryError(f"--input-files expects JSON files, got a directory: {item}")
+            if not item.is_file():
+                raise FileNotFoundError(f"Input JSON file not found: {item}")
+        return paths
+
+    raise ValueError(f"Unknown input source kind: {source_kind}")
 
 
-def load_job_items(path: Path, limit: int | None = None) -> list[JobItem]:
+def load_job_items(path: Path | Sequence[Path], limit: int | None = None, *, source_kind: str = "file") -> list[JobItem]:
     jobs: list[JobItem] = []
-    for source_path in input_json_files(path):
+    for source_path in input_json_files(path, source_kind):
         data = json.loads(source_path.read_text(encoding="utf-8"))
         for item in normalize_items(data):
             jobs.append(
@@ -51,8 +81,15 @@ def load_job_items(path: Path, limit: int | None = None) -> list[JobItem]:
     return jobs
 
 
-def input_collection_stem(path: Path) -> str:
-    return clean_stem(path.stem)
+def input_collection_stem(path: Path | Sequence[Path]) -> str:
+    if isinstance(path, Path):
+        return clean_stem(path.stem)
+    paths = list(path)
+    if not paths:
+        return "input"
+    if len(paths) == 1:
+        return clean_stem(paths[0].stem)
+    return clean_stem(f"selected_{len(paths)}_files_{paths[0].stem}")
 
 
 def normalize_items(data: Any) -> list[dict[str, Any]]:
@@ -120,7 +157,7 @@ def output_prefix(base_prefix: str, stem: str, timestamp_s: int, repeat_index: i
 
 def image_output_name(input_stem: str, backend: str, timestamp_s: int) -> str:
     """Final image filename pattern shared by both pipelines:
-    {raw_json_filename}_{flux2|gpt}_{timestamp in seconds}."""
+    {raw_json_filename}_{flux2|gpt|klein}_{timestamp in seconds}."""
     return f"{clean_stem(input_stem)}_{backend}_{timestamp_s}"
 
 
