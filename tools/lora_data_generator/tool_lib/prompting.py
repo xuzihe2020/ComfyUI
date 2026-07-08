@@ -50,21 +50,10 @@ def build_prompt(item: dict[str, Any], refs: list[tuple[str, Path]]) -> str:
             "task_output_goal",
             "task",
             "output_goal",
-            default="Create one natural, photorealistic character reference photograph for synthetic LoRA training.",
+            default="Create one natural, photorealistic character reference photograph for this young Japanese woman.",
         )
     )
-    reference_priority = normalize_text(
-        get_field(
-            item,
-            "reference_priority",
-            default=(
-                "- Face and identity: follow the character reference images exactly.\n"
-                "- Body shape and proportions: follow the character reference images exactly.\n"
-                "- Outfit: follow the dressing reference images or the outfit description below.\n"
-                "- If there is conflict between the written prompt and the reference images, keep the character identity from the reference images."
-            ),
-        )
-    )
+    reference_priority = normalize_text(get_field(item, "reference_priority", default=""))
     identity = normalize_text(
         get_field(
             item,
@@ -101,19 +90,7 @@ def build_prompt(item: dict[str, Any], refs: list[tuple[str, Path]]) -> str:
             ),
         )
     )
-    anti_drift = normalize_text(
-        get_field(
-            item,
-            "anti_drift_constraints",
-            "consistency_requirements",
-            default=(
-                "Keep the same character identity, same facial structure, same hair color and hairstyle, "
-                "same body proportions, and same overall appearance from the reference images. The outfit "
-                "should match the outfit description closely. Create a tasteful variation in pose, angle, "
-                "expression, and setting while preserving the character."
-            ),
-        )
-    )
+    anti_drift = normalize_text(get_field(item, "anti_drift_constraints", "consistency_requirements", default=""))
     avoid = normalize_text(
         get_field(
             item,
@@ -127,21 +104,19 @@ def build_prompt(item: dict[str, Any], refs: list[tuple[str, Path]]) -> str:
         )
     )
 
-    return "\n\n".join(
-        [
-            order_block,
-            task,
-            "The attached reference images define the same adult female character. Use the reference images as the "
-            "source of truth for her facial identity, body proportions, skin tone, hair color, hairstyle, and overall "
-            "appearance. Preserve her identity with high consistency across all generated images. Do not redesign her face, "
-            "do not change her age, do not change her body shape, and do not change her overall visual impression.",
-            f"Reference priority:\n{reference_priority}",
-            f"Character identity:\n{identity}",
-            f"Outfit:\n{outfit}",
-            f"Shot and composition:\n{shot_type}.\nCamera view: {camera_view}.\nPose: {pose}.\nExpression: {expression}.",
-            f"Scene and environment:\n{environment}",
-            f"Lighting and photography style:\n{lighting}",
-            f"Consistency requirements:\n{anti_drift}",
-            f"Avoid:\n{avoid}",
-        ]
-    )
+    sections = [
+        order_block,
+        task,
+        f"Character identity:\n{identity}",
+        f"Outfit:\n{outfit}",
+        f"Shot and composition:\n{shot_type}.\nCamera view: {camera_view}.\nPose: {pose}.\nExpression: {expression}.",
+        f"Scene and environment:\n{environment}",
+        f"Lighting and photography style:\n{lighting}",
+    ]
+    if reference_priority:
+        sections.append(f"Reference priority:\n{reference_priority}")
+    if anti_drift:
+        sections.append(f"Consistency requirements:\n{anti_drift}")
+    sections.append(f"Avoid:\n{avoid}")
+
+    return "\n\n".join(sections)
