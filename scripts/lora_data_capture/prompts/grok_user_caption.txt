@@ -1,0 +1,6 @@
+Caption the attached training photo of the woman following your system instructions.
+Work through the coverage checklist in order, then return only the JSON object with
+"caption_en", "caption_zh", and "multiple_people". Remember: describe everything
+changeable (framing, camera angle, head pose, expression and micro-expressions, gaze,
+hands, transient states, hairstyle, clothing, jewellery, lighting, background) and
+never her permanent facial anatomy. Refer to her only as {TRIGGER}.
