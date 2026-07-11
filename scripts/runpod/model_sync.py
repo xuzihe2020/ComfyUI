@@ -48,6 +48,7 @@ to sign correctly against RunPod's endpoint.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -245,10 +246,13 @@ def run_du(args: list[str]) -> str:
     return result.stdout
 
 
-def du_map(target: Path, depth: int, mode_flag: str) -> dict[str, int]:
+def du_map(target: Path, depth: int, mode_flag: str,
+           excludes: tuple[Path, ...] = ()) -> dict[str, int]:
     """One du walk → {abs_path: value} for every dir AND file down to depth.
     mode_flag: --block-size=1 (bytes) or --inodes (file/dir counts)."""
-    out = run_du(["-a", mode_flag, f"--max-depth={depth}", str(target)])
+    args = ["-a", mode_flag, f"--max-depth={depth}"]
+    args += [f"--exclude={p}" for p in excludes]
+    out = run_du([*args, str(target)])
     result: dict[str, int] = {}
     for line in out.strip().splitlines():
         value_s, _, path = line.partition("\t")
@@ -257,6 +261,72 @@ def du_map(target: Path, depth: int, mode_flag: str) -> dict[str, int]:
         except ValueError:
             continue
     return result
+
+
+QUICK_CACHE = POD_WORKSPACE / ".quick_size_cache.json"
+# The two venv-bearing monsters (~120k files each walk). Their contents only
+# change when the manifest installer runs, and every installer run rewrites
+# its state stamp — so their sizes are cached keyed to that stamp and reused
+# while the stamp is unchanged. Everything else is walked live (few files).
+ENV_DIRS = ("ComfyUI", "ai-toolkit")
+INSTALL_STAMP = POD_WORKSPACE / "ComfyUI" / "custom_nodes" / ".install_state.json"
+
+
+def du_total(path: Path) -> int:
+    return int(run_du(["-s", "--block-size=1", str(path)]).split("\t", 1)[0])
+
+
+def _stamp_key() -> str:
+    import hashlib
+    try:
+        return hashlib.md5(INSTALL_STAMP.read_bytes()).hexdigest()
+    except OSError:
+        return "no-stamp"
+
+
+def env_dir_sizes() -> tuple[dict[str, int], str]:
+    """Totals for the env dirs, cached keyed to the installer stamp: their
+    contents only change when the installer runs, so the cache is provably
+    fresh while the stamp is unchanged."""
+    key = _stamp_key()
+    try:
+        cache = json.loads(QUICK_CACHE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        cache = {}
+    if cache.get("key") == key:
+        return cache["sizes"], "cached; installer stamp unchanged"
+    sizes = {d: du_total(POD_WORKSPACE / d) for d in ENV_DIRS if (POD_WORKSPACE / d).exists()}
+    QUICK_CACHE.write_text(json.dumps({"key": key, "sizes": sizes}), encoding="utf-8")
+    return sizes, "walked fresh; cache (re)seeded"
+
+
+def quick(cfg: Config, subpath: str) -> int:
+    """Size only, no counts, no tree. Subfolders: one live du (near-instant).
+    Whole volume: live du on everything except the env dirs (stamp-cached)."""
+    if not on_pod():
+        raise SystemExit("error: --probe --quick runs ON A POD only (same reason as --probe).")
+    target = POD_WORKSPACE / subpath.strip("/") if subpath.strip("/") else POD_WORKSPACE
+    if not target.exists():
+        raise SystemExit(f"error: {target} does not exist")
+
+    if target != POD_WORKSPACE:
+        print(f"{target}: {human(du_total(target))}")
+        return 0
+
+    total = 0
+    for entry in os.scandir(POD_WORKSPACE):
+        if entry.name in ENV_DIRS:
+            continue
+        total += entry.stat().st_size if entry.is_file() else du_total(Path(entry.path))
+    env_sizes, env_note = env_dir_sizes()
+    total += sum(env_sizes.values())
+
+    quota = cfg.volume_size_gb * 1024**3
+    free = max(0.0, quota - total)
+    pct = 100.0 * total / quota if quota else 0.0
+    print(f"/workspace: {human(total)}   (env dirs {env_note})")
+    print(f"quota: {human(quota)}   free: {human(free)}   ({pct:.0f}% used)")
+    return 0
 
 
 def probe(cfg: Config, subpath: str, depth: int) -> int:
@@ -273,9 +343,14 @@ def probe(cfg: Config, subpath: str, depth: int) -> int:
         raise SystemExit(f"error: {target} does not exist")
     depth = max(1, depth)
 
+    # Env dirs (ComfyUI/, ai-toolkit/) are total-only by design: their
+    # contents are managed by git + installer, so the file-by-file walk is
+    # skipped and their totals come from the stamp-keyed cache.
+    excludes = tuple(POD_WORKSPACE / d for d in ENV_DIRS) if target == POD_WORKSPACE else ()
+
     print(f"volume usage via du   scope: {target}   depth: {depth}")
-    sizes = du_map(target, depth, "--block-size=1")
-    counts = du_map(target, depth, "--inodes")
+    sizes = du_map(target, depth, "--block-size=1", excludes)
+    counts = du_map(target, depth, "--inodes", excludes)
 
     base = str(target).rstrip("/") or "/"
     children: dict[str, list[str]] = {}
@@ -296,14 +371,20 @@ def probe(cfg: Config, subpath: str, depth: int) -> int:
 
     render(base, 0)
     total_bytes = sizes.get(base, 0)
-    print(f"  {'TOTAL':<42} {human(total_bytes):>12}   ({counts.get(base, 0):,} files)")
 
     if target == POD_WORKSPACE:
+        env_sizes, env_note = env_dir_sizes()
+        for name, b in sorted(env_sizes.items(), key=lambda kv: -kv[1]):
+            print(f"  {name + '/':<42} {human(b):>12}   (total only — contents managed by git; {env_note})")
+        total_bytes += sum(env_sizes.values())
+        print(f"  {'TOTAL':<42} {human(total_bytes):>12}   ({counts.get(base, 0):,} files excl. env dirs)")
         quota = cfg.volume_size_gb * 1024**3
         free = max(0.0, quota - total_bytes)
         pct = 100.0 * total_bytes / quota if quota else 0.0
         print(f"  {'quota (RUNPOD_VOLUME_SIZE_GB=' + str(int(cfg.volume_size_gb)) + ')':<42} {human(quota):>12}")
         print(f"  {'free':<42} {human(free):>12}   ({pct:.0f}% used)")
+    else:
+        print(f"  {'TOTAL':<42} {human(total_bytes):>12}   ({counts.get(base, 0):,} files)")
     return 0
 
 
@@ -327,6 +408,8 @@ examples:
     model_sync.py --probe comfyui_models              breakdown of one dir (instant on model trees)
     model_sync.py --probe comfyui_models --depth 3    deeper nesting; folders AND files shown
     model_sync.py --probe ComfyUI/models --depth 1    any path under /workspace works
+    model_sync.py --probe --quick                     size + quota/free only, no tree (~20s)
+    model_sync.py --probe comfyui_models --quick      size of one folder (near-instant)
 """
 
 
@@ -348,6 +431,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                       help="POD ONLY. Storage breakdown (folders AND files, sizes, file counts) of "
                            "/workspace, or /workspace/SUBPATH if given. Whole volume adds TOTAL, "
                            "quota and free space and takes ~45s; subpaths are near-instant.")
+    p.add_argument("--quick", action="store_true",
+                   help="With --probe: size only — no counts, no tree. Single du pass: "
+                        "root ~20s, subfolders near-instant. Root scope still shows quota/free.")
     p.add_argument("--depth", type=int, default=2, metavar="N",
                    help="Probe only: nest the breakdown N levels deep (default: 2). "
                         "Deeper costs no extra walk time.")
@@ -361,7 +447,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     cfg = Config(args)
 
+    if args.quick and args.probe is None:
+        raise SystemExit("error: --quick is a modifier of --probe (use: --probe [SUBPATH] --quick)")
     if args.probe is not None:
+        if args.quick:
+            return quick(cfg, args.probe)
         return probe(cfg, args.probe, args.depth)
 
     cfg.require_credentials()
