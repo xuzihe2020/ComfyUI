@@ -119,6 +119,48 @@ rclone lsd gdrive:
 rclone mkdir gdrive:FluxLab
 ```
 
+## Windows Setup (PowerShell) — step-by-step reference
+
+Run these in a Windows terminal, in order:
+
+```powershell
+# 1. install rclone (once)
+winget install Rclone.Rclone
+```
+
+Close and reopen the terminal so `rclone` is on PATH.
+
+```powershell
+# 2. authorize — a Google consent page opens in the browser; approve Drive access
+rclone config create gdrive drive scope=drive
+
+# 3. THE PIN — mandatory, do not skip: scopes access to the Flux Prod folder only
+rclone config update gdrive root_folder_id 1tuMvBkNNREzBBCHVY-DH6ViiQEiveWEi --non-interactive
+
+# 4. verify — must list ONLY: Inputs, Outputs, Tests, screenshots
+rclone lsd gdrive:
+```
+
+If step 4 shows your whole Drive instead of those four folders, step 3 didn't
+apply — rerun it.
+
+Config file location on Windows: `%APPDATA%\rclone\rclone.conf` — it now
+holds your refresh token; secret rules apply (never in git, never in chat).
+
+Daily usage:
+
+```powershell
+# upload images to Drive
+rclone copy "C:\some\folder\images" gdrive:Inputs/character_01 -P
+
+# download results from Drive
+rclone copy gdrive:Outputs/prod_batch_001 "C:\pulls\prod_batch_001" -P
+```
+
+Persistence: the grant works forever until you revoke it explicitly
+(myaccount.google.com → Security → connections → rclone). No periodic
+re-consent.
+
 ### Option B: Configure Locally, Then Copy To The Pod
 
 Use this if local browser auth is easier on Windows or macOS.
