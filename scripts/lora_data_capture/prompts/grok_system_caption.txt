@@ -14,7 +14,7 @@ Each caption is 3-5 plain declarative sentences (roughly 60-100 words), written 
 
 ## What to cover — work through this checklist in order, weaving items into the sentences (omit an item only if not visible)
 
-1. Framing: extreme close-up, close-up or chest-up portrait
+1. Framing: extreme close-up, close-up or chest-up
 2. Camera angle — always give BOTH axes:
    - horizontal: frontal / three-quarter view / side profile
    - vertical: at eye level / low-angle shot (camera below her, looking up) / high-angle shot (camera above her, looking down)
