@@ -18,16 +18,37 @@ Persistent files live under `/workspace` on the RunPod network volume:
 /workspace/prod/                   # optional production batches
 ```
 
-Recommended Google Drive layout:
+## Scope: Pinned To "Flux Prod" — HARD RULE
+
+The `gdrive` remote is pinned with `root_folder_id` to the Drive folder
+`Flux Prod` (ID `1tuMvBkNNREzBBCHVY-DH6ViiQEiveWEi`). `gdrive:` RESOLVES TO
+that folder — the rest of the Drive is not addressable through this remote.
+
+Agents and scripts MUST NOT unset or change `root_folder_id`, MUST NOT create
+additional Drive remotes, and MUST NOT attempt to reach anything outside
+`Flux Prod`. The pin was set with:
+
+```bash
+rclone config update gdrive root_folder_id 1tuMvBkNNREzBBCHVY-DH6ViiQEiveWEi --non-interactive
+```
+
+(Note: OAuth scope itself is full-Drive — Google offers no folder-level
+consent — so the pin is the enforced boundary at the tool level and the
+config file remains a secret.)
+
+Actual Drive layout under the pin (as of 2026-07-11):
 
 ```text
-My Drive/
-  FluxLab/
-    datasets/
-    references/
-    prod/
-    runs/
+Flux Prod/          <- gdrive: root
+  Inputs/           <- datasets, reference images
+  Outputs/          <- generated results, run outputs
+  Tests/
+  screenshots/
 ```
+
+TODO: rclone's shared Google client_id is being retired during 2026 — create
+our own client_id per https://rclone.org/drive/#making-your-own-client-id and
+update the remote before it stops working.
 
 ## One-Time Persistent rclone Install
 
@@ -139,14 +160,14 @@ export PATH=/workspace/bin:$PATH
 export RCLONE_CONFIG=/workspace/rclone/rclone.conf
 
 mkdir -p /workspace/datasets/character_01
-rclone copy gdrive:FluxLab/datasets/character_01 /workspace/datasets/character_01 -P
+rclone copy gdrive:Inputs/character_01 /workspace/datasets/character_01 -P
 ```
 
 Pull reference images:
 
 ```bash
 mkdir -p /workspace/datasets/character_01_references
-rclone copy gdrive:FluxLab/references/character_01 /workspace/datasets/character_01_references -P
+rclone copy gdrive:Inputs/character_01_references /workspace/datasets/character_01_references -P
 ```
 
 ## Push Outputs To Google Drive
@@ -154,20 +175,20 @@ rclone copy gdrive:FluxLab/references/character_01 /workspace/datasets/character
 Push production images:
 
 ```bash
-rclone copy /workspace/output/prod_batch_001 gdrive:FluxLab/prod/prod_batch_001 -P
+rclone copy /workspace/output/prod_batch_001 gdrive:Outputs/prod_batch_001 -P
 ```
 
 Push a training run folder:
 
 ```bash
-rclone copy /workspace/output/runs/character_01_flux2_001 gdrive:FluxLab/runs/character_01_flux2_001 -P
+rclone copy /workspace/output/runs/character_01_flux2_001 gdrive:Outputs/runs/character_01_flux2_001 -P
 ```
 
 Push only samples during a long run:
 
 ```bash
 rclone copy /workspace/output/runs/character_01_flux2_001/samples \
-  gdrive:FluxLab/runs/character_01_flux2_001/samples -P
+  gdrive:Outputs/runs/character_01_flux2_001/samples -P
 ```
 
 ## Use From Bash Scripts
@@ -196,6 +217,9 @@ Then call `rclone copy ... -P`.
 
 ## Safety Rules
 
+- The `gdrive` remote is pinned to `Flux Prod` (see Scope section). Never
+  unset `root_folder_id`, never add unpinned Drive remotes, never touch
+  folders outside `Flux Prod`.
 - Use `rclone copy` by default.
 - Use `rclone sync` only after `--dry-run` and only when you want deletions on
   one side to be mirrored to the other side.

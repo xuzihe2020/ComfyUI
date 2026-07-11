@@ -9,6 +9,10 @@
 set -uo pipefail
 export HF_HOME=/workspace/hf-cache
 export GIT_TERMINAL_PROMPT=0
+# rclone: persistent binary + Google Drive config (pinned to Flux Prod —
+# see skills/runpod-gdrive-rclone.md)
+export PATH=/workspace/bin:$PATH
+export RCLONE_CONFIG=/workspace/rclone/rclone.conf
 COMFY=/workspace/ComfyUI
 AITK=/workspace/ai-toolkit
 FAILED=()

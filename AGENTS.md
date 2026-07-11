@@ -75,7 +75,13 @@ Do not run `scripts/install_custom_nodes.py` yourself unless the user explicitly
 
 ## Skills
 
-Reusable operational procedures live in the top-level `skills/` folder (agent-agnostic markdown, one file per skill). When a task matches a skill, read that skill file in full before acting.
+Reusable operational procedures live in the top-level `skills/` folder (agent-agnostic markdown, one file per skill). This section is the index — skills are NOT auto-loaded; when a task matches a trigger below, read that skill file IN FULL before acting. When adding a new skill, add its row here, or no agent will ever find it.
+
+| Skill file | Read it before... |
+|---|---|
+| `skills/runpod-pod-ops.md` | ANY RunPod work: pods, network volumes, pod SSH, deploys, terminations, cloud training/generation sessions |
+| `skills/runpod-comfyui-setup.md` | setting up a fresh volume, or the FIRST command on any newly spun-up pod (mandatory session sync) |
+| `skills/runpod-gdrive-rclone.md` | moving images/datasets/outputs between Google Drive and pods (contains a HARD scope rule: Drive access is pinned to the `Flux Prod` folder only) |
 
 ## RunPod Operations
 

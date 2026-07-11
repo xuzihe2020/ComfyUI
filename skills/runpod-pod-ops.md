@@ -16,7 +16,7 @@ file wins.
 | Pod template | `Runpod Pytorch 2.8.0` (`runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`) — torch 2.8.0+cu128 |
 | Training GPU | RTX 5090 ($0.99/hr secure). Inference fallback: RTX 4090 ($0.69/hr), fp8 weights |
 | SSH key (per device) | `~/.ssh/runpod_ed25519` (+ `.pub`). Public keys registered in RunPod → Settings → SSH keys (multi-line box, one key per line) |
-| Models | Synced workstation↔volume with `scripts/runpod/model_sync.py` (`-u`/`-d`, S3 API, works anywhere, no pod needed; volume root `comfyui_models/` mirrors the local root layout). Volume usage/stats: `--probe` — POD ONLY (du on the mounted filesystem, seconds; S3 has no folder sizes and RunPod exposes no usage API). Google Drive = optional archive. NO Hugging Face — Tony has no HF token. Training base model source: TBD |
+| Models | Synced workstation↔volume with `scripts/runpod/model_sync.py` (`-u`/`-d`, S3 API, works anywhere, no pod needed; volume root `comfyui_models/` mirrors the local root layout). Volume usage/stats: `--probe` — POD ONLY (du on the mounted filesystem, seconds; S3 has no folder sizes and RunPod exposes no usage API). Images/outputs ↔ Google Drive via rclone, pinned to `Flux Prod` only — see `skills/runpod-gdrive-rclone.md`. NO Hugging Face — Tony has no HF token. Training base model source: TBD |
 | Agent access | see "Agent access" below |
 
 ## The pod model: disposable, terminate-only
