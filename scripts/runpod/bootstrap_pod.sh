@@ -95,8 +95,21 @@ echo "=== [7/9] ComfyUI requirements (the slow pip — deliberately after all cl
 echo "=== [8/9] ai-toolkit requirements ==="
 "$AITK/.venv/bin/python" -m pip install -r "$AITK/requirements.txt" || exit 1
 
-echo "=== [9/9] workspace layout + per-session sync script ==="
-mkdir -p /workspace/{hf-cache,datasets,configs,output,scripts,rclone}
+echo "=== [9/9] workspace layout + volume tools + per-session sync script ==="
+mkdir -p /workspace/{hf-cache,datasets,configs,output,scripts,rclone,bin,tmp}
+
+# AWS CLI, persistent on the volume (model_sync transfers/maintenance need it;
+# the pod image doesn't ship it). /workspace/bin is on PATH via session_start.
+if [ ! -x /workspace/bin/aws ]; then
+  cd /workspace/tmp \
+    && curl -sL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip \
+    && unzip -q awscliv2.zip \
+    && ./aws/install --install-dir /workspace/aws-cli --bin-dir /workspace/bin --update >/dev/null \
+    && rm -rf awscliv2.zip aws \
+    && /workspace/bin/aws --version \
+    || echo "!! aws cli install failed — model_sync maintenance/transfers won't run on pods until it's installed"
+  cd /
+fi
 
 # session_start.sh is versioned in the fork; the volume copy self-updates on
 # each sync (see scripts/runpod/session_start.sh).

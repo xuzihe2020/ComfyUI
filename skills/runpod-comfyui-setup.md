@@ -58,7 +58,7 @@ Models arrive separately via `scripts/runpod/model_sync.py` (S3, no pod
 needed, works on Mac and Windows; NOT Hugging Face — Tony has no HF token):
 `python scripts/runpod/model_sync.py -u <path>...` uploads from the local
 `comfyui_models` root to the volume's `/workspace/comfyui_models/<path>`;
-`-d` downloads. Credentials come from the repo `.env` (`RUNPOD_S3_*`);
+`-d` downloads. Credentials come from the repo `.env` or pod env (`S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY`);
 requires the AWS CLI. Volume usage/stats: `--probe` — POD ONLY (runs `du`
 on the mounted filesystem, answers in seconds; there is no fast remote way,
 verified: S3 has no folder sizes, RunPod has no usage API).

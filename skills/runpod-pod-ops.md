@@ -33,6 +33,34 @@ clipped onto it.
 - Volume can be grown, never shrunk. Track usage with `du -sh /workspace/*` (NOT `df` — it shows the whole MooseFS cluster).
 - Data in/out with no pod running: the volume's S3-compatible API (key via Storage → Create S3 API key).
 
+## Pod env vars & RunPod Secrets
+
+API keys reach pods via RunPod Secrets referenced from the pod template —
+never via `.env` files on pods (real env vars outrank `.env` in
+`lib/envfile.py`, so repo scripts just work).
+
+- Secrets live in console → Settings → Secrets. NAMING RULE: a secret name
+  CANNOT start with `RUNPOD` (reserved prefix; the console rejects it).
+- A template env row maps env var ← secret:
+  `ENV_VAR_NAME={{ RUNPOD_SECRET_<secret name> }}` — the reference is always
+  `RUNPOD_SECRET_` + the secret's name, and the left side is whatever the
+  tools expect, independent of the secret's name.
+- Current mapping (secret name → env var):
+  `XAI_API_KEY→XAI_API_KEY`, `FLUX_API_KEY→FLUX_API_KEY`,
+  `OPENAI_API_KEY→OPENAI_API_KEY`, `GEMINI_API_KEY→GEMINI_API_KEY`,
+  `S3_ACCESS_KEY_ID→S3_ACCESS_KEY_ID`,
+  `S3_SECRET_ACCESS_KEY→S3_SECRET_ACCESS_KEY`
+  (S3 keys are needed on pods for `model_sync.py --abort-stale-uploads`;
+  transfers/probe don't need them there). Plain template vars:
+  `HF_HOME=/workspace/hf-cache`, `VOLUME_SIZE_GB=<quota>`.
+- Env vars bind at DEPLOY: template edits affect new pods only; a running
+  pod needs manual `export`s or a redeploy.
+- NON-INTERACTIVE SSH GOTCHA: RunPod injects template env via
+  `/etc/rp_environment`, sourced only by interactive shells. Agent SSH
+  commands (`ssh host 'cmd'`) MUST prefix `. /etc/rp_environment;` or they
+  see none of the template env vars — interactive shells see them fine, so
+  a "missing env" seen only over agent SSH is this, not a broken template.
+
 ## Deploy checklist (console)
 
 1. Pods → Deploy → Secure Cloud → RTX 5090 → attach `frankie_the_pug_volume` (Region row must show it; mounts at `/workspace`).
