@@ -72,3 +72,13 @@ If a custom node has an installation or startup problem that does not require ch
 Install all required custom-node dependencies before ComfyUI starts. Do not rely on a custom node running `pip install` during ComfyUI import/startup, especially for packages with native DLLs such as OpenCV.
 
 Do not run `scripts/install_custom_nodes.py` yourself unless the user explicitly asks you to run it in the current request. When adding or changing custom-node dependencies, update the manifest/install script and tell the user to run the installer themselves.
+
+## Skills
+
+Reusable operational procedures live in the top-level `skills/` folder (agent-agnostic markdown, one file per skill). When a task matches a skill, read that skill file in full before acting.
+
+## RunPod Operations
+
+Before doing anything involving RunPod (pods, network volumes, pod SSH, cloud training or generation runs), read `skills/runpod-pod-ops.md` in full — it is the operational source of truth (assets, deploy checklist, bootstrap, agent SSH access, key locations).
+
+Core rules: pods are disposable — terminate, never stop; all durable state lives on the network volume at `/workspace`; pod IP/port change every deploy, ask the user for the current Connect line; agents never receive HF/RunPod tokens in chat — secrets are exported by the user on the pod or read from the repo `.env`.
