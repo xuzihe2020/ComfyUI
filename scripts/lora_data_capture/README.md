@@ -30,7 +30,7 @@ validation):
 
 ```json
 {
-  "caption_en": "A close-up portrait of {TRIGGER}, ...",
+  "caption_en": "A close-up of {TRIGGER}, ...",
   "caption_zh": "一张{TRIGGER}的特写肖像，...",
   "multiple_people": false
 }

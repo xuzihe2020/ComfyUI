@@ -10,7 +10,7 @@ Return ONLY a valid JSON object with exactly these fields. Do not add any extra 
   "multiple_people": false
 }
 
-Each caption is 3-5 plain declarative sentences (roughly 60-100 words), written like a neutral observer factually describing the photo. Natural flowing language — NOT a comma-separated tag list. No line breaks inside a caption. Refer to the woman by the literal token {TRIGGER}, used as her name in the first sentence (e.g. "A close-up portrait of {TRIGGER}, ..."). Output {TRIGGER} exactly as written; it will be replaced later. The two captions must be exact translations of each other with no added or dropped details. Set "multiple_people" to true only when any person's face other than her is visible in the image.
+Each caption is 3-5 plain declarative sentences (roughly 60-100 words), written like a neutral observer factually describing the photo. Natural flowing language — NOT a comma-separated tag list. No line breaks inside a caption. Refer to the woman by the literal token {TRIGGER}, used as her name in the first sentence (e.g. "A close-up of {TRIGGER}, ..."). Output {TRIGGER} exactly as written; it will be replaced later. The two captions must be exact translations of each other with no added or dropped details. Set "multiple_people" to true only when any person's face other than her is visible in the image.
 
 ## What to cover — work through this checklist in order, weaving items into the sentences (omit an item only if not visible)
 
@@ -39,12 +39,12 @@ Each caption is 3-5 plain declarative sentences (roughly 60-100 words), written 
 
 ## Vocabulary
 
-Whenever a checklist item above provides exact wording (framing terms, camera-angle terms, head-pose vocabulary, gaze options, expression names, hairstyle descriptors), reuse that exact wording — never substitute synonyms: "chest-up portrait", not "waist-up shot"; "furrowed brow", not "knitted brows"; "curtain bangs", not "middle-parted fringe". For items with no fixed vocabulary (clothing, objects, backgrounds), use plain, common words rather than rare or literary ones. Sentence structure should follow the checklist order.
+Whenever a checklist item above provides exact wording (framing terms, camera-angle terms, head-pose vocabulary, gaze options, expression names, hairstyle descriptors), reuse that exact wording — never substitute synonyms: "chest-up", not "waist-up shot"; "furrowed brow", not "knitted brows"; "curtain bangs", not "middle-parted fringe". For items with no fixed vocabulary (clothing, objects, backgrounds), use plain, common words rather than rare or literary ones. Sentence structure should follow the checklist order.
 
 ## Example output
 
 {
-  "caption_en": "A close-up portrait of {TRIGGER}, shot from a low angle in three-quarter view. Her head is raised and turned slightly to the right, with a furrowed brow and lips slightly parted, looking down to the left while resting her chin on her hand. Beads of sweat dot her forehead and a few stray strands of hair fall across her cheek. Her long dark brown hair is slightly wavy, worn loose and slightly tousled, with curtain bangs; she wears a white ribbed tank top and small gold hoop earrings, under hard direct sunlight from above, against a blurred outdoor courtyard background.",
+  "caption_en": "A close-up of {TRIGGER}, shot from a low angle in three-quarter view. Her head is raised and turned slightly to the right, with a furrowed brow and lips slightly parted, looking down to the left while resting her chin on her hand. Beads of sweat dot her forehead and a few stray strands of hair fall across her cheek. Her long dark brown hair is slightly wavy, worn loose and slightly tousled, with curtain bangs; she wears a white ribbed tank top and small gold hoop earrings, under hard direct sunlight from above, against a blurred outdoor courtyard background.",
   "caption_zh": "一张{TRIGGER}的特写肖像，仰拍，四分之三侧面视角。她微微抬头并向右转，皱着眉，嘴唇微张，目光看向左下方，一只手托着下巴。额头上有汗珠，几缕发丝散落在脸颊上。深棕色长发微卷，披散且略凌乱，留着八字刘海；她穿着白色罗纹背心，戴着小号金色圆环耳环，强烈的直射阳光从上方照下，背景是模糊的室外庭院。",
   "multiple_people": false
 }
