@@ -3,8 +3,12 @@
 # Verdict-style output: every step prints [OK]/[FAIL]; run ends with a scoreboard.
 # The manifest installer ALWAYS runs — it is self-skipping via its own state
 # stamp (custom_nodes/.install_state.json): a no-change run exits in seconds.
-# Source of truth: this file lives in the ComfyUI fork at scripts/runpod/session_start.sh;
-# the copy at /workspace/scripts/session_start.sh self-updates after the fork pull.
+#
+# SINGLE SOURCE OF TRUTH: this file, in the fork. /workspace/scripts/
+# session_start.sh is a SYMLINK to it — there is no copy to drift. Recreate:
+#   ln -sfn /workspace/ComfyUI/scripts/runpod/session_start.sh /workspace/scripts/session_start.sh
+# (One caveat of self-pulling: if a pull updates THIS file, the in-flight run
+# may glitch once — just run it again; the next run is the new version.)
 # Process definition: skills/runpod-comfyui-setup.md
 set -uo pipefail
 export HF_HOME=/workspace/hf-cache
@@ -33,9 +37,25 @@ step_pull() {  # step_pull <label> <repo-dir>
 echo "===== SESSION SYNC $(date -u +%FT%TZ) ====="
 
 echo "--- [1/4] pull ComfyUI fork"
+COMFY_OLD_HEAD=$(git -C "$COMFY" rev-parse HEAD 2>/dev/null || echo "")
 step_pull "ComfyUI fork" "$COMFY"
-# pick up a newer version of this very script from the fork (takes effect next run)
-cp -f "$COMFY/scripts/runpod/session_start.sh" /workspace/scripts/session_start.sh 2>/dev/null || true
+COMFY_NEW_HEAD=$(git -C "$COMFY" rev-parse HEAD 2>/dev/null || echo "")
+
+# ComfyUI's own core deps: nothing else installs these on an existing volume
+# (the manifest installer covers custom-node deps only; bootstrap runs once on
+# a fresh volume). Install ONLY when this pull actually changed
+# requirements.txt — zero cost on a normal spin-up.
+if [ -n "$COMFY_OLD_HEAD" ] && [ "$COMFY_OLD_HEAD" != "$COMFY_NEW_HEAD" ] \
+    && git -C "$COMFY" diff --name-only "$COMFY_OLD_HEAD..$COMFY_NEW_HEAD" | grep -qx "requirements.txt"; then
+  echo "       requirements.txt changed in this pull -> installing into comfy venv"
+  if "$COMFY/.venv/bin/python" -m pip install -r "$COMFY/requirements.txt"; then
+    echo "[OK]   ComfyUI core requirements"
+    OK_COUNT=$((OK_COUNT + 1))
+  else
+    echo "[FAIL] ComfyUI core requirements"
+    FAILED+=("ComfyUI core requirements")
+  fi
+fi
 
 echo "--- [2/4] pull every custom node + tool repo"
 for d in "$COMFY"/custom_nodes/*/ "$COMFY"/tools/*/; do

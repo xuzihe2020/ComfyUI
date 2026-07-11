@@ -69,22 +69,33 @@ verified: S3 has no folder sizes, RunPod has no usage API).
 source /workspace/scripts/session_start.sh
 ```
 
-The script is versioned in the fork at `scripts/runpod/session_start.sh` (the
-volume copy self-updates after each fork pull). Every step prints an explicit
+`/workspace/scripts/session_start.sh` is a SYMLINK to the fork's
+`scripts/runpod/session_start.sh` — single source of truth, no copy to drift;
+edits pushed to the fork are live on the next run after the pull. Recreate it
+with `ln -sfn /workspace/ComfyUI/scripts/runpod/session_start.sh
+/workspace/scripts/session_start.sh` if missing. Every step prints an explicit
 `[OK]`/`[FAIL]` verdict and the run ends with a scoreboard
 (`SYNC RESULT: ALL OK` / `N FAILED -> <steps>`) — a failed step must be fixed
 before starting work. It performs, in order — if the script is missing, do
 these by hand:
 
-1. `git pull --ff-only` in `/workspace/ComfyUI` (the fork).
+1. `git pull --ff-only` in `/workspace/ComfyUI` (the fork). If that pull
+   changed the fork's top-level `requirements.txt`, the script also runs
+   `pip install -r requirements.txt` in the ComfyUI venv — ComfyUI's own
+   core deps are otherwise installed only by bootstrap on a fresh volume.
+   Zero cost on a normal spin-up (checked via `git diff --name-only
+   <old>..<new>`, runs only when that file actually changed).
 2. `git pull --ff-only` in EVERY repo under `custom_nodes/` and `tools/`.
 3. Run `scripts/install_custom_nodes.py` — ALWAYS. The installer is
-   self-skipping: it stamps every successful run
-   (`custom_nodes/.install_state.json` = manifest hash + each repo's HEAD)
-   and exits in seconds when nothing changed. It does real work only when a
-   pull brought commits, the manifest changed, or a folder is missing —
-   which is when its dependency fixes and cm-cli passes actually matter.
-   `--full` bypasses the stamp for a forced re-check.
+   self-skipping AND self-scoping: it stamps every successful run
+   (`custom_nodes/.install_state.json` = manifest hash + each repo's HEAD),
+   exits in seconds when nothing changed, and when something DID change it
+   works only on the repos whose HEAD actually moved — a Manager-only
+   update (routine; upstream moves daily) refreshes Manager's requirements
+   and touches no node. cm-cli `fix` calls for changed nodes are batched
+   into one invocation (each cm-cli process re-fetches the ComfyRegistry,
+   minutes a call). A manifest edit or missing stamp still processes
+   everything. `--full` bypasses the stamp for a forced re-check.
 4. Environment report (torch/CUDA in both venvs, node/tool/model counts),
    then activate `/workspace/ComfyUI/.venv` and export
    `HF_HOME=/workspace/hf-cache`.

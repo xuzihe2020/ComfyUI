@@ -111,13 +111,13 @@ if [ ! -x /workspace/bin/aws ]; then
   cd /
 fi
 
-# session_start.sh is versioned in the fork; the volume copy self-updates on
-# each sync (see scripts/runpod/session_start.sh).
+# /workspace/scripts/session_start.sh is a SYMLINK to the script in the fork —
+# single source of truth, no copy to drift. ln -sfn also replaces any full
+# copy left by an older bootstrap.
 if [ -f "$COMFY/scripts/runpod/session_start.sh" ]; then
-  cp -f "$COMFY/scripts/runpod/session_start.sh" /workspace/scripts/session_start.sh
-  chmod +x /workspace/scripts/session_start.sh
+  ln -sfn "$COMFY/scripts/runpod/session_start.sh" /workspace/scripts/session_start.sh
 else
-  echo "!! $COMFY/scripts/runpod/session_start.sh missing from the fork — scp it to /workspace/scripts/ manually"
+  echo "!! $COMFY/scripts/runpod/session_start.sh missing from the fork — fix the fork clone"
 fi
 
 echo "=== torch sanity (must stay the template build in both venvs) ==="

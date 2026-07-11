@@ -18,6 +18,13 @@ folders are missing from custom_nodes/ are installed. Existing nodes can get a
 dependency fix or lightweight optional-accelerator check without running
 ComfyUI-Manager for every node.
 
+Diff mode is also SCOPED per repo: the stamp records every repo's HEAD, and
+dependency work runs only for nodes whose own repo actually changed since the
+last successful run. A ComfyUI-Manager-only update (routine — upstream moves
+daily) refreshes Manager's requirements and nothing else. All cm-cli "fix"
+calls for changed nodes are batched into ONE invocation, because every cm-cli
+process re-fetches the ComfyRegistry (minutes) before doing any work.
+
 The manifest's "tools" section lists standalone tool repos (e.g. video_sampler)
 that are cloned into tools/ the same way: missing folders are cloned and their
 requirements.txt installed; existing clones are left in place.
@@ -275,12 +282,19 @@ def clone_repo(repo: str, target: Path) -> None:
     run(["git", "clone", repo, str(target)])
 
 
-def install_tools(manifest: dict, python_bin: str, *, install_mode: str, no_deps: bool) -> None:
+def install_tools(
+    manifest: dict,
+    python_bin: str,
+    *,
+    install_mode: str,
+    no_deps: bool,
+    changed_keys: set[str] | None = None,
+) -> None:
     """Clone the standalone tool repos listed under "tools" in the manifest
     into tools/. Unlike custom nodes these are plain CLI repos that ComfyUI
     never imports, so there is no ComfyUI-Manager step: clone when the folder
-    is missing, then install requirements.txt on first clone (or in full
-    mode)."""
+    is missing, then install requirements.txt on first clone, in full mode,
+    or when the tool's repo pulled new commits since the last stamp."""
     for tool in manifest.get("tools", []):
         if not node_allowed_here(tool):
             print(f"{tool['name']}: skipping on {current_os()} "
@@ -290,7 +304,8 @@ def install_tools(manifest: dict, python_bin: str, *, install_mode: str, no_deps
         newly_cloned = not target.exists()
         clone_repo(tool["repo"], target)
         requirements = target / "requirements.txt"
-        if requirements.exists() and not no_deps and (newly_cloned or install_mode == "full"):
+        tool_changed = changed_keys is not None and f"tools/{tool['folder']}" in changed_keys
+        if requirements.exists() and not no_deps and (newly_cloned or install_mode == "full" or tool_changed):
             run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
 
 
@@ -322,7 +337,10 @@ def manager_install_node(
     node: dict,
     no_deps: bool,
     manager_fix_existing: bool,
-) -> None:
+) -> str | None:
+    """Install or dependency-fix one node. Returns the node name when it still
+    needs a ComfyUI-Manager `fix` pass — the caller batches those into a single
+    cm-cli call, because each cm-cli process re-fetches the ComfyRegistry."""
     folder = CUSTOM_NODES_DIR / node["folder"]
     repo = node["repo"]
     name = node["name"]
@@ -342,10 +360,10 @@ def manager_install_node(
             post_install_fix(python_bin)
         skip_manager_fix = name in SKIP_MANAGER_FIX_EXISTING or node["folder"] in SKIP_MANAGER_FIX_EXISTING
         if (manager_fix_existing or always_fix_deps) and not skip_manager_fix:
-            run(base_cmd + ["fix", name, "--mode", "local"], env=manager_env())
-        elif skip_manager_fix:
+            return name
+        if skip_manager_fix:
             print(f"{name}: skipping ComfyUI-Manager fix; dependencies were handled by pinned installer commands.", flush=True)
-        return
+        return None
 
     cmd = base_cmd + ["install", repo, "--mode", "local", "--exit-on-fail"]
     if no_deps and not always_fix_deps:
@@ -355,6 +373,7 @@ def manager_install_node(
         run([python_bin, "-m", "pip", "install", *extra_dependencies])
     if post_install_fix and (always_fix_deps or not no_deps):
         post_install_fix(python_bin)
+    return None
 
 
 def install_optional_accelerators(python_bin: str, node: dict) -> None:
@@ -421,7 +440,15 @@ def missing_manifest_nodes(manifest: dict) -> list[dict]:
     return missing
 
 
-def diff_mode_existing_dependency_nodes(manifest: dict) -> list[dict]:
+def node_repo_changed(node: dict, changed_keys: set[str] | None) -> bool:
+    """changed_keys=None means scoping is unavailable (first run, manifest
+    edit, or full mode): treat every repo as changed, matching old behavior."""
+    return changed_keys is None or f"custom_nodes/{node['folder']}" in changed_keys
+
+
+def diff_mode_existing_dependency_nodes(
+    manifest: dict, changed_keys: set[str] | None = None
+) -> list[dict]:
     nodes = []
     for node in manifest_nodes_in_install_order(manifest):
         if not node_allowed_here(node):
@@ -432,12 +459,16 @@ def diff_mode_existing_dependency_nodes(manifest: dict) -> list[dict]:
         fix_existing_deps = name in DIFF_MODE_FIX_EXISTING_DEPENDENCIES or folder_name in DIFF_MODE_FIX_EXISTING_DEPENDENCIES
         always_fix_deps = name in ALWAYS_FIX_DEPENDENCIES or folder_name in ALWAYS_FIX_DEPENDENCIES
         if folder.exists() and (fix_existing_deps or always_fix_deps):
+            if not node_repo_changed(node, changed_keys):
+                continue
             print(f"{folder} already exists; checking dependencies", flush=True)
             nodes.append(node)
     return nodes
 
 
-def diff_mode_existing_accelerator_nodes(manifest: dict) -> list[dict]:
+def diff_mode_existing_accelerator_nodes(
+    manifest: dict, changed_keys: set[str] | None = None
+) -> list[dict]:
     nodes = []
     for node in manifest_nodes_in_install_order(manifest):
         if not node_allowed_here(node):
@@ -447,6 +478,8 @@ def diff_mode_existing_accelerator_nodes(manifest: dict) -> list[dict]:
         folder = CUSTOM_NODES_DIR / folder_name
         has_optional_accelerators = name in OPTIONAL_ACCELERATORS or folder_name in OPTIONAL_ACCELERATORS
         if folder.exists() and has_optional_accelerators:
+            if not node_repo_changed(node, changed_keys):
+                continue
             print(f"{folder} already exists; checking optional accelerators", flush=True)
             nodes.append(node)
     return nodes
@@ -566,9 +599,14 @@ def main() -> None:
     manifest = load_manifest(args.manifest)
     install_mode = "full" if args.full else args.install_mode
 
+    # None = no scoping possible (full mode, first run, or the manifest itself
+    # changed): every repo is treated as changed. A set = only these repos get
+    # dependency work; everything else is skipped outright.
+    changed_keys: set[str] | None = None
     if install_mode == "diff":
         current_state = compute_install_state(manifest, args.manifest)
-        if (current_state == load_install_stamp()
+        stamp = load_install_stamp()
+        if (current_state == stamp
                 and None not in current_state["repos"].values()):
             print(
                 "Install state unchanged since last successful run; nothing to do. "
@@ -576,8 +614,21 @@ def main() -> None:
                 flush=True,
             )
             return
+        if stamp and stamp.get("manifest_md5") == current_state["manifest_md5"]:
+            stamped_repos = stamp.get("repos", {})
+            changed_keys = {
+                key for key, head in current_state["repos"].items()
+                if head is None or stamped_repos.get(key) != head
+            }
+            print(
+                "Changed since last run: "
+                + (", ".join(sorted(changed_keys)) if changed_keys else "(nothing)")
+                + " — dependency work is scoped to these repos only.",
+                flush=True,
+            )
 
-    install_tools(manifest, comfy_python(), install_mode=install_mode, no_deps=args.no_deps)
+    install_tools(manifest, comfy_python(), install_mode=install_mode,
+                  no_deps=args.no_deps, changed_keys=changed_keys)
     existing_dependency_nodes: list[dict] = []
     existing_accelerator_nodes: list[dict] = []
     if install_mode == "full":
@@ -590,8 +641,8 @@ def main() -> None:
             nodes_to_install.append(node)
     else:
         nodes_to_install = missing_manifest_nodes(manifest)
-        existing_dependency_nodes = diff_mode_existing_dependency_nodes(manifest)
-        existing_accelerator_nodes = diff_mode_existing_accelerator_nodes(manifest)
+        existing_dependency_nodes = diff_mode_existing_dependency_nodes(manifest, changed_keys)
+        existing_accelerator_nodes = diff_mode_existing_accelerator_nodes(manifest, changed_keys)
         seen = {node["folder"] for node in nodes_to_install}
         existing_dependency_nodes = [
             node for node in existing_dependency_nodes
@@ -603,30 +654,50 @@ def main() -> None:
             if node["folder"] not in seen
         ]
 
+    python_bin = comfy_python()
+    manager_folder_name = manifest["manager"]["folder"]
+    manager_dir = CUSTOM_NODES_DIR / manager_folder_name
+    manager_changed = (changed_keys is not None
+                       and f"custom_nodes/{manager_folder_name}" in changed_keys)
+    nodes_requiring_manager = nodes_to_install + existing_dependency_nodes
+
+    if manager_changed and manager_dir.exists() and not nodes_requiring_manager:
+        # Manager pulled new commits but no node needs work: refresh Manager's
+        # own requirements (seconds) instead of the full per-node pass.
+        requirements = manager_dir / "requirements.txt"
+        if requirements.exists():
+            run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
+
     if not nodes_to_install and not existing_dependency_nodes and not existing_accelerator_nodes:
         print("No missing custom nodes, dependency fixes, or optional accelerator checks found in manifest; diff install is complete.", flush=True)
         write_install_stamp(compute_install_state(manifest, args.manifest))
         return
 
-    python_bin = comfy_python()
-    nodes_requiring_manager = nodes_to_install + existing_dependency_nodes
     if nodes_requiring_manager:
-        manager_dir = CUSTOM_NODES_DIR / manifest["manager"]["folder"]
         manager_cli = install_manager(
             manifest,
             python_bin,
-            install_requirements=install_mode == "full" or not manager_dir.exists(),
+            install_requirements=(install_mode == "full" or manager_changed
+                                  or not manager_dir.exists()),
         )
 
+        fix_queue: list[str] = []
         for node in nodes_requiring_manager:
-            manager_install_node(
+            fix_name = manager_install_node(
                 python_bin=python_bin,
                 manager_cli=manager_cli,
                 node=node,
                 no_deps=args.no_deps,
                 manager_fix_existing=args.manager_fix_existing,
             )
+            if fix_name:
+                fix_queue.append(fix_name)
             install_optional_accelerators(python_bin, node)
+        if fix_queue:
+            # One batched call: every cm-cli process re-fetches the
+            # ComfyRegistry before working, so N separate fixes = N fetches.
+            run([python_bin, str(manager_cli), "fix", *fix_queue, "--mode", "local"],
+                env=manager_env())
 
     for node in existing_accelerator_nodes:
         install_optional_accelerators(python_bin, node)
