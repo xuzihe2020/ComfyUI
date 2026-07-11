@@ -52,6 +52,7 @@ from lib.envfile import env_value  # noqa: E402
 
 VOLUME_ROOT = "comfyui_models"
 POD_WORKSPACE = Path("/workspace")
+TRANSFER_PROGRESS_ARGS = ["--progress-multiline", "--progress-frequency", "1"]
 
 DEFAULT_ENDPOINT = "https://s3api-eu-ro-1.runpod.io"
 DEFAULT_REGION = "eu-ro-1"
@@ -162,10 +163,10 @@ def upload(cfg: Config, raw_paths: list[str]) -> int:
         target = cfg.s3_url(rel)
         if local.is_dir():
             print(f">> upload dir  {local}  ->  {target}")
-            result = run_aws(cfg, ["s3", "sync", str(local), target])
+            result = run_aws(cfg, ["s3", "sync", str(local), target, *TRANSFER_PROGRESS_ARGS])
         elif local.is_file():
             print(f">> upload file {local}  ->  {target}")
-            result = run_aws(cfg, ["s3", "cp", str(local), target])
+            result = run_aws(cfg, ["s3", "cp", str(local), target, *TRANSFER_PROGRESS_ARGS])
         else:
             print(f"[FAIL] {local} does not exist locally")
             failures += 1
@@ -199,11 +200,11 @@ def download(cfg: Config, raw_paths: list[str]) -> int:
         if kind == "dir":
             print(f">> download dir  {source}  ->  {local}")
             local.mkdir(parents=True, exist_ok=True)
-            result = run_aws(cfg, ["s3", "sync", source, str(local)])
+            result = run_aws(cfg, ["s3", "sync", source, str(local), *TRANSFER_PROGRESS_ARGS])
         elif kind == "file":
             print(f">> download file {source}  ->  {local}")
             local.parent.mkdir(parents=True, exist_ok=True)
-            result = run_aws(cfg, ["s3", "cp", source, str(local)])
+            result = run_aws(cfg, ["s3", "cp", source, str(local), *TRANSFER_PROGRESS_ARGS])
         else:
             print(f"[FAIL] {VOLUME_ROOT}/{rel} does not exist on the volume")
             failures += 1
