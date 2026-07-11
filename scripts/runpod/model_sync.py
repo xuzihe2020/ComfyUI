@@ -60,6 +60,10 @@ DEFAULT_VOLUME_ID = "1qwuc4cm14"
 DEFAULT_VOLUME_SIZE_GB = 100.0
 
 WINDOWS_LOCAL_ROOT = r"C:\Users\Tony Xu\workspace\comfyui_models"
+WINDOWS_AWS_CLI_PATHS = (
+    r"C:\Program Files\Amazon\AWSCLIV2\aws.exe",
+    r"C:\Program Files\Amazon\AWSCLI\bin\aws.exe",
+)
 
 
 def on_pod() -> bool:
@@ -112,12 +116,16 @@ class Config:
 
 def aws_cli() -> str:
     path = shutil.which("aws")
-    if not path:
-        raise SystemExit(
-            "error: AWS CLI not found on PATH. Install it first "
-            "(macOS: brew install awscli; Windows: winget install Amazon.AWSCLI)."
-        )
-    return path
+    if path:
+        return path
+    if os.name == "nt":
+        for candidate in WINDOWS_AWS_CLI_PATHS:
+            if Path(candidate).is_file():
+                return candidate
+    raise SystemExit(
+        "error: AWS CLI not found on PATH. Install it first "
+        "(macOS: brew install awscli; Windows: winget install Amazon.AWSCLI)."
+    )
 
 
 def run_aws(cfg: Config, args: list[str], *, capture: bool = False) -> subprocess.CompletedProcess:
