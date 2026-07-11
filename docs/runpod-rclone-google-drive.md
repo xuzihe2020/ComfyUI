@@ -130,9 +130,19 @@ winget install Rclone.Rclone
 
 Close and reopen the terminal so `rclone` is on PATH.
 
+Preferred path — copy the already-configured conf from the Mac (it carries
+our own OAuth client, the token, and the Flux Prod pin in one file):
+place `~/.config/rclone/rclone.conf` from the Mac at
+`%APPDATA%\rclone\rclone.conf` on Windows (create the folder if needed),
+then skip to step 4.
+
+Fresh-auth alternative (only if not copying): the remote MUST use our own
+OAuth client — the client id/secret are in the credentials JSON downloaded
+from Google Cloud Console (client_secret_*.json; do NOT commit it anywhere):
+
 ```powershell
-# 2. authorize — a Google consent page opens in the browser; approve Drive access
-rclone config create gdrive drive scope=drive
+# 2. authorize with OUR client — a Google consent page opens; approve Drive access
+rclone config create gdrive drive scope=drive client_id "<client_id from JSON>" client_secret "<client_secret from JSON>"
 
 # 3. THE PIN — mandatory, do not skip: scopes access to the Flux Prod folder only
 rclone config update gdrive root_folder_id 1tuMvBkNNREzBBCHVY-DH6ViiQEiveWEi --non-interactive

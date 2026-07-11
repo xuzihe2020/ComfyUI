@@ -13,6 +13,7 @@ export GIT_TERMINAL_PROMPT=0
 # see skills/runpod-gdrive-rclone.md)
 export PATH=/workspace/bin:$PATH
 export RCLONE_CONFIG=/workspace/rclone/rclone.conf
+chmod 600 "$RCLONE_CONFIG" 2>/dev/null || true  # S3 uploads don't carry file modes
 COMFY=/workspace/ComfyUI
 AITK=/workspace/ai-toolkit
 FAILED=()

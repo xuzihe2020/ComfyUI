@@ -8,9 +8,18 @@ Two modes, two homes:
     python scripts/runpod/model_sync.py -u checkpoints/flux2 loras/anna
     python scripts/runpod/model_sync.py -d loras/anna_v1.safetensors vae
 
-  PROBE (runs ON A POD ONLY — real filesystem, du-based, seconds):
+  PROBE (runs ON A POD ONLY — real filesystem, du-based):
+
+    # whole volume: tree of folders AND files with sizes + file counts,
+    # then TOTAL / quota / free. Walks the venvs' ~130k files: ~45s.
     python /workspace/ComfyUI/scripts/runpod/model_sync.py --probe
+
+    # any subpath under /workspace — instant on model/data trees
     python /workspace/ComfyUI/scripts/runpod/model_sync.py --probe comfyui_models
+
+    # --depth N controls nesting of the breakdown (folders and files).
+    # Default: 2. Higher = deeper tree, same walk time.
+    python /workspace/ComfyUI/scripts/runpod/model_sync.py --probe comfyui_models/text_encoders --depth 3
 
 Probing deliberately does NOT work from a workstation: the S3 API has no
 aggregate sizes, so any remote probe degenerates into listing every object
@@ -236,7 +245,21 @@ def run_du(args: list[str]) -> str:
     return result.stdout
 
 
-def probe(cfg: Config, subpath: str) -> int:
+def du_map(target: Path, depth: int, mode_flag: str) -> dict[str, int]:
+    """One du walk → {abs_path: value} for every dir AND file down to depth.
+    mode_flag: --block-size=1 (bytes) or --inodes (file/dir counts)."""
+    out = run_du(["-a", mode_flag, f"--max-depth={depth}", str(target)])
+    result: dict[str, int] = {}
+    for line in out.strip().splitlines():
+        value_s, _, path = line.partition("\t")
+        try:
+            result[path.rstrip("/") or "/"] = int(value_s)
+        except ValueError:
+            continue
+    return result
+
+
+def probe(cfg: Config, subpath: str, depth: int) -> int:
     if not on_pod():
         raise SystemExit(
             "error: --probe runs ON A POD only.\n"
@@ -248,34 +271,39 @@ def probe(cfg: Config, subpath: str) -> int:
     target = POD_WORKSPACE / subpath.strip("/") if subpath.strip("/") else POD_WORKSPACE
     if not target.exists():
         raise SystemExit(f"error: {target} does not exist")
+    depth = max(1, depth)
 
-    print(f"volume usage via du   scope: {target}")
-    breakdown = run_du(["--block-size=1", "--max-depth=1", str(target)])
-    rows: list[tuple[int, str]] = []
-    total_bytes = 0
-    for line in breakdown.strip().splitlines():
-        size_s, _, path = line.partition("\t")
-        try:
-            size = int(size_s)
-        except ValueError:
-            continue
-        if path.rstrip("/") == str(target).rstrip("/"):
-            total_bytes = size
-            continue
-        rows.append((size, path.rsplit("/", 1)[-1]))
-    for size, name in sorted(rows, reverse=True):
-        print(f"  {name + '/':<40} {human(size):>12}")
-    print(f"  {'TOTAL':<40} {human(total_bytes):>12}")
+    print(f"volume usage via du   scope: {target}   depth: {depth}")
+    sizes = du_map(target, depth, "--block-size=1")
+    counts = du_map(target, depth, "--inodes")
 
-    inodes = run_du(["--inodes", "-s", str(target)]).split("\t", 1)[0]
-    print(f"  {'files (inodes)':<40} {inodes:>12}")
+    base = str(target).rstrip("/") or "/"
+    children: dict[str, list[str]] = {}
+    for path in sizes:
+        if path == base:
+            continue
+        parent = path.rsplit("/", 1)[0] or "/"
+        children.setdefault(parent, []).append(path)
+
+    def render(parent: str, indent: int) -> None:
+        for child in sorted(children.get(parent, []), key=lambda p: -sizes.get(p, 0)):
+            is_dir = child in children or Path(child).is_dir()
+            name = child[len(parent):].lstrip("/") + ("/" if is_dir else "")
+            pad = max(6, 42 - 2 * indent)
+            suffix = f"   ({counts.get(child, 0):,} files)" if is_dir else ""
+            print(f"  {'  ' * indent}{name:<{pad}} {human(sizes.get(child, 0)):>12}{suffix}")
+            render(child, indent + 1)
+
+    render(base, 0)
+    total_bytes = sizes.get(base, 0)
+    print(f"  {'TOTAL':<42} {human(total_bytes):>12}   ({counts.get(base, 0):,} files)")
 
     if target == POD_WORKSPACE:
         quota = cfg.volume_size_gb * 1024**3
         free = max(0.0, quota - total_bytes)
         pct = 100.0 * total_bytes / quota if quota else 0.0
-        print(f"  {'quota (RUNPOD_VOLUME_SIZE_GB=' + str(int(cfg.volume_size_gb)) + ')':<40} {human(quota):>12}")
-        print(f"  {'free':<40} {human(free):>12}   ({pct:.0f}% used)")
+        print(f"  {'quota (RUNPOD_VOLUME_SIZE_GB=' + str(int(cfg.volume_size_gb)) + ')':<42} {human(quota):>12}")
+        print(f"  {'free':<42} {human(free):>12}   ({pct:.0f}% used)")
     return 0
 
 
@@ -283,21 +311,49 @@ def probe(cfg: Config, subpath: str) -> int:
 # CLI
 # --------------------------------------------------------------------------- #
 
+EXAMPLES = """
+examples:
+
+  transfers (any machine — Mac / Windows / pod; S3 API, no pod required):
+    model_sync.py -u checkpoints/flux2 loras/anna     upload folders (recursive, incremental)
+    model_sync.py -u loras/anna_v1.safetensors        upload a single file
+    model_sync.py -d vae checkpoints/flux2            download the other direction
+      paths are relative to BOTH roots at once:
+        local   <LOCAL_ROOT>/<path>          (Windows default: C:\\Users\\Tony Xu\\workspace\\comfyui_models)
+        volume  comfyui_models/<path>        (pods: /workspace/comfyui_models/<path>)
+
+  probe (POD ONLY — walks the real filesystem with du):
+    model_sync.py --probe                             whole volume: tree + TOTAL/quota/free (~45s)
+    model_sync.py --probe comfyui_models              breakdown of one dir (instant on model trees)
+    model_sync.py --probe comfyui_models --depth 3    deeper nesting; folders AND files shown
+    model_sync.py --probe ComfyUI/models --depth 1    any path under /workspace works
+"""
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Upload/download ComfyUI models via S3 (anywhere); probe volume usage via du (pod only).",
+        description="Sync ComfyUI models between machines and the RunPod network volume (S3, anywhere), "
+                    "and probe volume usage (du, pod only).",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=EXAMPLES,
     )
     mode = p.add_mutually_exclusive_group(required=True)
     mode.add_argument("-u", "--upload", nargs="+", metavar="PATH",
-                      help=f"Upload local <root>/PATH... to volume {VOLUME_ROOT}/PATH... (any machine)")
+                      help=f"Upload local <root>/PATH... to volume {VOLUME_ROOT}/PATH... "
+                           "Any machine. Multiple paths allowed; dirs are recursive + incremental.")
     mode.add_argument("-d", "--download", nargs="+", metavar="PATH",
-                      help=f"Download volume {VOLUME_ROOT}/PATH... to local <root>/PATH... (any machine)")
+                      help=f"Download volume {VOLUME_ROOT}/PATH... to local <root>/PATH... "
+                           "Any machine. Multiple paths allowed; dirs are recursive + incremental.")
     mode.add_argument("--probe", nargs="?", const="", metavar="SUBPATH",
-                      help="POD ONLY: du-based usage of /workspace (or /workspace/SUBPATH): "
-                           "per-dir sizes, total, file count, free space. Seconds.")
-    p.add_argument("--local-root", default=None,
-                   help="Override the local models root (else COMFYUI_MODELS_LOCAL_ROOT / platform default).")
+                      help="POD ONLY. Storage breakdown (folders AND files, sizes, file counts) of "
+                           "/workspace, or /workspace/SUBPATH if given. Whole volume adds TOTAL, "
+                           "quota and free space and takes ~45s; subpaths are near-instant.")
+    p.add_argument("--depth", type=int, default=2, metavar="N",
+                   help="Probe only: nest the breakdown N levels deep (default: 2). "
+                        "Deeper costs no extra walk time.")
+    p.add_argument("--local-root", default=None, metavar="DIR",
+                   help="Transfers only: override the local models root "
+                        "(default: COMFYUI_MODELS_LOCAL_ROOT from .env, else the platform default).")
     return p.parse_args(argv)
 
 
@@ -306,7 +362,7 @@ def main(argv: list[str] | None = None) -> int:
     cfg = Config(args)
 
     if args.probe is not None:
-        return probe(cfg, args.probe)
+        return probe(cfg, args.probe, args.depth)
 
     cfg.require_credentials()
     aws_cli()

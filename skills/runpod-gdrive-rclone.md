@@ -72,13 +72,18 @@ chmod 600 /workspace/rclone/rclone.conf
 rclone lsd gdrive:                                # connection test
 ```
 
-TODO: rclone's shared Google client_id retires during 2026 — create our own
-client_id (https://rclone.org/drive/#making-your-own-client-id) and update
-the remote before it stops working. CRITICAL when doing so: set the OAuth
-consent screen to "Production" (published), NOT "Testing" — Testing-status
-refresh tokens expire every 7 days; Production tokens are indefinite until
-explicitly revoked. Token persistence requirement: access must work forever
-with zero re-consent (Tony's hard requirement).
+OAuth client: our OWN client_id (`...376fdh.apps.googleusercontent.com`,
+GCP project `comfyui-models`, Desktop app "rclone", consent screen published
+to Production — done 2026-07-11; rclone's shared client retirement no longer
+affects us). Production status is what makes refresh tokens indefinite —
+NEVER flip the consent screen back to "Testing" (Testing tokens die every
+7 days; Tony's hard requirement is zero re-consent, forever). The client
+credentials JSON lives outside git on Tony's machines; the working conf
+(client + token + Flux Prod pin) is the file at /workspace/rclone/rclone.conf
+and on each workstation. New machine setup: copy an existing conf, or fresh
+auth MUST pass our client_id/client_secret explicitly (a bare
+`rclone config create gdrive drive` would silently use rclone's dying shared
+client).
 
 ## Pull (Drive → pod)
 
