@@ -43,7 +43,7 @@ interrupted bootstrap leaves resumable state. Stages, in order:
    `github.com/xuzihe2020/`) into `custom_nodes/`.
 3. Clone `xuzihe2020/ai-toolkit`.
 4. Create both in-repo `.venv`s (no requirements yet).
-5. Write `extra_model_paths.yaml` pointing at `/workspace/ComfyUI-models/`
+5. Write `extra_model_paths.yaml` pointing at `/workspace/comfyui_models/`
    (verify folder names match the synced model tree afterwards).
 6. `scripts/install_custom_nodes.py` — clones ComfyUI-Manager + the remaining
    manifest nodes via cm-cli + tools, and installs ALL node dependencies
@@ -54,9 +54,14 @@ interrupted bootstrap leaves resumable state. Stages, in order:
 9. Create `/workspace/{hf-cache,datasets,configs,output,scripts,rclone}` and
    `/workspace/scripts/session_start.sh`.
 
-Models arrive separately (Google Drive via rclone — NOT Hugging Face; Tony has
-no HF token): `rclone --config /workspace/rclone/rclone.conf copy
-gdrive:comfyui_models /workspace/ComfyUI-models --progress` in tmux.
+Models arrive separately via `scripts/runpod/model_sync.py` (S3, no pod
+needed, works on Mac and Windows; NOT Hugging Face — Tony has no HF token):
+`python scripts/runpod/model_sync.py -u <path>...` uploads from the local
+`comfyui_models` root to the volume's `/workspace/comfyui_models/<path>`;
+`-d` downloads. Credentials come from the repo `.env` (`RUNPOD_S3_*`);
+requires the AWS CLI. Volume usage/stats: `--probe` — POD ONLY (runs `du`
+on the mounted filesystem, answers in seconds; there is no fast remote way,
+verified: S3 has no folder sizes, RunPod has no usage API).
 
 ## Every pod spin-up (the sync — ALWAYS)
 
@@ -64,13 +69,25 @@ gdrive:comfyui_models /workspace/ComfyUI-models --progress` in tmux.
 source /workspace/scripts/session_start.sh
 ```
 
-which performs, in order — if the script is missing, do these by hand:
+The script is versioned in the fork at `scripts/runpod/session_start.sh` (the
+volume copy self-updates after each fork pull). Every step prints an explicit
+`[OK]`/`[FAIL]` verdict and the run ends with a scoreboard
+(`SYNC RESULT: ALL OK` / `N FAILED -> <steps>`) — a failed step must be fixed
+before starting work. It performs, in order — if the script is missing, do
+these by hand:
 
 1. `git pull --ff-only` in `/workspace/ComfyUI` (the fork).
 2. `git pull --ff-only` in EVERY repo under `custom_nodes/` and `tools/`.
-3. Run `scripts/install_custom_nodes.py` (diff mode): installs any custom
-   nodes newly added to the manifest and re-syncs dependencies.
-4. Activate `/workspace/ComfyUI/.venv` and export `HF_HOME=/workspace/hf-cache`.
+3. Run `scripts/install_custom_nodes.py` — ALWAYS. The installer is
+   self-skipping: it stamps every successful run
+   (`custom_nodes/.install_state.json` = manifest hash + each repo's HEAD)
+   and exits in seconds when nothing changed. It does real work only when a
+   pull brought commits, the manifest changed, or a folder is missing —
+   which is when its dependency fixes and cm-cli passes actually matter.
+   `--full` bypasses the stamp for a forced re-check.
+4. Environment report (torch/CUDA in both venvs, node/tool/model counts),
+   then activate `/workspace/ComfyUI/.venv` and export
+   `HF_HOME=/workspace/hf-cache`.
 
 Only after the sync: start ComfyUI (`python main.py --listen 0.0.0.0 --port
 8188`) or switch to the training venv (`source

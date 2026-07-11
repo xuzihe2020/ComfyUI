@@ -60,14 +60,14 @@ fi
 "$COMFY/.venv/bin/python" -m pip install -q -U pip
 "$AITK/.venv/bin/python" -m pip install -q -U pip
 
-echo "=== [5/9] extra_model_paths.yaml -> /workspace/ComfyUI-models ==="
-mkdir -p /workspace/ComfyUI-models
+echo "=== [5/9] extra_model_paths.yaml -> /workspace/comfyui_models ==="
+mkdir -p /workspace/comfyui_models
 if [ ! -f "$COMFY/extra_model_paths.yaml" ]; then
   cat > "$COMFY/extra_model_paths.yaml" <<'EOY'
 comfyui:
-    base_path: /workspace/ComfyUI-models/
+    base_path: /workspace/comfyui_models/
     is_default: true
-    download_model_base: /workspace/ComfyUI-models/
+    download_model_base: /workspace/comfyui_models/
     checkpoints: checkpoints/
     diffusion_models: |
         diffusion_models/
@@ -98,31 +98,14 @@ echo "=== [8/9] ai-toolkit requirements ==="
 echo "=== [9/9] workspace layout + per-session sync script ==="
 mkdir -p /workspace/{hf-cache,datasets,configs,output,scripts,rclone}
 
-cat > /workspace/scripts/session_start.sh <<'EOS'
-#!/usr/bin/env bash
-# EVERY POD SPIN-UP — no exceptions: pull repos, pull every node, sync deps.
-# Process definition: skills/runpod-comfyui-setup.md
-set -uo pipefail
-export HF_HOME=/workspace/hf-cache
-export GIT_TERMINAL_PROMPT=0
-COMFY=/workspace/ComfyUI
-
-echo "== pull ComfyUI fork =="
-git -C "$COMFY" pull --ff-only
-
-echo "== pull every custom node + tool repo =="
-for d in "$COMFY"/custom_nodes/*/ "$COMFY"/tools/*/; do
-  [ -d "$d/.git" ] && echo "-- $(basename "$d")" && git -C "$d" pull --ff-only
-done
-
-echo "== manifest installer: new nodes + dependency sync =="
-(cd "$COMFY" && "$COMFY/.venv/bin/python" scripts/install_custom_nodes.py)
-
-source "$COMFY/.venv/bin/activate"
-echo "ready. ComfyUI: python $COMFY/main.py --listen 0.0.0.0 --port 8188"
-echo "training instead: source /workspace/ai-toolkit/.venv/bin/activate"
-EOS
-chmod +x /workspace/scripts/session_start.sh
+# session_start.sh is versioned in the fork; the volume copy self-updates on
+# each sync (see scripts/runpod/session_start.sh).
+if [ -f "$COMFY/scripts/runpod/session_start.sh" ]; then
+  cp -f "$COMFY/scripts/runpod/session_start.sh" /workspace/scripts/session_start.sh
+  chmod +x /workspace/scripts/session_start.sh
+else
+  echo "!! $COMFY/scripts/runpod/session_start.sh missing from the fork — scp it to /workspace/scripts/ manually"
+fi
 
 echo "=== torch sanity (must stay the template build in both venvs) ==="
 "$COMFY/.venv/bin/python" - <<'PY'

@@ -45,6 +45,7 @@ Useful commands on macOS/Linux:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -57,6 +58,11 @@ DEFAULT_MANIFEST = REPO_ROOT / "custom_nodes.manifest.json"
 DEFAULT_EXTRA_MODEL_PATHS = REPO_ROOT / "extra_model_paths.yaml"
 CUSTOM_NODES_DIR = REPO_ROOT / "custom_nodes"
 TOOLS_DIR = REPO_ROOT / "tools"
+# Written after every successful run; diff mode exits immediately when the
+# recomputed state (manifest hash + every repo's HEAD) matches the stamp, so a
+# no-change run costs seconds instead of re-running dependency fixes and
+# cm-cli (whose registry fetch alone is minutes per node).
+INSTALL_STAMP = CUSTOM_NODES_DIR / ".install_state.json"
 
 # Patched custom nodes maintained from the user's GitHub should be handled first.
 # These forks carry repo-specific fixes and compatibility patches, so the install
@@ -446,6 +452,52 @@ def diff_mode_existing_accelerator_nodes(manifest: dict) -> list[dict]:
     return nodes
 
 
+def repo_head(path: Path) -> str | None:
+    result = subprocess.run(
+        ["git", "-C", str(path), "rev-parse", "HEAD"],
+        capture_output=True, text=True,
+    )
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def compute_install_state(manifest: dict, manifest_path: Path) -> dict:
+    """Manifest hash + HEAD of every platform-eligible node/tool repo.
+    A missing folder records None, which can never equal a stamped SHA."""
+    repos: dict[str, str | None] = {}
+    manager_folder = CUSTOM_NODES_DIR / manifest["manager"]["folder"]
+    repos[f"custom_nodes/{manifest['manager']['folder']}"] = (
+        repo_head(manager_folder) if manager_folder.exists() else None
+    )
+    for node in manifest["nodes"]:
+        if not node_allowed_here(node):
+            continue
+        folder = CUSTOM_NODES_DIR / node["folder"]
+        repos[f"custom_nodes/{node['folder']}"] = repo_head(folder) if folder.exists() else None
+    for tool in manifest.get("tools", []):
+        if not node_allowed_here(tool):
+            continue
+        folder = TOOLS_DIR / tool["folder"]
+        repos[f"tools/{tool['folder']}"] = repo_head(folder) if folder.exists() else None
+    return {
+        "manifest_md5": hashlib.md5(manifest_path.read_bytes()).hexdigest(),
+        "repos": repos,
+    }
+
+
+def load_install_stamp() -> dict | None:
+    try:
+        with INSTALL_STAMP.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def write_install_stamp(state: dict) -> None:
+    INSTALL_STAMP.parent.mkdir(parents=True, exist_ok=True)
+    with INSTALL_STAMP.open("w", encoding="utf-8") as f:
+        json.dump(state, f, indent=2, sort_keys=True)
+
+
 def apply_post_install_fixes() -> None:
     easyocr_docs = CUSTOM_NODES_DIR / "ComfyUI-EasyOCR" / "docs"
     source_font = easyocr_docs / "PingFangRegular.ttf"
@@ -513,6 +565,18 @@ def main() -> None:
 
     manifest = load_manifest(args.manifest)
     install_mode = "full" if args.full else args.install_mode
+
+    if install_mode == "diff":
+        current_state = compute_install_state(manifest, args.manifest)
+        if (current_state == load_install_stamp()
+                and None not in current_state["repos"].values()):
+            print(
+                "Install state unchanged since last successful run; nothing to do. "
+                f"(stamp: {INSTALL_STAMP}; use --full to force a re-check)",
+                flush=True,
+            )
+            return
+
     install_tools(manifest, comfy_python(), install_mode=install_mode, no_deps=args.no_deps)
     existing_dependency_nodes: list[dict] = []
     existing_accelerator_nodes: list[dict] = []
@@ -541,6 +605,7 @@ def main() -> None:
 
     if not nodes_to_install and not existing_dependency_nodes and not existing_accelerator_nodes:
         print("No missing custom nodes, dependency fixes, or optional accelerator checks found in manifest; diff install is complete.", flush=True)
+        write_install_stamp(compute_install_state(manifest, args.manifest))
         return
 
     python_bin = comfy_python()
@@ -571,6 +636,8 @@ def main() -> None:
         for node in nodes_to_install
     ):
         apply_post_install_fixes()
+
+    write_install_stamp(compute_install_state(manifest, args.manifest))
 
 
 if __name__ == "__main__":
