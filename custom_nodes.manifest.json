@@ -107,12 +107,5 @@
       "platforms": ["linux", "windows"]
     }
   ],
-  "tools": [
-    {
-      "name": "video_sampler",
-      "folder": "video_sampler",
-      "repo": "https://github.com/xuzihe2020/video_sampler",
-      "reason": "Standalone CLI to sample still frames or export clips from long videos over time ranges, used for dataset/lora prep. Maintained as an independent repo so other projects can clone it directly; the installer clones it into tools/, which is gitignored like custom_nodes."
-    }
-  ]
+  "tools": []
 }
