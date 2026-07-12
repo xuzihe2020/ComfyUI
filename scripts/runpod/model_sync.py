@@ -12,10 +12,12 @@ Three modes:
       --retries N        attempts per path (default: 5), backoff 10/30/60/120s
       verification       files: remote size must equal local size (head-object)
                          dirs:  re-synced until a pass transfers nothing
-    Large files upload as multipart (64MB parts, 4 streams, SDK-level part
-    retries: AWS_RETRY_MODE=adaptive, AWS_MAX_ATTEMPTS=10). Partial parts left
-    by THIS tool's own failed attempts are cleaned between its retries; the
-    tool NEVER aborts upload sessions it did not create.
+    Large files (>= 64MB) upload as RESUMABLE multipart: 16MB parts, 3
+    streams, each part retried on its own. Uploaded parts and the session id
+    survive failed attempts, Ctrl-C, reboots and RunPod 524 timeouts —
+    rerunning the same command continues from the first missing part instead
+    of byte 0 (sessions tracked in ~/.cache/model_sync/multipart_state.json).
+    The tool NEVER aborts or adopts upload sessions it did not create.
 
   PROBE (runs ON A POD ONLY — real filesystem, du-based):
 
@@ -45,9 +47,11 @@ Three modes:
 
     WARNING: aborting a session that ANY machine is actively uploading KILLS
     that upload mid-flight (the uploader gets NoSuchUpload and loses all
-    progress). Only run with --yes when you are certain no upload is running
-    anywhere. Incident 2026-07-11: a live 92%-complete 17GB upload was
-    destroyed exactly this way.
+    progress). A session may also be a PAUSED resumable upload holding real
+    progress — aborting it throws that progress away. Only run with --yes
+    when you are certain no upload is running or parked anywhere. Incident
+    2026-07-11: a live 92%-complete 17GB upload was destroyed exactly this
+    way.
 
 Probing deliberately does NOT work from a workstation: the S3 API has no
 aggregate sizes, so any remote probe degenerates into listing every object
@@ -76,11 +80,14 @@ to sign correctly against RunPod's endpoint.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -192,9 +199,10 @@ def run_aws(cfg: Config, args: list[str], *, capture: bool = False) -> subproces
 
 
 def _aws_config_file() -> Path:
-    """AWS CLI config with multipart tuning: 64MB parts (a 20GB file becomes
-    ~320 parts instead of ~2500 — far fewer chances to lose one) and lower
-    concurrency (kinder to home uplinks)."""
+    """AWS CLI config for the plain cp/sync paths. Files >= RESUMABLE_THRESHOLD
+    never reach cp/sync (they go through the resumable uploader), so this
+    threshold keeps everything cp/sync does handle as single PUTs; low
+    concurrency is kinder to home uplinks."""
     cfg_dir = Path.home() / ".cache" / "model_sync"
     cfg_dir.mkdir(parents=True, exist_ok=True)
     path = cfg_dir / "aws_config"
@@ -297,6 +305,216 @@ def human(size: float) -> str:
 
 RETRY_BACKOFF_SECONDS = (10, 30, 60, 120)
 
+# Files at/above this size upload via the resumable multipart path; smaller
+# files go through plain `s3 cp` (single PUT, nothing to resume).
+RESUMABLE_THRESHOLD = 64 * 1024 * 1024
+# 16MB parts: RunPod's S3 endpoint sits behind Cloudflare, which returns 524
+# if the backend takes ~100s to acknowledge an UploadPart. Small parts clear
+# that ceiling even on a slow uplink, and a lost part costs seconds to redo.
+PART_SIZE = 16 * 1024 * 1024
+PART_WORKERS = 3
+PART_ATTEMPTS = 3
+PART_BACKOFF_SECONDS = (5, 15)
+
+# upload-id per bucket/key, so a rerun resumes OUR session. Sessions found on
+# the server but absent from this file are never touched: they may be another
+# machine's live upload (incident 2026-07-11).
+MULTIPART_STATE = Path.home() / ".cache" / "model_sync" / "multipart_state.json"
+
+
+def _load_multipart_state() -> dict:
+    try:
+        return json.loads(MULTIPART_STATE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _save_multipart_state(state: dict) -> None:
+    try:
+        MULTIPART_STATE.parent.mkdir(parents=True, exist_ok=True)
+        MULTIPART_STATE.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _resumable_upload(cfg: Config, rel: str, local: Path) -> bool:
+    """Multipart upload driven part-by-part through `s3api`, so progress
+    survives anything: uploaded parts stay on the server, the session id is
+    remembered in MULTIPART_STATE, and the next attempt/run continues from
+    the first missing part."""
+    key = f"{VOLUME_ROOT}/{rel}"
+    skey = f"{cfg.volume_id}/{key}"
+    st = local.stat()
+    size, mtime = st.st_size, int(st.st_mtime)
+    if remote_file_size(cfg, rel) == size:
+        # already complete (e.g. a prior run finished right before a kill);
+        # drop any leftover state entry — its session is gone server-side
+        state = _load_multipart_state()
+        if state.pop(skey, None):
+            _save_multipart_state(state)
+        return True
+
+    state = _load_multipart_state()
+    entry = state.get(skey)
+    upload_id = None
+    if entry:
+        if (entry.get("size"), entry.get("mtime"), entry.get("part_size")) == (size, mtime, PART_SIZE):
+            upload_id = entry.get("upload_id")
+        else:
+            # local file changed since the session started: its parts are useless
+            run_aws(cfg, ["s3api", "abort-multipart-upload", "--bucket", cfg.volume_id,
+                          "--key", key, "--upload-id", entry.get("upload_id", "")], capture=True)
+            state.pop(skey, None)
+            _save_multipart_state(state)
+
+    total_parts = max(1, -(-size // PART_SIZE))
+
+    def part_length(n: int) -> int:
+        return PART_SIZE if n < total_parts else size - PART_SIZE * (total_parts - 1)
+
+    done: dict[int, str] = {}
+    if upload_id:
+        listed = run_aws(cfg, ["s3api", "list-parts", "--bucket", cfg.volume_id, "--key", key,
+                               "--upload-id", upload_id, "--output", "json"], capture=True)
+        if listed.returncode == 0:
+            for part in (json.loads(listed.stdout or "{}") or {}).get("Parts") or []:
+                n = part.get("PartNumber")
+                if n and part.get("Size") == part_length(n):
+                    done[n] = part["ETag"]
+        else:  # session no longer exists server-side
+            upload_id = None
+            state.pop(skey, None)
+            _save_multipart_state(state)
+
+    if not upload_id:
+        created = run_aws(cfg, ["s3api", "create-multipart-upload", "--bucket", cfg.volume_id,
+                                "--key", key, "--output", "json"], capture=True)
+        try:
+            upload_id = json.loads(created.stdout)["UploadId"] if created.returncode == 0 else None
+        except (json.JSONDecodeError, KeyError):
+            upload_id = None
+        if not upload_id:
+            err = (created.stderr or "").strip().splitlines()
+            print(f"[FAIL] {rel}: create-multipart-upload: {err[-1] if err else 'unexpected response'}")
+            return False
+        state[skey] = {"upload_id": upload_id, "size": size, "mtime": mtime, "part_size": PART_SIZE}
+        _save_multipart_state(state)
+
+    todo = [n for n in range(1, total_parts + 1) if n not in done]
+    done_bytes = sum(part_length(n) for n in done)
+    if done:
+        print(f"[RESUME] {rel}: {len(done)}/{total_parts} parts already on the volume "
+              f"({human(done_bytes)}), {human(size - done_bytes)} to go")
+
+    started = time.monotonic()
+    lock = threading.Lock()
+    stop = threading.Event()
+    run_bytes = 0
+
+    def upload_part(n: int):
+        nonlocal run_bytes
+        offset = (n - 1) * PART_SIZE
+        length = part_length(n)
+        err_line = "unknown error"
+        for attempt in range(1, PART_ATTEMPTS + 1):
+            if stop.is_set():
+                return None
+            result = None
+            tmp = None
+            try:
+                with open(local, "rb") as src:
+                    src.seek(offset)
+                    data = src.read(length)
+                fd, tmp = tempfile.mkstemp(prefix="model_sync_part_")
+                with os.fdopen(fd, "wb") as out:
+                    out.write(data)
+                # --cli-read-timeout 150: let Cloudflare's ~100s 524 arrive as
+                # a real response instead of tripping botocore's 60s default
+                # (which would retry the same doomed part invisibly).
+                result = run_aws(cfg, ["s3api", "upload-part", "--bucket", cfg.volume_id,
+                                       "--key", key, "--upload-id", upload_id,
+                                       "--part-number", str(n), "--body", tmp,
+                                       "--cli-read-timeout", "150", "--output", "json"],
+                                 capture=True)
+            except OSError as exc:
+                err_line = str(exc)
+            finally:
+                if tmp:
+                    try:
+                        os.unlink(tmp)
+                    except OSError:
+                        pass
+            etag = None
+            if result is not None and result.returncode == 0:
+                try:
+                    etag = json.loads(result.stdout)["ETag"]
+                except (json.JSONDecodeError, KeyError):
+                    etag = None
+            if etag:
+                with lock:
+                    run_bytes += length
+                    done[n] = etag
+                    uploaded = done_bytes + run_bytes
+                    elapsed = max(1e-6, time.monotonic() - started)
+                    rate = run_bytes / elapsed
+                    eta_min = (size - uploaded) / rate / 60 if rate else 0
+                    print(f"   part {len(done)}/{total_parts}   {human(uploaded)} / {human(size)}"
+                          f"   ({100.0 * uploaded / size:.0f}%)   {human(rate)}/s   ETA {eta_min:.0f}m")
+                return n
+            if result is not None:
+                errs = (result.stderr or "").strip().splitlines()
+                err_line = errs[-1] if errs else f"exit code {result.returncode}"
+            if attempt < PART_ATTEMPTS:
+                time.sleep(PART_BACKOFF_SECONDS[min(attempt - 1, len(PART_BACKOFF_SECONDS) - 1)])
+        print(f"[PART-FAIL] {rel} part {n}: {err_line}")
+        stop.set()
+        return None
+
+    if todo:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=PART_WORKERS) as pool:
+            results = list(pool.map(upload_part, todo))
+        if any(r is None for r in results):
+            print(f"[HELD] {rel}: {len(done)}/{total_parts} parts uploaded and kept on the "
+                  f"volume — the next attempt resumes from here")
+            return False
+
+    manifest = {"Parts": [{"PartNumber": n, "ETag": done[n]} for n in sorted(done)]}
+    fd, mpath = tempfile.mkstemp(prefix="model_sync_complete_", suffix=".json")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as out:
+            json.dump(manifest, out)
+        completed = run_aws(cfg, ["s3api", "complete-multipart-upload", "--bucket", cfg.volume_id,
+                                  "--key", key, "--upload-id", upload_id,
+                                  "--multipart-upload", f"file://{mpath}"], capture=True)
+    finally:
+        try:
+            os.unlink(mpath)
+        except OSError:
+            pass
+    if completed.returncode != 0:
+        err = (completed.stderr or "").strip().splitlines()
+        print(f"[FAIL] {rel}: complete-multipart-upload: {err[-1] if err else 'unknown error'} "
+              f"— parts kept, rerun to retry")
+        return False
+    state = _load_multipart_state()
+    state.pop(skey, None)
+    _save_multipart_state(state)
+    return True
+
+
+def _upload_large_dir_files(cfg: Config, rel: str, local_dir: Path) -> bool:
+    """Route every big file under a dir through the resumable uploader BEFORE
+    `s3 sync` sees it (sync restarts big files from zero on failure). The
+    sync pass then skips them: equal size, remote timestamp newer."""
+    ok = True
+    for f in sorted(p for p in local_dir.rglob("*") if p.is_file()):
+        if f.stat().st_size < RESUMABLE_THRESHOLD:
+            continue
+        frel = f"{rel}/{f.relative_to(local_dir).as_posix()}"
+        if not _resumable_upload(cfg, frel, f):
+            ok = False
+    return ok
+
 
 def _verify_upload(cfg: Config, rel: str, local: Path, target: str) -> bool:
     """File: remote size must equal local size. Dir: a second sync pass must
@@ -326,30 +544,36 @@ def upload(cfg: Config, raw_paths: list[str], attempts: int) -> int:
             continue
         kind = "dir" if local.is_dir() else "file"
         print(f">> upload {kind}  {local}  ->  {target}")
-        # NOTE deliberately NO cleanup before the first attempt: another
-        # machine may be mid-upload on this key, and aborting a session we
-        # did not create kills that transfer (incident 2026-07-11). Cleanup
-        # runs only after OUR OWN attempts fail.
+        # NOTE: nothing is ever cleaned up here, before, between or after
+        # attempts. Resumable sessions ARE the retry progress, and a session
+        # this tool did not create may be another machine's live upload
+        # (incident 2026-07-11). Stale leftovers age out via the explicit
+        # --abort-stale-uploads maintenance mode.
         ok = False
         for attempt in range(1, attempts + 1):
             if local.is_dir():
-                result = run_aws(cfg, ["s3", "sync", str(local), target, *TRANSFER_PROGRESS_ARGS])
+                big_ok = _upload_large_dir_files(cfg, rel, local)
+                sync_ok = run_aws(cfg, ["s3", "sync", str(local), target,
+                                        *TRANSFER_PROGRESS_ARGS]).returncode == 0
+                attempt_ok = big_ok and sync_ok
+            elif local.stat().st_size >= RESUMABLE_THRESHOLD:
+                attempt_ok = _resumable_upload(cfg, rel, local)
             else:
-                result = run_aws(cfg, ["s3", "cp", str(local), target, *TRANSFER_PROGRESS_ARGS])
-            if result.returncode == 0 and _verify_upload(cfg, rel, local, target):
+                attempt_ok = run_aws(cfg, ["s3", "cp", str(local), target,
+                                           *TRANSFER_PROGRESS_ARGS]).returncode == 0
+            if attempt_ok and _verify_upload(cfg, rel, local, target):
                 ok = True
                 break
             if attempt < attempts:
                 delay = RETRY_BACKOFF_SECONDS[min(attempt - 1, len(RETRY_BACKOFF_SECONDS) - 1)]
-                print(f"[RETRY] {rel}: attempt {attempt}/{attempts} failed — "
-                      f"cleaning partial parts, retrying in {delay}s")
-                abort_stale_uploads(cfg, prefix=f"{VOLUME_ROOT}/{rel}", min_age_hours=0, quiet=True)
+                print(f"[RETRY] {rel}: attempt {attempt}/{attempts} failed — retrying in "
+                      f"{delay}s (uploaded parts are kept and resumed)")
                 time.sleep(delay)
         if ok:
             print(f"[OK]   {rel} (verified)")
         else:
-            print(f"[FAIL] upload {rel} after {attempts} attempts")
-            abort_stale_uploads(cfg, prefix=f"{VOLUME_ROOT}/{rel}", min_age_hours=0, quiet=True)
+            print(f"[FAIL] upload {rel} after {attempts} attempts — completed parts remain "
+                  f"on the volume; rerun the same command to resume")
             failures += 1
     return failures
 
@@ -592,8 +816,10 @@ examples:
 
   reliability (large files / flaky networks):
     every transfer is verified (remote size == local size; dirs re-synced to
-    convergence) and retried up to --retries times with backoff; the tool
-    cleans only its OWN failed sessions between retries.
+    convergence) and retried up to --retries times with backoff. Files >=64MB
+    upload as resumable multipart (16MB parts): a failed or killed run keeps
+    its uploaded parts, and rerunning the same command resumes from the first
+    missing part — a RunPod 524 timeout costs seconds, not the whole file.
 
   maintenance (DESTRUCTIVE with --yes — can kill a live upload):
     model_sync.py --abort-stale-uploads               DRY RUN: list incomplete uploads + ages
@@ -629,8 +855,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         "(without it: dry-run listing only).")
     p.add_argument("--retries", type=int, default=5, metavar="N",
                    help="Transfers: attempts per path until verified (default: 5); backoff "
-                        "10/30/60/120s. Cleanup between attempts touches only this tool's own "
-                        "failed sessions.")
+                        "10/30/60/120s. Large-file attempts resume from already-uploaded "
+                        "parts — nothing is re-sent or cleaned up between attempts.")
     p.add_argument("--stale-age", type=float, default=6.0, metavar="HOURS",
                    help="--abort-stale-uploads --yes: only abort uploads older than this "
                         "(default: 6.0h). Anything younger is treated as possibly live.")
