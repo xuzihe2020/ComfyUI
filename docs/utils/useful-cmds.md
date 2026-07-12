@@ -60,3 +60,15 @@ Remove-Item "$env:APPDATA\Code\User\workspaceStorage" -Recurse -Force -ErrorActi
 ```
 code --install-extension openai.chatgpt
 ```
+
+# Start and kill AI-toolkit UI
+## Kill running ai-toolkit process
+
+```
+tmux kill-session -t aitk_ui
+```
+
+## Spin up ai-tookit UI
+```
+tmux new -d -s aitk_ui 'export PATH=/workspace/bin:$PATH; cd /workspace/ai-toolkit/ui && npm run start'
+```
