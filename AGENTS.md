@@ -73,18 +73,26 @@ Install all required custom-node dependencies before ComfyUI starts. Do not rely
 
 Do not run `scripts/install_custom_nodes.py` yourself unless the user explicitly asks you to run it in the current request. When adding or changing custom-node dependencies, update the manifest/install script and tell the user to run the installer themselves.
 
-## Skills
+## Shared infra lives in the sibling `aigc-shared` repo
 
-Reusable operational procedures live in the top-level `skills/` folder (agent-agnostic markdown, one file per skill). This section is the index — skills are NOT auto-loaded; when a task matches a trigger below, read that skill file IN FULL before acting. When adding a new skill, add its row here, or no agent will ever find it.
+This fork is one of three sibling repos with an identical layout locally and on
+the RunPod volume:
 
-| Skill file | Read it before... |
-|---|---|
-| `skills/runpod-pod-ops.md` | ANY RunPod work: pods, network volumes, pod SSH, deploys, terminations, cloud training/generation sessions |
-| `skills/runpod-comfyui-aitk-setup.md` | setting up a fresh volume; the FIRST command on any newly spun-up pod (mandatory session sync); starting ComfyUI or the ai-toolkit web UI on a pod |
-| `skills/runpod-gdrive-rclone.md` | moving images/datasets/outputs between Google Drive and pods (contains a HARD scope rule: Drive access is pinned to the `Flux Prod` folder only) |
+```
+<parent>/          # locally: ~/Workspace/playground_01/aigc ; on volume: /workspace
+├── aigc-shared/   # infra, skills, pipelines, shared libs, tools, configs
+├── ComfyUI/       # this repo — the deployed ComfyUI unit (nested custom_nodes/)
+└── ai-toolkit/    # xuzihe2020/ai-toolkit fork — trainer + web UI
+```
 
-## RunPod Operations
+RunPod skills (`skills/runpod-*.md`), RunPod scripts (`scripts/runpod/`),
+dataset-prep tools, `docs/`, and cross-repo orchestration all moved to
+`aigc-shared` — read `../aigc-shared/AGENTS.md` (and its skills index) before
+any RunPod, pipeline, or dataset-prep work. This repo keeps only what ComfyUI
+itself needs: `custom_nodes.manifest.json`, `scripts/install_custom_nodes.py`,
+workflows under `user/default/workflows/`, and a few not-yet-migrated scripts.
 
-Before doing anything involving RunPod (pods, network volumes, pod SSH, cloud training or generation runs), read `skills/runpod-pod-ops.md` in full — it is the operational source of truth (assets, deploy checklist, bootstrap, agent SSH access, key locations).
-
-Core rules: pods are disposable — terminate, never stop; all durable state lives on the network volume at `/workspace`; pod IP/port change every deploy, ask the user for the current Connect line; agents never receive HF/RunPod tokens in chat — secrets are exported by the user on the pod or read from the repo `.env`.
+The root `lib/` here is a temporary duplicate of `aigc-shared/lib/`, kept only
+because the remaining `scripts/*` still import it. Do not extend it — new
+shared code goes in `aigc-shared`; `.env.example` stays with it for the same
+reason and both leave when those scripts migrate or retire.
