@@ -80,7 +80,7 @@ Reusable operational procedures live in the top-level `skills/` folder (agent-ag
 | Skill file | Read it before... |
 |---|---|
 | `skills/runpod-pod-ops.md` | ANY RunPod work: pods, network volumes, pod SSH, deploys, terminations, cloud training/generation sessions |
-| `skills/runpod-comfyui-setup.md` | setting up a fresh volume, or the FIRST command on any newly spun-up pod (mandatory session sync) |
+| `skills/runpod-comfyui-aitk-setup.md` | setting up a fresh volume; the FIRST command on any newly spun-up pod (mandatory session sync); starting ComfyUI or the ai-toolkit web UI on a pod |
 | `skills/runpod-gdrive-rclone.md` | moving images/datasets/outputs between Google Drive and pods (contains a HARD scope rule: Drive access is pinned to the `Flux Prod` folder only) |
 
 ## RunPod Operations

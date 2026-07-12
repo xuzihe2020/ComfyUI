@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # First-session pod bootstrap. Idempotent — safe to re-run, skips what exists.
-# Process definition: skills/runpod-comfyui-setup.md. Do not deviate from it.
+# Process definition: skills/runpod-comfyui-aitk-setup.md. Do not deviate from it.
 #
 # ORDER MATTERS: all cloning happens BEFORE any heavy dependency install, so
 # the workspace is visibly complete early and a dead pod mid-bootstrap leaves

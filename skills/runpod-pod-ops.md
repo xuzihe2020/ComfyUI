@@ -74,7 +74,7 @@ never via `.env` files on pods (real env vars outrank `.env` in
 The full software process — fork clone, in-repo `.venv`s, manifest-driven
 custom-node install, Google Drive model sync, and the MANDATORY every-spin-up
 sync (pull fork, pull every node, run `scripts/install_custom_nodes.py`) — is
-defined in **`skills/runpod-comfyui-setup.md`**. Follow it exactly; the
+defined in **`skills/runpod-comfyui-aitk-setup.md`**. Follow it exactly; the
 summary here is not a substitute.
 
 ```bash

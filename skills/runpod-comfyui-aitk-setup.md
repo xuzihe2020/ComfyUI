@@ -104,6 +104,23 @@ Only after the sync: start ComfyUI (`python main.py --listen 0.0.0.0 --port
 8188`) or switch to the training venv (`source
 /workspace/ai-toolkit/.venv/bin/activate`).
 
+## ai-toolkit web UI (port 8675)
+
+Node.js lives on the VOLUME (`/workspace/node`, linked into `/workspace/bin`
+— the pod image ships none; installed 2026-07-12 from the nodejs.org v22 LTS
+tarball with `tar --no-same-owner`, which MooseFS requires). The UI is a
+Next.js app at `/workspace/ai-toolkit/ui`; deps + build persist on the volume
+(`node_modules/`, `.next/`), so after the first build a start is fast:
+
+```bash
+tmux new -d -s aitk_ui 'export PATH=/workspace/bin:$PATH; cd /workspace/ai-toolkit/ui && npm run build_and_start'
+```
+
+Access from a workstation — SSH tunnel (works regardless of exposed HTTP
+ports): `ssh root@<ip> -p <port> -i ~/.ssh/runpod_ed25519 -L 8675:localhost:8675`,
+then open http://localhost:8675. Job configs/DB persist on the volume
+(`aitk_db.db` in the ai-toolkit root).
+
 ## Verification after setup or sync
 
 - `tmux ls` / `tail /workspace/bootstrap.log` → `BOOTSTRAP_DONE` present.

@@ -9,7 +9,7 @@
 #   ln -sfn /workspace/ComfyUI/scripts/runpod/session_start.sh /workspace/scripts/session_start.sh
 # (One caveat of self-pulling: if a pull updates THIS file, the in-flight run
 # may glitch once — just run it again; the next run is the new version.)
-# Process definition: skills/runpod-comfyui-setup.md
+# Process definition: skills/runpod-comfyui-aitk-setup.md
 set -uo pipefail
 export HF_HOME=/workspace/hf-cache
 export GIT_TERMINAL_PROMPT=0
