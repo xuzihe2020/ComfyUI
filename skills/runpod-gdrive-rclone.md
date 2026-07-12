@@ -35,9 +35,13 @@ Flux Prod/          <- gdrive: root (pinned)
 
 /workspace/bin/rclone              # persistent rclone binary (on the volume)
 /workspace/rclone/rclone.conf      # Drive token/config; SECRET; chmod 600
-/workspace/datasets/               # pulled training/reference images
+/workspace/gdrive/                 # 1:1 mirror of Flux Prod (Inputs/, Outputs/, ...)
 /workspace/output/                 # ComfyUI / training outputs
 ```
+
+`/workspace/gdrive/` mirrors the pinned Drive root with identical structure —
+datasets land at `/workspace/gdrive/Inputs/<name>`. CHECK IT FIRST
+(`ls /workspace/gdrive`) before inventing destinations or mkdir-ing.
 
 `session_start.sh` exports `PATH=/workspace/bin:$PATH` and
 `RCLONE_CONFIG=/workspace/rclone/rclone.conf` — after the session sync,
@@ -85,14 +89,48 @@ auth MUST pass our client_id/client_secret explicitly (a bare
 `rclone config create gdrive drive` would silently use rclone's dying shared
 client).
 
-## Pull (Drive → pod)
+## Copy cookbook (same commands on pod and workstation)
+
+Core semantics — read before copying anything:
+
+- `rclone copy SRC DST` copies the CONTENTS of SRC into DST. To upload folder
+  `foo` AS `foo`, the destination must end in `/foo`.
+- EVERY `rclone copy` is incremental by default: files identical on both sides
+  (size + modtime) are skipped; only new/changed files transfer. "Sync updated
+  only" = just re-run the same copy command.
+- `copy` never deletes. `rclone sync` deletes destination files to mirror the
+  source — never use it for routine transfers (see Rules).
+- `-P` = live progress. `--transfers 8` helps with many small files.
+  `--dry-run` previews. `--update` skips dest files newer than source.
+
+### Upload one file → Drive
 
 ```bash
-mkdir -p /workspace/datasets/character_01
-rclone copy gdrive:Inputs/character_01 /workspace/datasets/character_01 -P
+rclone copy /path/to/photo.png gdrive:Inputs/ -P                 # keeps filename
+rclone copyto /path/to/photo.png gdrive:Inputs/renamed.png -P    # exact path/rename
 ```
 
-## Push (pod → Drive)
+### Upload one folder → Drive
+
+```bash
+rclone copy /path/to/dataset_01 gdrive:Inputs/dataset_01 -P
+```
+
+### Upload many folders/files → Drive
+
+```bash
+rclone copy /path/to/parent gdrive:Inputs -P --transfers 8        # whole parent, structure kept
+rclone copy /path/to/parent gdrive:Inputs -P --include "run_*/**" # selected items only
+```
+
+### Download / resync Drive → local (pod or workstation)
+
+```bash
+rclone copy gdrive: /workspace/gdrive -P --transfers 8                        # whole Flux Prod mirror
+rclone copy gdrive:Inputs/dataset_01 /workspace/gdrive/Inputs/dataset_01 -P   # one dataset
+```
+
+### Push outputs (pod → Drive)
 
 ```bash
 rclone copy /workspace/output/prod_batch_001 gdrive:Outputs/prod_batch_001 -P
