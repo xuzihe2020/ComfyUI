@@ -132,16 +132,34 @@ EXTRA_PIP_DEPENDENCIES = {
 # Linux, and skip macOS/Apple Silicon. Do not build flash-attn on Windows by
 # default: if a matching wheel is unavailable, it falls back to a fragile source
 # build that requires the local CUDA toolkit to match the PyTorch CUDA version.
+# Shared linux GPU-accelerator chain. SageAttention 2.x is NOT on PyPI (the
+# index stops at 1.0.6), so `sageattention==2.2.0` can never resolve — it must
+# be compiled from the GitHub source (CUDA kernels; torch must be importable
+# at build time, hence --no-build-isolation; ninja parallelizes the build).
+# Pinned to the repo's v2.2.0 tag. TORCH_CUDA_ARCH_LIST covers our GPU pool
+# (4090=8.9, 5090=12.0) so the ONE build persisted in the volume venv works on
+# both pod types; extend the list before building if a new GPU family joins.
+# One-time build cost on a pod: roughly 5-10 minutes.
+LINUX_GPU_ACCELERATORS = [
+    {"module": "triton", "pip_args": ["triton"]},
+    {"module": "ninja", "pip_args": ["ninja"]},
+    {
+        "module": "sageattention",
+        "pip_args": [
+            "git+https://github.com/thu-ml/SageAttention.git@v2.2.0",
+            "--no-build-isolation",
+        ],
+        "env": {"TORCH_CUDA_ARCH_LIST": "8.9;12.0"},
+    },
+    {"module": "flash_attn", "pip_args": ["flash-attn", "--no-build-isolation"]},
+]
+
 # Each platform-specific "pip_args" entry is passed verbatim after `pip install`.
 OPTIONAL_ACCELERATORS = {
     "ComfyUI-SeedVR2_VideoUpscaler": {
         "platforms": ["linux", "windows"],
         "platform_pip_args": {
-            "linux": [
-                {"module": "triton", "pip_args": ["triton"]},
-                {"module": "sageattention", "pip_args": ["sageattention==2.2.0", "--no-build-isolation"]},
-                {"module": "flash_attn", "pip_args": ["flash-attn", "--no-build-isolation"]},
-            ],
+            "linux": LINUX_GPU_ACCELERATORS,
             "windows": [
                 {"module": "triton", "pip_args": ["triton-windows"]},
                 {"module": "sageattention", "pip_args": ["sageattention", "--no-build-isolation"]},
@@ -154,11 +172,7 @@ OPTIONAL_ACCELERATORS = {
     "ComfyUI-FishAudioS2": {
         "platforms": ["linux", "windows"],
         "platform_pip_args": {
-            "linux": [
-                {"module": "triton", "pip_args": ["triton"]},
-                {"module": "sageattention", "pip_args": ["sageattention==2.2.0", "--no-build-isolation"]},
-                {"module": "flash_attn", "pip_args": ["flash-attn", "--no-build-isolation"]},
-            ],
+            "linux": LINUX_GPU_ACCELERATORS,
             "windows": [
                 {"module": "triton", "pip_args": ["triton-windows"]},
                 {"module": "sageattention", "pip_args": ["sageattention", "--no-build-isolation"]},
@@ -168,11 +182,7 @@ OPTIONAL_ACCELERATORS = {
     "ComfyUI-fish-audio-s2": {
         "platforms": ["linux", "windows"],
         "platform_pip_args": {
-            "linux": [
-                {"module": "triton", "pip_args": ["triton"]},
-                {"module": "sageattention", "pip_args": ["sageattention==2.2.0", "--no-build-isolation"]},
-                {"module": "flash_attn", "pip_args": ["flash-attn", "--no-build-isolation"]},
-            ],
+            "linux": LINUX_GPU_ACCELERATORS,
             "windows": [
                 {"module": "triton", "pip_args": ["triton-windows"]},
                 {"module": "sageattention", "pip_args": ["sageattention", "--no-build-isolation"]},
@@ -418,7 +428,10 @@ def install_optional_accelerators(python_bin: str, node: dict) -> None:
             print(f"{node['name']}: optional accelerator already available: {module}", flush=True)
             continue
         try:
-            run([python_bin, "-m", "pip", "install", *pip_args])
+            env = None
+            if isinstance(entry, dict) and entry.get("env"):
+                env = {**os.environ, **entry["env"]}
+            run([python_bin, "-m", "pip", "install", *pip_args], env=env)
         except subprocess.CalledProcessError:
             print(f"{node['name']}: optional accelerator install failed "
                   f"({' '.join(pip_args)}); continuing. The node still runs on "
