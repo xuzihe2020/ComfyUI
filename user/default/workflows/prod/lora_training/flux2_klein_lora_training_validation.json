@@ -1,8 +1,8 @@
 {
   "id": "8f1c2a44-9c37-4e6e-b9d1-lora-train-val",
-  "revision": 0,
+  "revision": 1,
   "last_node_id": 14,
-  "last_link_id": 13,
+  "last_link_id": 14,
   "nodes": [
     {
       "id": 1,
@@ -114,7 +114,7 @@
         "Node name for S&R": "LoraLoaderModelOnly"
       },
       "widgets_values": [
-        "_eval/RUN_NAME/checkpoint.safetensors",
+        "_eval/RUN_ID/checkpoint.safetensors",
         1.0
       ]
     },
@@ -168,7 +168,8 @@
           "name": "CLIP",
           "type": "CLIP",
           "links": [
-            3
+            3,
+            14
           ]
         }
       ],
@@ -192,7 +193,7 @@
       ],
       "size": [
         400,
-        140
+        130
       ],
       "flags": {},
       "order": 4,
@@ -235,32 +236,32 @@
     },
     {
       "id": 5,
-      "type": "FluxGuidance",
+      "type": "CLIPTextEncode",
       "pos": [
-        880,
-        210
+        430,
+        380
       ],
       "size": [
-        280,
-        60
+        400,
+        110
       ],
       "flags": {},
       "order": 5,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "conditioning",
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 4
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 14
         },
         {
-          "localized_name": "guidance",
-          "name": "guidance",
-          "type": "FLOAT",
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
           "link": null,
           "widget": {
-            "name": "guidance"
+            "name": "text"
           }
         }
       ],
@@ -277,22 +278,22 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "FluxGuidance"
+        "Node name for S&R": "CLIPTextEncode"
       },
       "widgets_values": [
-        3.5
+        ""
       ]
     },
     {
       "id": 6,
-      "type": "BasicGuider",
+      "type": "CFGGuider",
       "pos": [
         880,
         100
       ],
       "size": [
-        240,
-        66
+        280,
+        120
       ],
       "flags": {},
       "order": 6,
@@ -305,10 +306,25 @@
           "link": 2
         },
         {
-          "localized_name": "conditioning",
-          "name": "conditioning",
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 4
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
           "type": "CONDITIONING",
           "link": 5
+        },
+        {
+          "localized_name": "cfg",
+          "name": "cfg",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "cfg"
+          }
         }
       ],
       "outputs": [
@@ -324,9 +340,11 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "BasicGuider"
+        "Node name for S&R": "CFGGuider"
       },
-      "widgets_values": []
+      "widgets_values": [
+        4.0
+      ]
     },
     {
       "id": 7,
@@ -476,7 +494,7 @@
         "Node name for S&R": "Flux2Scheduler"
       },
       "widgets_values": [
-        12,
+        20,
         1024,
         1024
       ]
@@ -774,8 +792,8 @@
       4,
       4,
       0,
-      5,
-      0,
+      6,
+      1,
       "CONDITIONING"
     ],
     [
@@ -783,7 +801,7 @@
       5,
       0,
       6,
-      1,
+      2,
       "CONDITIONING"
     ],
     [
@@ -849,6 +867,14 @@
       14,
       0,
       "IMAGE"
+    ],
+    [
+      14,
+      3,
+      0,
+      5,
+      0,
+      "CLIP"
     ]
   ],
   "groups": [],
