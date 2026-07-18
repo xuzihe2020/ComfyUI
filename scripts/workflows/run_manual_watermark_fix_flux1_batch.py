@@ -210,11 +210,16 @@ def widget_value_stream(ui_node: dict[str, Any], widget_input_count: int) -> lis
     return values
 
 
+UI_ONLY_NODE_TYPES = {"Note"}
+
+
 def convert_ui_workflow_to_api_prompt(workflow: dict[str, Any]) -> dict[str, Any]:
     links = {link[0]: [str(link[1]), link[2]] for link in workflow["links"]}
     prompt: dict[str, Any] = {}
 
     for ui_node in workflow["nodes"]:
+        if ui_node.get("type") in UI_ONLY_NODE_TYPES:
+            continue
         node_id = str(ui_node["id"])
         ui_inputs = ui_node.get("inputs") or []
         widget_input_count = sum(

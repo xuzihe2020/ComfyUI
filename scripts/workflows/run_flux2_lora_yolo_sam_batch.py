@@ -6,9 +6,12 @@ Prompt precedence for each image:
 2. The optional global --prompt value.
 3. The positive prompt saved in the workflow.
 
-Example:
-    python scripts/workflows/run_flux2_lora_yolo_sam_batch.py "D:\\images" \
-        --repeats 2 --output-dir "D:\\face_regen" --resume
+PowerShell example (run from the ComfyUI directory):
+    python .\\scripts\\workflows\\run_flux2_lora_yolo_sam_batch.py `
+        "D:\\images" `
+        --repeats 2 `
+        --output-dir "D:\\face_regen" `
+        --resume
 """
 
 from __future__ import annotations
@@ -308,6 +311,21 @@ def build_api_prompt(
     return prompt, save_id
 
 
+def validate_server_node_types(server: str, prompt: dict[str, Any]) -> None:
+    object_info = batch_common.get_json(server, "/object_info")
+    required_types = {
+        node["class_type"]
+        for node in prompt.values()
+        if isinstance(node.get("class_type"), str)
+    }
+    missing_types = sorted(required_types - object_info.keys())
+    if missing_types:
+        raise ValueError(
+            "ComfyUI is missing required backend node types: "
+            + ", ".join(missing_types)
+        )
+
+
 def main() -> None:
     batch_common.configure_console_encoding()
     args = parse_args()
@@ -322,6 +340,20 @@ def main() -> None:
         images = images[: args.limit]
     if not images:
         raise SystemExit(f"No supported images found in {input_dir}")
+
+    if not args.dry_run:
+        try:
+            preflight_prompt, _ = build_api_prompt(
+                workflow=workflow,
+                staged_image_name="flux2_lora_yolo_sam_batch/preflight.png",
+                source_image=images[0],
+                positive_prompt=None,
+                seed=0,
+                save_prefix="_script_staging/flux2_lora_yolo_sam_batch/preflight",
+            )
+            validate_server_node_types(args.server, preflight_prompt)
+        except (ValueError, RuntimeError, OSError, json.JSONDecodeError) as exc:
+            raise SystemExit(f"ComfyUI preflight failed: {exc}") from exc
 
     batch_id = uuid.uuid4().hex[:12]
     input_root = (batch_common.repo_root() / "input").resolve()
