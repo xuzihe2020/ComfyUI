@@ -18,13 +18,16 @@ import copy
 import json
 import secrets
 import shutil
+import sys
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
+import traceback
 from typing import Any
 
 
@@ -40,6 +43,13 @@ MAX_SEED = 0xFFFFFFFFFFFFFFFF
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
+
+
+def configure_console_encoding() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 def resolve_repo_path(path: Path) -> Path:
@@ -81,6 +91,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--server", default="http://127.0.0.1:8188")
     parser.add_argument("--recursive", action="store_true", help="Include nested input folders.")
     parser.add_argument("--limit", type=int, help="Process at most this many source images.")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Skip source/repeat pairs that already have a generated PNG in the output directory.",
+    )
     parser.add_argument("--timeout", type=int, default=3600, help="Per-generation timeout in seconds.")
     parser.add_argument(
         "--keep-staged-inputs",
@@ -390,6 +405,59 @@ def unique_destination(path: Path) -> Path:
     raise RuntimeError(f"Could not find an unused output filename for {path}.")
 
 
+def existing_result(
+    output_dir: Path,
+    relative_source: Path,
+    repeat_index: int,
+) -> Path | None:
+    destination_dir = output_dir / relative_source.parent
+    if not destination_dir.is_dir():
+        return None
+    prefix = f"{relative_source.stem}__repeat_{repeat_index:02d}__seed_"
+    return next(
+        (
+            path
+            for path in destination_dir.iterdir()
+            if path.is_file()
+            and path.suffix.lower() == ".png"
+            and path.name.startswith(prefix)
+        ),
+        None,
+    )
+
+
+def copy_output_with_retry(source: Path, destination: Path, attempts: int = 30) -> None:
+    last_error: OSError | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            source_size_before = source.stat().st_size
+            with source.open("rb") as source_handle, destination.open("wb") as target_handle:
+                shutil.copyfileobj(source_handle, target_handle, length=1024 * 1024)
+            source_size_after = source.stat().st_size
+            copied_size = destination.stat().st_size
+            if (
+                source_size_before <= 0
+                or source_size_before != source_size_after
+                or copied_size != source_size_after
+            ):
+                raise OSError(
+                    "ComfyUI output changed size while it was being copied "
+                    f"({source_size_before} -> {source_size_after}, copied {copied_size})."
+                )
+            return
+        except OSError as exc:
+            last_error = exc
+            if attempt < attempts:
+                time.sleep(min(0.25 * attempt, 2.0))
+    try:
+        destination.unlink(missing_ok=True)
+    except OSError:
+        pass
+    raise RuntimeError(
+        f"Could not copy ComfyUI output after {attempts} attempts: {source}"
+    ) from last_error
+
+
 def save_result(
     history: dict[str, Any],
     save_node_id: str,
@@ -421,7 +489,7 @@ def save_result(
     destination = unique_destination(destination)
     if staged_file == destination.resolve():
         return staged_file
-    shutil.move(str(staged_file), str(destination))
+    copy_output_with_retry(staged_file, destination)
     return destination
 
 
@@ -430,11 +498,57 @@ def remove_created_staging(path: Path, parent: Path) -> None:
     resolved_parent = parent.resolve()
     if not is_within(resolved_path, resolved_parent) or resolved_path == resolved_parent:
         raise RuntimeError(f"Refusing to remove unsafe staging path: {resolved_path}")
-    if resolved_path.exists():
-        shutil.rmtree(resolved_path)
+    for attempt in range(1, 11):
+        if not resolved_path.exists():
+            return
+        try:
+            shutil.rmtree(resolved_path)
+            return
+        except OSError:
+            if attempt < 10:
+                time.sleep(min(0.25 * attempt, 1.0))
+    print(f"Warning: staging directory is still locked and was left in place: {resolved_path}")
+
+
+def record_failure(
+    failure_log: Path | None,
+    *,
+    batch_id: str,
+    job_index: int,
+    source_image: Path,
+    relative_source: Path,
+    repeat_index: int,
+    seed: int | None,
+    prompt_id: str | None,
+    stage: str,
+    error: Exception,
+    traceback_text: str,
+) -> None:
+    if failure_log is None:
+        return
+    record = {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "batch_id": batch_id,
+        "job_index": job_index,
+        "source_image": str(source_image),
+        "relative_source": relative_source.as_posix(),
+        "repeat_index": repeat_index,
+        "seed": seed,
+        "prompt_id": prompt_id,
+        "stage": stage,
+        "error_type": type(error).__name__,
+        "error": str(error),
+        "traceback": traceback_text,
+    }
+    try:
+        with failure_log.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except OSError as log_error:
+        print(f"Warning: could not write failure log {failure_log}: {log_error}")
 
 
 def main() -> None:
+    configure_console_encoding()
     args = parse_args()
     try:
         input_dir, mask_image, workflow_path, output_dir = validate_args(args)
@@ -458,7 +572,10 @@ def main() -> None:
     )
     total_jobs = len(images) * args.repeats
     client_id = uuid.uuid4().hex
-    completed = False
+    succeeded_count = 0
+    skipped_count = 0
+    failed_count = 0
+    failure_log = None if args.dry_run else output_dir / f"flux1_batch_failures_{batch_id}.jsonl"
 
     print(f"Workflow: {workflow_path}")
     print(f"Images: {len(images)} | repeats: {args.repeats} | total jobs: {total_jobs}")
@@ -475,65 +592,141 @@ def main() -> None:
             staged_image_name = (
                 f"manual_watermark_flux1_batch/{batch_id}/{image_index:05d}_{source_image.name}"
             )
+            staging_error: Exception | None = None
+            staging_traceback = ""
             if not args.dry_run:
-                staged_image_name = copy_input(
-                    source_image,
-                    input_staging,
-                    f"{image_index:05d}_{source_image.name}",
-                )
+                try:
+                    staged_image_name = copy_input(
+                        source_image,
+                        input_staging,
+                        f"{image_index:05d}_{source_image.name}",
+                    )
+                except Exception as exc:
+                    staging_error = exc
+                    staging_traceback = traceback.format_exc()
 
             for repeat_index in range(1, args.repeats + 1):
                 job_index += 1
-                seed = secrets.randbelow(MAX_SEED + 1)
-                save_prefix = (
-                    f"_script_staging/manual_watermark_flux1_batch/{batch_id}/"
-                    f"{job_index:06d}_{source_image.stem}"
-                )
-                prompt, save_node_id = build_api_prompt(
-                    workflow=workflow,
-                    staged_image_name=staged_image_name,
-                    staged_mask_name=shared_mask_name,
-                    source_image=source_image,
-                    positive_prompt=args.positive_prompt,
-                    negative_prompt=args.negative_prompt,
-                    seed=seed,
-                    save_prefix=save_prefix,
-                )
                 label = f"[{job_index}/{total_jobs}] {relative_source} repeat {repeat_index}/{args.repeats}"
-                if args.dry_run:
-                    print(f"{label} | dry-run prompt valid | seed={seed}")
-                    continue
+                seed: int | None = None
+                prompt_id: str | None = None
+                stage = "resume_check"
+                try:
+                    if args.resume:
+                        previous = existing_result(output_dir, relative_source, repeat_index)
+                        if previous is not None:
+                            skipped_count += 1
+                            print(f"{label} | skipped existing {previous}")
+                            continue
 
-                response = post_json(
-                    args.server,
-                    "/prompt",
-                    {"prompt": prompt, "client_id": client_id},
-                )
-                prompt_id = response.get("prompt_id")
-                if not prompt_id:
-                    raise RuntimeError(f"ComfyUI rejected the prompt: {json.dumps(response)}")
-                print(f"{label} | queued {prompt_id} | seed={seed}")
-                history = wait_for_history(args.server, prompt_id, args.timeout)
-                destination = save_result(
-                    history,
-                    save_node_id,
-                    output_dir,
-                    relative_source,
-                    repeat_index,
-                    seed,
-                )
-                print(f"{label} | saved {destination}")
-        completed = True
+                    if staging_error is not None:
+                        failed_count += 1
+                        print(
+                            f"{label} | FAILED during input staging: "
+                            f"{type(staging_error).__name__}: {staging_error} | continuing"
+                        )
+                        record_failure(
+                            failure_log,
+                            batch_id=batch_id,
+                            job_index=job_index,
+                            source_image=source_image,
+                            relative_source=relative_source,
+                            repeat_index=repeat_index,
+                            seed=None,
+                            prompt_id=None,
+                            stage="stage_input",
+                            error=staging_error,
+                            traceback_text=staging_traceback,
+                        )
+                        continue
+
+                    seed = secrets.randbelow(MAX_SEED + 1)
+                    save_prefix = (
+                        f"_script_staging/manual_watermark_flux1_batch/{batch_id}/"
+                        f"{job_index:06d}_{source_image.stem}"
+                    )
+                    stage = "build_prompt"
+                    prompt, save_node_id = build_api_prompt(
+                        workflow=workflow,
+                        staged_image_name=staged_image_name,
+                        staged_mask_name=shared_mask_name,
+                        source_image=source_image,
+                        positive_prompt=args.positive_prompt,
+                        negative_prompt=args.negative_prompt,
+                        seed=seed,
+                        save_prefix=save_prefix,
+                    )
+                    if args.dry_run:
+                        succeeded_count += 1
+                        print(f"{label} | dry-run prompt valid | seed={seed}")
+                        continue
+
+                    stage = "queue"
+                    response = post_json(
+                        args.server,
+                        "/prompt",
+                        {"prompt": prompt, "client_id": client_id},
+                    )
+                    prompt_id = response.get("prompt_id")
+                    if not prompt_id:
+                        raise RuntimeError(f"ComfyUI rejected the prompt: {json.dumps(response)}")
+                    print(f"{label} | queued {prompt_id} | seed={seed}")
+                    stage = "wait_for_history"
+                    history = wait_for_history(args.server, prompt_id, args.timeout)
+                    stage = "save_result"
+                    destination = save_result(
+                        history,
+                        save_node_id,
+                        output_dir,
+                        relative_source,
+                        repeat_index,
+                        seed,
+                    )
+                    succeeded_count += 1
+                    print(f"{label} | saved {destination}")
+                except Exception as exc:
+                    failed_count += 1
+                    traceback_text = traceback.format_exc()
+                    print(
+                        f"{label} | FAILED during {stage}: "
+                        f"{type(exc).__name__}: {exc} | continuing"
+                    )
+                    record_failure(
+                        failure_log,
+                        batch_id=batch_id,
+                        job_index=job_index,
+                        source_image=source_image,
+                        relative_source=relative_source,
+                        repeat_index=repeat_index,
+                        seed=seed,
+                        prompt_id=prompt_id,
+                        stage=stage,
+                        error=exc,
+                        traceback_text=traceback_text,
+                    )
+                    continue
     finally:
-        if not args.dry_run and not args.keep_staged_inputs:
+        clean_staging = failed_count == 0
+        if not args.dry_run and not args.keep_staged_inputs and clean_staging:
             remove_created_staging(input_staging, input_root)
-        if not args.dry_run and completed:
+        if not args.dry_run and clean_staging:
             remove_created_staging(output_staging, output_root)
+        if not args.dry_run and not clean_staging:
+            print(f"Staging retained because jobs failed: {input_staging}")
+            print(f"Staging retained because jobs failed: {output_staging}")
 
     if args.dry_run:
-        print("Dry run complete; no files were copied and no prompts were submitted.")
+        print(
+            f"Dry run complete: valid={succeeded_count}, skipped={skipped_count}, "
+            f"failed={failed_count}; no files were copied and no prompts were submitted."
+        )
     else:
-        print(f"Complete: {total_jobs} generation(s) saved under {output_dir}")
+        print(
+            f"Batch complete: succeeded={succeeded_count}, skipped={skipped_count}, "
+            f"failed={failed_count}, total={total_jobs}"
+        )
+        if failed_count:
+            print(f"Failure log: {failure_log}")
 
 
 if __name__ == "__main__":

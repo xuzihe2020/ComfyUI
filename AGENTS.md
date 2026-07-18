@@ -73,6 +73,21 @@ Install all required custom-node dependencies before ComfyUI starts. Do not rely
 
 Do not run `scripts/install_custom_nodes.py` yourself unless the user explicitly asks you to run it in the current request. When adding or changing custom-node dependencies, update the manifest/install script and tell the user to run the installer themselves.
 
+## Batch and Workflow Runner Resilience
+
+Any Python, shell, batch, or PowerShell script that processes multiple independent jobs must isolate failures per job. After batch processing begins, an ordinary job error must never escape the job loop and terminate the remaining queue.
+
+- Catch and record failures around every job stage, including input staging, prompt construction, submission, waiting, output transfer, and cleanup.
+- Log failures immediately to a durable structured manifest with enough context to retry: job index, input, repeat/variant, seed, remote job or prompt ID, failed stage, error type/message, and traceback or command output.
+- Print the failure concisely and continue with the next eligible job by default. Fail-fast behavior is allowed only behind an explicit user-selected option such as `--fail-fast`.
+- Treat cleanup as best-effort and non-fatal. Preserve staging artifacts when they may help recover a failed job.
+- Use bounded retries for transient network, file-lock, and filesystem errors before recording the job as failed.
+- Long-running batches must support safe resume or idempotent skipping so completed jobs are not needlessly repeated after interruption.
+- Global preflight failures may stop before the loop only when no job can run correctly, such as an unreadable workflow, missing shared input, or invalid global configuration.
+- User cancellation and termination signals may stop the run; ordinary exceptions may not.
+- Do not place `set -e`, `$ErrorActionPreference = 'Stop'`, or equivalent fail-fast behavior around a job loop unless each iteration contains its own error boundary.
+- Test the failure path by forcing an early job to fail and verifying that at least one later job still runs and the final summary reports succeeded, skipped, and failed counts.
+
 ## Shared infra lives in the sibling `aigc-shared` repo
 
 This fork is one of three sibling repos with an identical layout locally and on

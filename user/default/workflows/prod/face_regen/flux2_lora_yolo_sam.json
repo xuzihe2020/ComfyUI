@@ -233,56 +233,6 @@
       "bgcolor": "#353"
     },
     {
-      "id": 30,
-      "type": "FluxGuidance",
-      "pos": [
-        2645.7245196291806,
-        -629.4842389743736
-      ],
-      "size": [
-        300,
-        70
-      ],
-      "flags": {},
-      "order": 20,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "conditioning",
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 34
-        },
-        {
-          "localized_name": "guidance",
-          "name": "guidance",
-          "type": "FLOAT",
-          "widget": {
-            "name": "guidance"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            35
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "FluxGuidance"
-      },
-      "widgets_values": [
-        3.5
-      ]
-    },
-    {
       "id": 31,
       "type": "CFGGuider",
       "pos": [
@@ -385,7 +335,7 @@
         "Node name for S&R": "RandomNoise"
       },
       "widgets_values": [
-        345936090328780,
+        442248023334261,
         "randomize"
       ]
     },
@@ -482,8 +432,8 @@
       "id": 38,
       "type": "VAEDecode",
       "pos": [
-        3192.916252376007,
-        745.4960410801325
+        3494.127029445361,
+        682.0580770087176
       ],
       "size": [
         180,
@@ -528,8 +478,8 @@
       "id": 40,
       "type": "SaveImage",
       "pos": [
-        3390.4247156815363,
-        693.729937945781
+        3691.6354927508905,
+        630.2919738743661
       ],
       "size": [
         360,
@@ -569,8 +519,8 @@
       "id": 41,
       "type": "ImageBatch",
       "pos": [
-        3390.4247156815363,
-        1013.7299379457816
+        3691.6354927508905,
+        950.2919738743667
       ],
       "size": [
         300,
@@ -615,8 +565,8 @@
       "id": 44,
       "type": "BBoxDetectorLoader(FaceParsing)",
       "pos": [
-        -978.4447615109052,
-        893.0673507278958
+        -968.5664461532832,
+        1512.929808041034
       ],
       "size": [
         330,
@@ -661,8 +611,8 @@
       "id": 45,
       "type": "BBoxDetect(FaceParsing)",
       "pos": [
-        -598.4447615109049,
-        853.0673507278958
+        -588.5664461532829,
+        1472.929808041034
       ],
       "size": [
         330,
@@ -755,8 +705,8 @@
       "id": 46,
       "type": "BBoxListItemSelect(FaceParsing)",
       "pos": [
-        -218.44476151090498,
-        853.0673507278958
+        -208.56644615328293,
+        1472.929808041034
       ],
       "size": [
         260,
@@ -808,8 +758,8 @@
       "id": 47,
       "type": "ImageCropWithBBox(FaceParsing)",
       "pos": [
-        101.55523848909498,
-        853.0673507278958
+        111.43355384671699,
+        1472.929808041034
       ],
       "size": [
         300,
@@ -855,8 +805,8 @@
       "id": 48,
       "type": "FaceParsingProcessorLoader(FaceParsing)",
       "pos": [
-        101.55523848909498,
-        1003.0673507278957
+        111.43355384671699,
+        1622.929808041034
       ],
       "size": [
         326.9341796875,
@@ -889,8 +839,8 @@
       "id": 49,
       "type": "FaceParsingModelLoader(FaceParsing)",
       "pos": [
-        101.55523848909498,
-        1113.0673507278952
+        111.43355384671699,
+        1732.9298080410335
       ],
       "size": [
         300.9029296875,
@@ -935,8 +885,8 @@
       "id": 50,
       "type": "FaceParse(FaceParsing)",
       "pos": [
-        461.5552384890944,
-        853.0673507278958
+        471.43355384671645,
+        1472.929808041034
       ],
       "size": [
         330,
@@ -996,8 +946,8 @@
       "id": 51,
       "type": "PreviewImage",
       "pos": [
-        461.5552384890944,
-        1043.0673507278957
+        471.43355384671645,
+        1662.929808041034
       ],
       "size": [
         330,
@@ -1028,8 +978,8 @@
       "id": 52,
       "type": "FaceParsingResultsParser(FaceParsing)",
       "pos": [
-        841.5552384890948,
-        853.0673507278958
+        851.4335538467168,
+        1472.929808041034
       ],
       "size": [
         360,
@@ -1260,8 +1210,8 @@
       "id": 54,
       "type": "MaskToImage",
       "pos": [
-        1641.5552384890955,
-        853.0673507278958
+        1651.4335538467174,
+        1472.929808041034
       ],
       "size": [
         230,
@@ -1301,8 +1251,8 @@
       "id": 55,
       "type": "PreviewImage",
       "pos": [
-        1901.5552384890946,
-        853.0673507278958
+        1911.4335538467164,
+        1472.929808041034
       ],
       "size": [
         360,
@@ -1333,8 +1283,8 @@
       "id": 58,
       "type": "MaskToImage",
       "pos": [
-        2261.555238489092,
-        1193.0673507278957
+        2271.4335538467144,
+        1812.929808041034
       ],
       "size": [
         230,
@@ -1374,8 +1324,8 @@
       "id": 59,
       "type": "PreviewImage",
       "pos": [
-        2541.7344925873604,
-        1196.4305597442753
+        2551.6128079449827,
+        1816.2930170574136
       ],
       "size": [
         360,
@@ -1475,8 +1425,8 @@
       "id": 39,
       "type": "PreviewImage",
       "pos": [
-        3840.3418713876094,
-        478.31190167066313
+        4141.552648456964,
+        414.8739375992484
       ],
       "size": [
         560,
@@ -1505,8 +1455,8 @@
       "id": 43,
       "type": "SaveImage",
       "pos": [
-        3158.789097046804,
-        1647.7705411528177
+        3459.999874116158,
+        1584.3325770814033
       ],
       "size": [
         360,
@@ -1546,8 +1496,8 @@
       "id": 57,
       "type": "MaskBlur+",
       "pos": [
-        1941.5552384890937,
-        1193.0673507278957
+        1951.4335538467155,
+        1812.929808041034
       ],
       "size": [
         280,
@@ -1609,8 +1559,8 @@
       "id": 53,
       "type": "MaskInsertWithBBox(FaceParsing)",
       "pos": [
-        1261.5552384890955,
-        853.0673507278958
+        1271.4335538467174,
+        1472.929808041034
       ],
       "size": [
         330,
@@ -1658,62 +1608,6 @@
       "widgets_values": [],
       "color": "#223",
       "bgcolor": "#335"
-    },
-    {
-      "id": 35,
-      "type": "SplitSigmasDenoise",
-      "pos": [
-        2990.995210931747,
-        -54.80527390085691
-      ],
-      "size": [
-        300,
-        82
-      ],
-      "flags": {},
-      "order": 21,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "sigmas",
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 43
-        },
-        {
-          "localized_name": "denoise",
-          "name": "denoise",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "high_sigmas",
-          "name": "high_sigmas",
-          "type": "SIGMAS",
-          "links": null
-        },
-        {
-          "localized_name": "low_sigmas",
-          "name": "low_sigmas",
-          "type": "SIGMAS",
-          "links": [
-            44
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "SplitSigmasDenoise"
-      },
-      "widgets_values": [
-        0.8
-      ]
     },
     {
       "id": 34,
@@ -1825,53 +1719,6 @@
       "widgets_values": []
     },
     {
-      "id": 15,
-      "type": "VAELoader",
-      "pos": [
-        80,
-        -430
-      ],
-      "size": [
-        340,
-        58
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "vae_name",
-          "name": "vae_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "vae_name"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "VAE",
-          "name": "VAE",
-          "type": "VAE",
-          "links": [
-            18,
-            85
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "VAELoader"
-      },
-      "widgets_values": [
-        "flux2\\full_encoder_small_decoder.safetensors"
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
       "id": 24,
       "type": "CLIPTextEncode",
       "pos": [
@@ -1935,7 +1782,7 @@
         82
       ],
       "flags": {},
-      "order": 8,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {
@@ -1978,6 +1825,251 @@
       ],
       "color": "#322",
       "bgcolor": "#533"
+    },
+    {
+      "id": 56,
+      "type": "ImpactDilateMask",
+      "pos": [
+        1599.7620590052957,
+        1809.8659384272992
+      ],
+      "size": [
+        260,
+        90
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 61
+        },
+        {
+          "localized_name": "dilation",
+          "name": "dilation",
+          "type": "INT",
+          "widget": {
+            "name": "dilation"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            66
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-impact-pack",
+        "ver": "8.28.3",
+        "Node name for S&R": "ImpactDilateMask"
+      },
+      "widgets_values": [
+        30
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 42,
+      "type": "PreviewImage",
+      "pos": [
+        4058.7179722779574,
+        963.2671411566081
+      ],
+      "size": [
+        1546.5485681222326,
+        1269.386188827158
+      ],
+      "flags": {},
+      "order": 40,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 51
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 15,
+      "type": "VAELoader",
+      "pos": [
+        80,
+        -430
+      ],
+      "size": [
+        340,
+        58
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            18,
+            85
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "flux2\\full_encoder_small_decoder.safetensors"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 69,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        509.7890446820579,
+        -723.6362744900503
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 86
+        },
+        {
+          "localized_name": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            87
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "flux2\\lora_face\\shiramine_face_0712_20260713T194237Z_000003240.safetensors",
+        0.8
+      ]
+    },
+    {
+      "id": 35,
+      "type": "SplitSigmasDenoise",
+      "pos": [
+        2990.995210931747,
+        -54.80527390085691
+      ],
+      "size": [
+        300,
+        82
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 43
+        },
+        {
+          "localized_name": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "high_sigmas",
+          "name": "high_sigmas",
+          "type": "SIGMAS",
+          "links": null
+        },
+        {
+          "localized_name": "low_sigmas",
+          "name": "low_sigmas",
+          "type": "SIGMAS",
+          "links": [
+            44
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "SplitSigmasDenoise"
+      },
+      "widgets_values": [
+        0.7
+      ]
     },
     {
       "id": 2,
@@ -2124,15 +2216,15 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "load_image_source_clean_name": "char_gen_13",
-        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\Documents\\characters\\character_gen_01",
-        "load_image_source_path": "C:\\Users\\Tony Xu\\Documents\\characters\\character_gen_01\\char_gen_13.png",
-        "load_image_source_image": "char_gen_13.png"
+        "load_image_source_clean_name": "mini_dress_full_body_sitting_0002_gpt_1783478681",
+        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\Documents\\characters\\lora_data_generator_04",
+        "load_image_source_path": "C:\\Users\\Tony Xu\\Documents\\characters\\lora_data_generator_04\\mini_dress_full_body_sitting_0002_gpt_1783478681.png",
+        "load_image_source_image": "mini_dress_full_body_sitting_0002_gpt_1783478681.png"
       },
       "widgets_values": [
-        "char_gen_13.png",
-        "char_gen_13",
-        "C:\\Users\\Tony Xu\\Documents\\characters\\character_gen_01",
+        "mini_dress_full_body_sitting_0002_gpt_1783478681.png",
+        "mini_dress_full_body_sitting_0002_gpt_1783478681",
+        "C:\\Users\\Tony Xu\\Documents\\characters\\lora_data_generator_04",
         "",
         "",
         true,
@@ -2140,58 +2232,6 @@
       ],
       "color": "#232",
       "bgcolor": "#353"
-    },
-    {
-      "id": 56,
-      "type": "ImpactDilateMask",
-      "pos": [
-        1589.8837436476738,
-        1190.0034811141609
-      ],
-      "size": [
-        260,
-        90
-      ],
-      "flags": {},
-      "order": 29,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 61
-        },
-        {
-          "localized_name": "dilation",
-          "name": "dilation",
-          "type": "INT",
-          "widget": {
-            "name": "dilation"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            66
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfyui-impact-pack",
-        "ver": "8.28.3",
-        "Node name for S&R": "ImpactDilateMask"
-      },
-      "widgets_values": [
-        30
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
     },
     {
       "id": 23,
@@ -2240,99 +2280,59 @@
         "Node name for S&R": "CLIPTextEncode"
       },
       "widgets_values": [
-        "Replace the detected face of this young Japaness girl from the face reference images. She has a soft oval face, large expressive dark eyes, eyes look down, full natural lips, young tight skinPreserve the original photo composition, pose, hairstyle, hair length, outfit, background, lighting, and camera angle. Match the reference identity strongly: facial proportions, cheeks, jaw width, chin shape, face fullness, nose, eyes, lips, and skin texture. Natural expression, seamless edge blend, high quality."
+        "Replace the detected face of this young Japaness girl with shiramine_face. She has a soft oval face, large expressive dark eyes, full natural lips, young tight skin. Preserve the original photo composition, pose, hairstyle, hair length, outfit, background, lighting, and camera angle."
       ],
       "color": "#232",
       "bgcolor": "#353"
     },
     {
-      "id": 42,
-      "type": "PreviewImage",
+      "id": 30,
+      "type": "FluxGuidance",
       "pos": [
-        3818.6098773900544,
-        1009.9975355083118
+        2649.572982960962,
+        -579.4529472158139
       ],
       "size": [
-        1546.5485681222326,
-        1269.386188827158
+        300,
+        70
       ],
       "flags": {},
-      "order": 40,
+      "order": 20,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 51
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 69,
-      "type": "LoraLoaderModelOnly",
-      "pos": [
-        509.7890446820579,
-        -723.6362744900503
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 86
+          "localized_name": "conditioning",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 34
         },
         {
-          "localized_name": "lora_name",
-          "name": "lora_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "lora_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "strength_model",
-          "name": "strength_model",
+          "localized_name": "guidance",
+          "name": "guidance",
           "type": "FLOAT",
           "widget": {
-            "name": "strength_model"
+            "name": "guidance"
           },
           "link": null
         }
       ],
       "outputs": [
         {
-          "localized_name": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
           "links": [
-            87
+            35
           ]
         }
       ],
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "LoraLoaderModelOnly"
+        "Node name for S&R": "FluxGuidance"
       },
       "widgets_values": [
-        "flux2\\lora_face\\shiramine_face_0712_20260714T200650Z_000000810.safetensors",
-        1
+        3.5
       ]
     }
   ],
@@ -2763,8 +2763,8 @@
       "id": 2,
       "title": "Face parsing auto face mask",
       "bounding": [
-        -1018.4447615109052,
-        793.0673507278958,
+        -1008.5664461532832,
+        1412.929808041034,
         3980,
         880
       ],
@@ -2799,8 +2799,8 @@
       "id": 5,
       "title": "Preview and save",
       "bounding": [
-        3090.4247156815363,
-        173.72993794578048,
+        3391.6354927508905,
+        110.29197387436571,
         1360,
         1640
       ],
@@ -2811,10 +2811,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.6901792161439946,
+      "scale": 0.5774169524751978,
       "offset": [
-        922.4089594566957,
-        444.7624394859341
+        -19.187273901115166,
+        1103.9506239670475
       ]
     },
     "frontendVersion": "1.42.15",
