@@ -577,112 +577,6 @@
       ]
     },
     {
-      "id": 8,
-      "type": "MaskBoundingBox+",
-      "pos": [
-        -450.37484719891853,
-        92.30857420226022
-      ],
-      "size": [
-        330,
-        190
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 7
-        },
-        {
-          "localized_name": "image_optional",
-          "name": "image_optional",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 8
-        },
-        {
-          "localized_name": "padding",
-          "name": "padding",
-          "type": "INT",
-          "widget": {
-            "name": "padding"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "blur",
-          "name": "blur",
-          "type": "INT",
-          "widget": {
-            "name": "blur"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            10,
-            22,
-            33
-          ]
-        },
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            9,
-            21
-          ]
-        },
-        {
-          "localized_name": "x",
-          "name": "x",
-          "type": "INT",
-          "links": [
-            31
-          ]
-        },
-        {
-          "localized_name": "y",
-          "name": "y",
-          "type": "INT",
-          "links": [
-            32
-          ]
-        },
-        {
-          "localized_name": "width",
-          "name": "width",
-          "type": "INT",
-          "links": null
-        },
-        {
-          "localized_name": "height",
-          "name": "height",
-          "type": "INT",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfyui_essentials",
-        "ver": "1.1.0",
-        "Node name for S&R": "MaskBoundingBox+"
-      },
-      "widgets_values": [
-        256,
-        0
-      ]
-    },
-    {
       "id": 9,
       "type": "PreviewImage",
       "pos": [
@@ -1004,6 +898,231 @@
       ]
     },
     {
+      "id": 21,
+      "type": "KSampler",
+      "pos": [
+        389.3391363363486,
+        -85.66506461292552
+      ],
+      "size": [
+        351.6561542651252,
+        278.9460130364522
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 14
+        },
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 23
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 24
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 25
+        },
+        {
+          "localized_name": "seed",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "cfg",
+          "name": "cfg",
+          "type": "FLOAT",
+          "widget": {
+            "name": "cfg"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sampler_name",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "scheduler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        1088671598555712,
+        "randomize",
+        24,
+        1,
+        "euler",
+        "normal",
+        0.8
+      ]
+    },
+    {
+      "id": 8,
+      "type": "MaskBoundingBox+",
+      "pos": [
+        -450.37484719891853,
+        92.30857420226022
+      ],
+      "size": [
+        330,
+        190
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 7
+        },
+        {
+          "localized_name": "image_optional",
+          "name": "image_optional",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 8
+        },
+        {
+          "localized_name": "padding",
+          "name": "padding",
+          "type": "INT",
+          "widget": {
+            "name": "padding"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "blur",
+          "name": "blur",
+          "type": "INT",
+          "widget": {
+            "name": "blur"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            10,
+            22,
+            33
+          ]
+        },
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            9,
+            21
+          ]
+        },
+        {
+          "localized_name": "x",
+          "name": "x",
+          "type": "INT",
+          "links": [
+            31
+          ]
+        },
+        {
+          "localized_name": "y",
+          "name": "y",
+          "type": "INT",
+          "links": [
+            32
+          ]
+        },
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_essentials",
+        "ver": "1.1.0",
+        "Node name for S&R": "MaskBoundingBox+"
+      },
+      "widgets_values": [
+        1024,
+        0
+      ]
+    },
+    {
       "id": 1,
       "type": "LoadImage",
       "pos": [
@@ -1145,15 +1264,15 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "load_image_source_clean_name": "@Dreamsing69_1832389412145263078_0",
-        "load_image_source_root_dir": "D:\\Flux Prod Local\\images",
-        "load_image_source_path": "D:\\Flux Prod Local\\images\\@Dreamsing69_1832389412145263078_0.jpg",
-        "load_image_source_image": "@Dreamsing69_1832389412145263078_0.jpg"
+        "load_image_source_clean_name": "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015",
+        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data",
+        "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data\\[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015.jpg",
+        "load_image_source_image": "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015.jpg"
       },
       "widgets_values": [
-        "@Dreamsing69_1832389412145263078_0.jpg",
-        "@Dreamsing69_1832389412145263078_0",
-        "D:\\Flux Prod Local\\images",
+        "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015.jpg",
+        "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015",
+        "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data",
         "",
         "",
         true,
@@ -1221,128 +1340,9 @@
         "Node name for S&R": "LoadImageMask"
       },
       "widgets_values": [
-        "@Dreamsing69_1832389412145263078_0_mask.png",
+        "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015_mask.png",
         "red",
         "image"
-      ]
-    },
-    {
-      "id": 21,
-      "type": "KSampler",
-      "pos": [
-        389.3391363363486,
-        -85.66506461292552
-      ],
-      "size": [
-        351.6561542651252,
-        278.9460130364522
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 14
-        },
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 23
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 24
-        },
-        {
-          "localized_name": "latent_image",
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 25
-        },
-        {
-          "localized_name": "seed",
-          "name": "seed",
-          "type": "INT",
-          "widget": {
-            "name": "seed"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "steps",
-          "name": "steps",
-          "type": "INT",
-          "widget": {
-            "name": "steps"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "cfg",
-          "name": "cfg",
-          "type": "FLOAT",
-          "widget": {
-            "name": "cfg"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "sampler_name",
-          "name": "sampler_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "sampler_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "scheduler",
-          "name": "scheduler",
-          "type": "COMBO",
-          "widget": {
-            "name": "scheduler"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "denoise",
-          "name": "denoise",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "LATENT",
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            26
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "KSampler"
-      },
-      "widgets_values": [
-        483447650229078,
-        "randomize",
-        24,
-        1,
-        "euler",
-        "normal",
-        1
       ]
     }
   ],
@@ -1657,10 +1657,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.9070764074784932,
+      "scale": 1.5199965149219943,
       "offset": [
-        1898.5848452477335,
-        1100.7892772938828
+        2451.6613417983936,
+        119.70849755651967
       ]
     }
   },

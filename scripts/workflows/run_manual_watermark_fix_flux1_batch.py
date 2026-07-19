@@ -5,10 +5,18 @@ The ComfyUI server must already be running. Every input image uses the same
 mask and prompt, while each generation receives a fresh random seed.
 
 Example:
+Bash/Linux
     python scripts/workflows/run_manual_watermark_fix_flux1_batch.py \
         "D:\\images" "D:\\masks\\watermark.png" \
         --prompt "A clean continuation of the original photo" \
         --repeats 2 --output-dir "D:\\fixed"
+
+Powershell:
+    python scripts/workflows/run_manual_watermark_fix_flux1_batch.py `
+        "D:\images" "D:\masks\watermark.png" `
+        --prompt "A clean continuation of the original photo" `
+        --repeats 2 `
+        --output-dir "D:\fixed"
 """
 
 from __future__ import annotations

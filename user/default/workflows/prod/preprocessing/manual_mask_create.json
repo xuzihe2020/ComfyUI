@@ -431,7 +431,7 @@
         "Node name for S&R": "PrimitiveInt"
       },
       "widgets_values": [
-        48,
+        96,
         "fixed"
       ]
     },
@@ -580,16 +580,16 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "load_image_source_clean_name": "01-45-09.992",
-        "load_image_source_root_dir": "F:\\sample_images\\test_run_02\\mosaic",
-        "load_image_source_path": "F:\\sample_images\\test_run_02\\mosaic\\01-45-09.992.png",
-        "load_image_source_image": "01-45-09.992.png",
-        "image": "clipspace/clipspace-painted-masked-1783214675658.png [input]"
+        "load_image_source_clean_name": "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015",
+        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data",
+        "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data\\[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015.jpg",
+        "load_image_source_image": "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015.jpg",
+        "image": "clipspace/clipspace-painted-masked-1784471438092.png [input]"
       },
       "widgets_values": [
-        "clipspace/clipspace-painted-masked-1783214675658.png [input]",
-        "01-45-09.992",
-        "F:\\sample_images\\test_run_02\\mosaic",
+        "clipspace/clipspace-painted-masked-1784471438092.png [input]",
+        "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015",
+        "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data",
         "masks",
         "_mask",
         true,
@@ -675,10 +675,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.500042455401736,
+      "scale": 1.467948384996977,
       "offset": [
-        1209.3882413277506,
-        -350.86988142115314
+        1395.2484892483606,
+        -278.35664190110487
       ]
     }
   },
