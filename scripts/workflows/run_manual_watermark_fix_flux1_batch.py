@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 import secrets
 import shutil
@@ -48,10 +49,142 @@ SKIP_WIDGET_INPUT_TYPES = {"IMAGEUPLOAD"}
 SKIP_WIDGET_INPUT_NAMES = {"control_after_generate"}
 SEED_CONTROL_VALUES = {"fixed", "increment", "decrement", "randomize"}
 MAX_SEED = 0xFFFFFFFFFFFFFFFF
+SAFE_FILENAME_COMPONENT_UNITS = 220
+SAFE_COMFY_PREFIX_UNITS = 200
+SAFE_WINDOWS_PATH_UNITS = 248
+TRUNCATED_NAME_HASH_LENGTH = 10
 
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
+
+
+def _filename_units(value: str) -> tuple[int, int]:
+    """Return UTF-16 code units (Windows) and UTF-8 bytes (Unix filesystems)."""
+    return len(value.encode("utf-16-le")) // 2, len(value.encode("utf-8"))
+
+
+def _fits_filename_budget(value: str, max_units: int) -> bool:
+    utf16_units, utf8_bytes = _filename_units(value)
+    return utf16_units <= max_units and utf8_bytes <= max_units
+
+
+def compact_filename_stem(
+    stem: str,
+    *,
+    prefix: str = "",
+    suffix: str = "",
+    max_units: int = SAFE_FILENAME_COMPONENT_UNITS,
+) -> str:
+    """Fit a stem within a portable component limit while preserving both ends."""
+    if _fits_filename_budget(f"{prefix}{stem}{suffix}", max_units):
+        return stem
+
+    digest = hashlib.sha256(stem.encode("utf-8")).hexdigest()[
+        :TRUNCATED_NAME_HASH_LENGTH
+    ]
+    marker = f"__cut_{digest}__"
+    if not _fits_filename_budget(f"{prefix}{marker}{suffix}", max_units):
+        raise ValueError("Filename prefix and suffix leave no room for a safe stem.")
+
+    low = 0
+    high = len(stem)
+    best = marker
+    while low <= high:
+        kept = (low + high) // 2
+        left_count = (kept + 1) // 2
+        right_count = kept // 2
+        right = stem[len(stem) - right_count :] if right_count else ""
+        candidate = f"{stem[:left_count]}{marker}{right}"
+        if _fits_filename_budget(f"{prefix}{candidate}{suffix}", max_units):
+            best = candidate
+            low = kept + 1
+        else:
+            high = kept - 1
+    return best
+
+
+def bounded_filename(
+    stem: str,
+    *,
+    prefix: str = "",
+    suffix: str = "",
+    max_units: int = SAFE_FILENAME_COMPONENT_UNITS,
+) -> str:
+    compacted = compact_filename_stem(
+        stem, prefix=prefix, suffix=suffix, max_units=max_units
+    )
+    return f"{prefix}{compacted}{suffix}"
+
+
+def filename_budget_for_directory(
+    directory: Path,
+    *,
+    component_limit: int = SAFE_FILENAME_COMPONENT_UNITS,
+    reserved_units: int = 0,
+) -> int:
+    """Leave room for both the parent path and any later filename suffix."""
+    directory_units, _ = _filename_units(str(directory.resolve()))
+    path_budget = SAFE_WINDOWS_PATH_UNITS - directory_units - 1 - reserved_units
+    return min(component_limit, path_budget)
+
+
+def staged_input_filename(
+    source_image: Path,
+    image_index: int,
+    destination_dir: Path | None = None,
+) -> str:
+    max_units = (
+        SAFE_FILENAME_COMPONENT_UNITS
+        if destination_dir is None
+        else filename_budget_for_directory(destination_dir)
+    )
+    return bounded_filename(
+        source_image.stem,
+        prefix=f"{image_index:05d}_",
+        suffix=source_image.suffix,
+        max_units=max_units,
+    )
+
+
+def comfy_save_prefix_leaf(
+    source_stem: str,
+    job_index: int,
+    destination_dir: Path | None = None,
+) -> str:
+    max_units = (
+        SAFE_COMFY_PREFIX_UNITS
+        if destination_dir is None
+        else filename_budget_for_directory(
+            destination_dir,
+            component_limit=SAFE_COMFY_PREFIX_UNITS,
+            reserved_units=20,
+        )
+    )
+    return bounded_filename(
+        source_stem,
+        prefix=f"{job_index:06d}_",
+        max_units=max_units,
+    )
+
+
+def result_filename_stem(
+    source_stem: str,
+    repeat_index: int,
+    destination_dir: Path | None = None,
+) -> str:
+    # Use the longest possible seed so truncation is stable across runs and --resume.
+    reserved_suffix = f"__repeat_{repeat_index:02d}__seed_{MAX_SEED}.png"
+    max_units = (
+        SAFE_FILENAME_COMPONENT_UNITS
+        if destination_dir is None
+        else filename_budget_for_directory(destination_dir, reserved_units=5)
+    )
+    return compact_filename_stem(
+        source_stem,
+        suffix=reserved_suffix,
+        max_units=max_units,
+    )
 
 
 def configure_console_encoding() -> None:
@@ -466,7 +599,10 @@ def existing_result(
     destination_dir = output_dir / relative_source.parent
     if not destination_dir.is_dir():
         return None
-    prefix = f"{relative_source.stem}__repeat_{repeat_index:02d}__seed_"
+    safe_stem = result_filename_stem(
+        relative_source.stem, repeat_index, destination_dir
+    )
+    prefix = f"{safe_stem}__repeat_{repeat_index:02d}__seed_"
     return next(
         (
             path
@@ -536,8 +672,11 @@ def save_result(
 
     destination_dir = output_dir / relative_source.parent
     destination_dir.mkdir(parents=True, exist_ok=True)
+    safe_stem = result_filename_stem(
+        relative_source.stem, repeat_index, destination_dir
+    )
     destination = destination_dir / (
-        f"{relative_source.stem}__repeat_{repeat_index:02d}__seed_{seed}{staged_file.suffix}"
+        f"{safe_stem}__repeat_{repeat_index:02d}__seed_{seed}{staged_file.suffix}"
     )
     destination = unique_destination(destination)
     if staged_file == destination.resolve():
@@ -652,8 +791,11 @@ def main() -> None:
         job_index = 0
         for image_index, source_image in enumerate(images, start=1):
             relative_source = source_image.relative_to(input_dir)
+            staged_filename = staged_input_filename(
+                source_image, image_index, input_staging
+            )
             staged_image_name = (
-                f"manual_watermark_flux1_batch/{batch_id}/{image_index:05d}_{source_image.name}"
+                f"manual_watermark_flux1_batch/{batch_id}/{staged_filename}"
             )
             staging_error: Exception | None = None
             staging_traceback = ""
@@ -662,7 +804,7 @@ def main() -> None:
                     staged_image_name = copy_input(
                         source_image,
                         input_staging,
-                        f"{image_index:05d}_{source_image.name}",
+                        staged_filename,
                     )
                 except Exception as exc:
                     staging_error = exc
@@ -711,7 +853,7 @@ def main() -> None:
                     seed = secrets.randbelow(MAX_SEED + 1)
                     save_prefix = (
                         f"_script_staging/manual_watermark_flux1_batch/{batch_id}/"
-                        f"{job_index:06d}_{source_image.stem}"
+                        f"{comfy_save_prefix_leaf(source_image.stem, job_index, output_staging)}"
                     )
                     stage = "build_prompt"
                     prompt, save_node_id = build_api_prompt(

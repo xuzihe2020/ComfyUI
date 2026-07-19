@@ -245,9 +245,12 @@ def main() -> None:
         job_index = 0
         for image_index, source_image in enumerate(images, start=1):
             relative_source = source_image.relative_to(input_dir)
+            staged_filename = batch_common.staged_input_filename(
+                source_image, image_index, input_staging
+            )
             staged_image_name = (
                 f"auto_watermark_remove_lama_batch/{batch_id}/"
-                f"{image_index:05d}_{source_image.name}"
+                f"{staged_filename}"
             )
             setup_error: Exception | None = None
             setup_traceback = ""
@@ -256,7 +259,7 @@ def main() -> None:
                     staged_image_name = batch_common.copy_input(
                         source_image,
                         input_staging,
-                        f"{image_index:05d}_{source_image.name}",
+                        staged_filename,
                     )
             except Exception as exc:
                 setup_error = exc
@@ -293,7 +296,7 @@ def main() -> None:
                     seed = secrets.randbelow(MAX_SEED + 1)
                     save_prefix = (
                         f"_script_staging/auto_watermark_remove_lama_batch/{batch_id}/"
-                        f"{job_index:06d}_{source_image.stem}"
+                        f"{batch_common.comfy_save_prefix_leaf(source_image.stem, job_index, output_staging)}"
                     )
                     stage = "build_prompt"
                     prompt, save_node_id = build_api_prompt(
