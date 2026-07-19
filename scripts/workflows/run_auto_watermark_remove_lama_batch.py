@@ -9,7 +9,7 @@ PowerShell example (run from the ComfyUI directory):
     python .\scripts\workflows\run_auto_watermark_remove_lama_batch.py `
         "D:\images" `
         --output-dir "D:\watermark_removed" `
-        --repeats 2 `
+        --repeats 1 `
         --resume
 """
 
