@@ -898,125 +898,6 @@
       ]
     },
     {
-      "id": 21,
-      "type": "KSampler",
-      "pos": [
-        389.3391363363486,
-        -85.66506461292552
-      ],
-      "size": [
-        351.6561542651252,
-        278.9460130364522
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 14
-        },
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 23
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 24
-        },
-        {
-          "localized_name": "latent_image",
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 25
-        },
-        {
-          "localized_name": "seed",
-          "name": "seed",
-          "type": "INT",
-          "widget": {
-            "name": "seed"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "steps",
-          "name": "steps",
-          "type": "INT",
-          "widget": {
-            "name": "steps"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "cfg",
-          "name": "cfg",
-          "type": "FLOAT",
-          "widget": {
-            "name": "cfg"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "sampler_name",
-          "name": "sampler_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "sampler_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "scheduler",
-          "name": "scheduler",
-          "type": "COMBO",
-          "widget": {
-            "name": "scheduler"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "denoise",
-          "name": "denoise",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "LATENT",
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            26
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "KSampler"
-      },
-      "widgets_values": [
-        1088671598555712,
-        "randomize",
-        24,
-        1,
-        "euler",
-        "normal",
-        0.8
-      ]
-    },
-    {
       "id": 8,
       "type": "MaskBoundingBox+",
       "pos": [
@@ -1264,15 +1145,15 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "load_image_source_clean_name": "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015",
-        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data",
-        "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data\\[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015.jpg",
-        "load_image_source_image": "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015.jpg"
+        "load_image_source_clean_name": "@feliciahan10_1397227240560242693_0",
+        "load_image_source_root_dir": "D:\\Flux Prod Local\\reference_images\\nsfw\\images",
+        "load_image_source_path": "D:\\Flux Prod Local\\reference_images\\nsfw\\images\\@feliciahan10_1397227240560242693_0.jpg",
+        "load_image_source_image": "@feliciahan10_1397227240560242693_0.jpg"
       },
       "widgets_values": [
-        "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015.jpg",
-        "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015",
-        "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data",
+        "@feliciahan10_1397227240560242693_0.jpg",
+        "@feliciahan10_1397227240560242693_0",
+        "D:\\Flux Prod Local\\reference_images\\nsfw\\images",
         "",
         "",
         true,
@@ -1340,9 +1221,128 @@
         "Node name for S&R": "LoadImageMask"
       },
       "widgets_values": [
-        "[Bondage-Addicted Married Woman] - [縄酔い人妻] - Yui Hatano [波多野結衣]_00-50-09.015_mask.png",
+        "@feliciahan10_1397227240560242693_0_mask.png",
         "red",
         "image"
+      ]
+    },
+    {
+      "id": 21,
+      "type": "KSampler",
+      "pos": [
+        389.3391363363486,
+        -85.66506461292552
+      ],
+      "size": [
+        351.6561542651252,
+        278.9460130364522
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 14
+        },
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 23
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 24
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 25
+        },
+        {
+          "localized_name": "seed",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "cfg",
+          "name": "cfg",
+          "type": "FLOAT",
+          "widget": {
+            "name": "cfg"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sampler_name",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "scheduler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        725471948933685,
+        "randomize",
+        24,
+        1,
+        "euler",
+        "normal",
+        1
       ]
     }
   ],
@@ -1657,10 +1657,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.5199965149219943,
+      "scale": 2.039806278531069,
       "offset": [
-        2451.6613417983936,
-        119.70849755651967
+        147.1884267950462,
+        -13.278777301800972
       ]
     }
   },

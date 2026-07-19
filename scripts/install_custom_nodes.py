@@ -94,6 +94,11 @@ ALWAYS_FIX_DEPENDENCIES = {
     "Comfyui-LayerForge",
     "comfyui_face_parsing",
     "comfyui_controlnet_aux",
+    # Acly's inpaint pack intentionally has no requirements.txt but imports
+    # kornia at startup and loads LaMa through spandrel. Keep both dependencies
+    # explicit so a node install never relies on ComfyUI startup to discover
+    # or repair the environment.
+    "comfyui-inpaint-nodes",
     # SeedVR2 pulls a sizable dependency set (omegaconf, einops, rotary
     # embeddings, etc.) that must be present before ComfyUI imports the node;
     # force its requirements.txt even under --no-deps.
@@ -122,6 +127,10 @@ EXTRA_PIP_DEPENDENCIES = {
     "ComfyUI-Watermark-Detection": [
         "ultralytics",
         "huggingface_hub",
+    ],
+    "comfyui-inpaint-nodes": [
+        "kornia>=0.7.1",
+        "spandrel",
     ],
 }
 # Optional GPU-only accelerators installed best-effort (never fatal) and only on

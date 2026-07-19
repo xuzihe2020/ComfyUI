@@ -105,6 +105,12 @@
       "repo": "https://github.com/Saganaki22/ComfyUI-FishAudioS2",
       "reason": "Provides Fish Audio S2-Pro TTS, voice cloning from 10-30s reference audio, multi-speaker dialogue with per-speaker split outputs, and inline emotion/prosody tags for the local dubbing pipeline (docs/fish-audio-s2-dubbing-pipeline-design.md). Model weights are not bundled: the node auto-downloads them from HuggingFace (fishaudio/s2-pro ~11GB, drbaph/s2-pro-fp8 ~8GB) into models/fishaudioS2/<name> on first node execution; the node resolves models only from folder_paths.models_dir and ignores extra_model_paths.yaml, so external model storage needs a models/fishaudioS2 link or pre-placed folder. requirements.txt force-installed via ALWAYS_FIX_DEPENDENCIES and descript-audio-codec/descript-audiotools installed with --no-deps by the installer (protobuf<5 conflict) so the node's own startup auto-installer stays inert. CUDA-focused, so gated to linux/windows.",
       "platforms": ["linux", "windows"]
+    },
+    {
+      "name": "ComfyUI Inpaint Nodes",
+      "folder": "comfyui-inpaint-nodes",
+      "repo": "https://github.com/Acly/comfyui-inpaint-nodes",
+      "reason": "Provides INPAINT_LoadInpaintModel, INPAINT_InpaintWithModel, INPAINT_ExpandMask, and INPAINT_StabilizeMask for fast mask-driven LaMa object/text/watermark removal. The manual LaMa workflow uses big-lama.pt from the shared models/inpaint folder; model weights remain separate from custom-node installation. The installer explicitly preinstalls the node's import-time kornia and spandrel dependencies before ComfyUI starts."
     }
   ],
   "tools": []
