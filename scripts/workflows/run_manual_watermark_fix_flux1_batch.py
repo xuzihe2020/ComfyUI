@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the manual Flux 1 Fill watermark workflow over an image folder.
+r"""Run the manual Flux 1 Fill watermark workflow over an image folder.
 
 The ComfyUI server must already be running. Every input image uses the same
 mask and prompt, while each generation receives a fresh random seed.
@@ -33,6 +33,7 @@ import urllib.parse
 import urllib.request
 import uuid
 from collections import Counter
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 import traceback
@@ -40,7 +41,7 @@ from typing import Any
 
 
 DEFAULT_WORKFLOW = Path(
-    "user/default/workflows/utility/manual_watermark_fix_flux1.json"
+    "user/default/workflows/prod/preprocessing/manual_watermark_removal_flux1.json"
 )
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
 SKIP_WIDGET_INPUT_TYPES = {"IMAGEUPLOAD"}
@@ -60,6 +61,45 @@ def configure_console_encoding() -> None:
             reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
+def human_timestamp() -> str:
+    return datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+
+
+def format_duration(seconds: float) -> str:
+    seconds = max(0.0, seconds)
+    if seconds < 60:
+        return f"{seconds:.2f}s"
+    minutes, remaining_seconds = divmod(seconds, 60)
+    if minutes < 60:
+        return f"{int(minutes)}m {remaining_seconds:04.1f}s"
+    hours, remaining_minutes = divmod(int(minutes), 60)
+    return f"{hours}h {remaining_minutes:02d}m {remaining_seconds:04.1f}s"
+
+
+def log(message: str) -> None:
+    print(f"[{human_timestamp()}] {message}", flush=True)
+
+
+def run_main_with_timing(main_func: Callable[[], None]) -> None:
+    started = time.monotonic()
+    status = "failed"
+    log("Run started")
+    try:
+        main_func()
+        status = "completed"
+    except KeyboardInterrupt:
+        status = "interrupted"
+        raise
+    except SystemExit as exc:
+        status = "completed" if exc.code in (None, 0) else "failed"
+        raise
+    finally:
+        log(
+            f"Run finished | status={status} | "
+            f"total_elapsed={format_duration(time.monotonic() - started)}"
+        )
+
+
 def resolve_repo_path(path: Path) -> Path:
     return path if path.is_absolute() else repo_root() / path
 
@@ -67,7 +107,7 @@ def resolve_repo_path(path: Path) -> Path:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Run manual_watermark_fix_flux1.json sequentially for every image in a folder. "
+            "Run manual_watermark_removal_flux1.json sequentially for every image in a folder. "
             "The same mask and prompt are used for every job."
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -520,7 +560,17 @@ def remove_created_staging(path: Path, parent: Path) -> None:
         except OSError:
             if attempt < 10:
                 time.sleep(min(0.25 * attempt, 1.0))
-    print(f"Warning: staging directory is still locked and was left in place: {resolved_path}")
+    log(f"Warning: staging directory is still locked and was left in place: {resolved_path}")
+
+
+def best_effort_remove_created_staging(path: Path, parent: Path) -> None:
+    try:
+        remove_created_staging(path, parent)
+    except Exception as exc:
+        log(
+            f"Warning: cleanup failed for {path}: "
+            f"{type(exc).__name__}: {exc}"
+        )
 
 
 def record_failure(
@@ -557,7 +607,7 @@ def record_failure(
         with failure_log.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(record, ensure_ascii=False) + "\n")
     except OSError as log_error:
-        print(f"Warning: could not write failure log {failure_log}: {log_error}")
+        log(f"Warning: could not write failure log {failure_log}: {log_error}")
 
 
 def main() -> None:
@@ -590,9 +640,9 @@ def main() -> None:
     failed_count = 0
     failure_log = None if args.dry_run else output_dir / f"flux1_batch_failures_{batch_id}.jsonl"
 
-    print(f"Workflow: {workflow_path}")
-    print(f"Images: {len(images)} | repeats: {args.repeats} | total jobs: {total_jobs}")
-    print(f"Output: {output_dir}")
+    log(f"Workflow: {workflow_path}")
+    log(f"Images: {len(images)} | repeats: {args.repeats} | total jobs: {total_jobs}")
+    log(f"Output: {output_dir}")
 
     try:
         if not args.dry_run:
@@ -621,6 +671,7 @@ def main() -> None:
             for repeat_index in range(1, args.repeats + 1):
                 job_index += 1
                 label = f"[{job_index}/{total_jobs}] {relative_source} repeat {repeat_index}/{args.repeats}"
+                job_started = time.monotonic()
                 seed: int | None = None
                 prompt_id: str | None = None
                 stage = "resume_check"
@@ -629,14 +680,18 @@ def main() -> None:
                         previous = existing_result(output_dir, relative_source, repeat_index)
                         if previous is not None:
                             skipped_count += 1
-                            print(f"{label} | skipped existing {previous}")
+                            log(
+                                f"{label} | skipped existing {previous} | "
+                                f"elapsed={format_duration(time.monotonic() - job_started)}"
+                            )
                             continue
 
                     if staging_error is not None:
                         failed_count += 1
-                        print(
+                        log(
                             f"{label} | FAILED during input staging: "
-                            f"{type(staging_error).__name__}: {staging_error} | continuing"
+                            f"{type(staging_error).__name__}: {staging_error} | continuing | "
+                            f"elapsed={format_duration(time.monotonic() - job_started)}"
                         )
                         record_failure(
                             failure_log,
@@ -671,7 +726,10 @@ def main() -> None:
                     )
                     if args.dry_run:
                         succeeded_count += 1
-                        print(f"{label} | dry-run prompt valid | seed={seed}")
+                        log(
+                            f"{label} | dry-run prompt valid | seed={seed} | "
+                            f"elapsed={format_duration(time.monotonic() - job_started)}"
+                        )
                         continue
 
                     stage = "queue"
@@ -683,7 +741,10 @@ def main() -> None:
                     prompt_id = response.get("prompt_id")
                     if not prompt_id:
                         raise RuntimeError(f"ComfyUI rejected the prompt: {json.dumps(response)}")
-                    print(f"{label} | queued {prompt_id} | seed={seed}")
+                    log(
+                        f"{label} | queued {prompt_id} | seed={seed} | "
+                        f"elapsed={format_duration(time.monotonic() - job_started)}"
+                    )
                     stage = "wait_for_history"
                     history = wait_for_history(args.server, prompt_id, args.timeout)
                     stage = "save_result"
@@ -696,13 +757,17 @@ def main() -> None:
                         seed,
                     )
                     succeeded_count += 1
-                    print(f"{label} | saved {destination}")
+                    log(
+                        f"{label} | saved {destination} | "
+                        f"elapsed={format_duration(time.monotonic() - job_started)}"
+                    )
                 except Exception as exc:
                     failed_count += 1
                     traceback_text = traceback.format_exc()
-                    print(
+                    log(
                         f"{label} | FAILED during {stage}: "
-                        f"{type(exc).__name__}: {exc} | continuing"
+                        f"{type(exc).__name__}: {exc} | continuing | "
+                        f"elapsed={format_duration(time.monotonic() - job_started)}"
                     )
                     record_failure(
                         failure_log,
@@ -721,26 +786,26 @@ def main() -> None:
     finally:
         clean_staging = failed_count == 0
         if not args.dry_run and not args.keep_staged_inputs and clean_staging:
-            remove_created_staging(input_staging, input_root)
+            best_effort_remove_created_staging(input_staging, input_root)
         if not args.dry_run and clean_staging:
-            remove_created_staging(output_staging, output_root)
+            best_effort_remove_created_staging(output_staging, output_root)
         if not args.dry_run and not clean_staging:
-            print(f"Staging retained because jobs failed: {input_staging}")
-            print(f"Staging retained because jobs failed: {output_staging}")
+            log(f"Staging retained because jobs failed: {input_staging}")
+            log(f"Staging retained because jobs failed: {output_staging}")
 
     if args.dry_run:
-        print(
+        log(
             f"Dry run complete: valid={succeeded_count}, skipped={skipped_count}, "
             f"failed={failed_count}; no files were copied and no prompts were submitted."
         )
     else:
-        print(
+        log(
             f"Batch complete: succeeded={succeeded_count}, skipped={skipped_count}, "
             f"failed={failed_count}, total={total_jobs}"
         )
         if failed_count:
-            print(f"Failure log: {failure_log}")
+            log(f"Failure log: {failure_log}")
 
 
 if __name__ == "__main__":
-    main()
+    run_main_with_timing(main)

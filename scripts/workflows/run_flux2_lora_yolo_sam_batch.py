@@ -20,6 +20,7 @@ import argparse
 import copy
 import json
 import secrets
+import time
 import traceback
 import uuid
 from collections import Counter
@@ -199,7 +200,9 @@ def sanitize_and_audit_workflow(path: Path) -> dict[str, Any]:
                     output["links"] = [
                         link_id for link_id in output["links"] if link_id not in stale_ids
                     ] or None
-        print(f"Warning: ignored unreferenced stale canvas links: {sorted(stale_ids)}")
+        batch_common.log(
+            f"Warning: ignored unreferenced stale canvas links: {sorted(stale_ids)}"
+        )
 
     current_links = workflow["links"]
     current_ids = {link[0] for link in current_links}
@@ -215,7 +218,7 @@ def sanitize_and_audit_workflow(path: Path) -> dict[str, Any]:
                 output["links"] = expected or None
                 repaired_outputs.append(f"{node['id']}:{slot}")
     if repaired_outputs:
-        print(
+        batch_common.log(
             "Warning: reconciled stale source socket link caches in memory: "
             + ", ".join(repaired_outputs)
         )
@@ -367,9 +370,11 @@ def main() -> None:
     failed_count = 0
     failure_log = None if args.dry_run else output_dir / f"flux2_face_regen_failures_{batch_id}.jsonl"
 
-    print(f"Workflow: {workflow_path}")
-    print(f"Images: {len(images)} | repeats: {args.repeats} | total jobs: {total_jobs}")
-    print(f"Output: {output_dir}")
+    batch_common.log(f"Workflow: {workflow_path}")
+    batch_common.log(
+        f"Images: {len(images)} | repeats: {args.repeats} | total jobs: {total_jobs}"
+    )
+    batch_common.log(f"Output: {output_dir}")
 
     try:
         if not args.dry_run:
@@ -402,6 +407,7 @@ def main() -> None:
             for repeat_index in range(1, args.repeats + 1):
                 job_index += 1
                 label = f"[{job_index}/{total_jobs}] {relative_source} repeat {repeat_index}/{args.repeats}"
+                job_started = time.monotonic()
                 seed: int | None = None
                 prompt_id: str | None = None
                 stage = "resume_check"
@@ -412,14 +418,18 @@ def main() -> None:
                         )
                         if previous is not None:
                             skipped_count += 1
-                            print(f"{label} | skipped existing {previous}")
+                            batch_common.log(
+                                f"{label} | skipped existing {previous} | "
+                                f"elapsed={batch_common.format_duration(time.monotonic() - job_started)}"
+                            )
                             continue
 
                     if setup_error is not None:
                         failed_count += 1
-                        print(
+                        batch_common.log(
                             f"{label} | FAILED during image setup: "
-                            f"{type(setup_error).__name__}: {setup_error} | continuing"
+                            f"{type(setup_error).__name__}: {setup_error} | continuing | "
+                            f"elapsed={batch_common.format_duration(time.monotonic() - job_started)}"
                         )
                         batch_common.record_failure(
                             failure_log,
@@ -452,8 +462,9 @@ def main() -> None:
                     )
                     if args.dry_run:
                         succeeded_count += 1
-                        print(
-                            f"{label} | dry-run prompt valid | prompt={prompt_source} | seed={seed}"
+                        batch_common.log(
+                            f"{label} | dry-run prompt valid | prompt={prompt_source} | seed={seed} | "
+                            f"elapsed={batch_common.format_duration(time.monotonic() - job_started)}"
                         )
                         continue
 
@@ -466,8 +477,9 @@ def main() -> None:
                     prompt_id = response.get("prompt_id")
                     if not prompt_id:
                         raise RuntimeError(f"ComfyUI rejected the prompt: {json.dumps(response)}")
-                    print(
-                        f"{label} | queued {prompt_id} | prompt={prompt_source} | seed={seed}"
+                    batch_common.log(
+                        f"{label} | queued {prompt_id} | prompt={prompt_source} | seed={seed} | "
+                        f"elapsed={batch_common.format_duration(time.monotonic() - job_started)}"
                     )
                     stage = "wait_for_history"
                     history = batch_common.wait_for_history(args.server, prompt_id, args.timeout)
@@ -481,12 +493,16 @@ def main() -> None:
                         seed,
                     )
                     succeeded_count += 1
-                    print(f"{label} | saved {destination}")
+                    batch_common.log(
+                        f"{label} | saved {destination} | "
+                        f"elapsed={batch_common.format_duration(time.monotonic() - job_started)}"
+                    )
                 except Exception as exc:
                     failed_count += 1
-                    print(
+                    batch_common.log(
                         f"{label} | FAILED during {stage}: "
-                        f"{type(exc).__name__}: {exc} | continuing"
+                        f"{type(exc).__name__}: {exc} | continuing | "
+                        f"elapsed={batch_common.format_duration(time.monotonic() - job_started)}"
                     )
                     batch_common.record_failure(
                         failure_log,
@@ -505,26 +521,26 @@ def main() -> None:
     finally:
         clean_staging = failed_count == 0
         if not args.dry_run and not args.keep_staged_inputs and clean_staging:
-            batch_common.remove_created_staging(input_staging, input_root)
+            batch_common.best_effort_remove_created_staging(input_staging, input_root)
         if not args.dry_run and clean_staging:
-            batch_common.remove_created_staging(output_staging, output_root)
+            batch_common.best_effort_remove_created_staging(output_staging, output_root)
         if not args.dry_run and not clean_staging:
-            print(f"Staging retained because jobs failed: {input_staging}")
-            print(f"Staging retained because jobs failed: {output_staging}")
+            batch_common.log(f"Staging retained because jobs failed: {input_staging}")
+            batch_common.log(f"Staging retained because jobs failed: {output_staging}")
 
     if args.dry_run:
-        print(
+        batch_common.log(
             f"Dry run complete: valid={succeeded_count}, skipped={skipped_count}, "
             f"failed={failed_count}; no files were copied and no prompts were submitted."
         )
     else:
-        print(
+        batch_common.log(
             f"Batch complete: succeeded={succeeded_count}, skipped={skipped_count}, "
             f"failed={failed_count}, total={total_jobs}"
         )
         if failed_count:
-            print(f"Failure log: {failure_log}")
+            batch_common.log(f"Failure log: {failure_log}")
 
 
 if __name__ == "__main__":
-    main()
+    batch_common.run_main_with_timing(main)
