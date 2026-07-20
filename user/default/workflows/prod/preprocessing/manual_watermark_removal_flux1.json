@@ -487,96 +487,6 @@
       "widgets_values": []
     },
     {
-      "id": 20,
-      "type": "InpaintModelConditioning",
-      "pos": [
-        -47.53514598712675,
-        -67.579281033048
-      ],
-      "size": [
-        390,
-        157.2898587713271
-      ],
-      "flags": {},
-      "order": 14,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 18
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 19
-        },
-        {
-          "localized_name": "vae",
-          "name": "vae",
-          "type": "VAE",
-          "link": 20
-        },
-        {
-          "localized_name": "pixels",
-          "name": "pixels",
-          "type": "IMAGE",
-          "link": 21
-        },
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 22
-        },
-        {
-          "localized_name": "noise_mask",
-          "name": "noise_mask",
-          "type": "BOOLEAN",
-          "widget": {
-            "name": "noise_mask"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "links": [
-            23
-          ]
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "links": [
-            24
-          ]
-        },
-        {
-          "localized_name": "latent",
-          "name": "latent",
-          "type": "LATENT",
-          "links": [
-            25
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "InpaintModelConditioning"
-      },
-      "widgets_values": [
-        true
-      ]
-    },
-    {
       "id": 9,
       "type": "PreviewImage",
       "pos": [
@@ -1004,6 +914,215 @@
       ]
     },
     {
+      "id": 21,
+      "type": "KSampler",
+      "pos": [
+        389.3391363363486,
+        -85.66506461292552
+      ],
+      "size": [
+        351.6561542651252,
+        278.9460130364522
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 14
+        },
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 23
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 24
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 25
+        },
+        {
+          "localized_name": "seed",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "cfg",
+          "name": "cfg",
+          "type": "FLOAT",
+          "widget": {
+            "name": "cfg"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sampler_name",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "scheduler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        414772238996798,
+        "randomize",
+        24,
+        1,
+        "euler",
+        "normal",
+        0.8
+      ]
+    },
+    {
+      "id": 20,
+      "type": "InpaintModelConditioning",
+      "pos": [
+        -51.180779526213335,
+        -63.933714246690386
+      ],
+      "size": [
+        390,
+        157.2898587713271
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 18
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 19
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 20
+        },
+        {
+          "localized_name": "pixels",
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 21
+        },
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 22
+        },
+        {
+          "localized_name": "noise_mask",
+          "name": "noise_mask",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "noise_mask"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            23
+          ]
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "links": [
+            24
+          ]
+        },
+        {
+          "localized_name": "latent",
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            25
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "InpaintModelConditioning"
+      },
+      "widgets_values": [
+        true
+      ]
+    },
+    {
       "id": 1,
       "type": "LoadImage",
       "pos": [
@@ -1145,15 +1264,15 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "load_image_source_clean_name": "@feliciahan10_1397227240560242693_0",
-        "load_image_source_root_dir": "D:\\Flux Prod Local\\reference_images\\nsfw\\images",
-        "load_image_source_path": "D:\\Flux Prod Local\\reference_images\\nsfw\\images\\@feliciahan10_1397227240560242693_0.jpg",
-        "load_image_source_image": "@feliciahan10_1397227240560242693_0.jpg"
+        "load_image_source_clean_name": "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000",
+        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix",
+        "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix\\[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg",
+        "load_image_source_image": "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg"
       },
       "widgets_values": [
-        "@feliciahan10_1397227240560242693_0.jpg",
-        "@feliciahan10_1397227240560242693_0",
-        "D:\\Flux Prod Local\\reference_images\\nsfw\\images",
+        "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg",
+        "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000",
+        "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix",
         "",
         "",
         true,
@@ -1221,128 +1340,9 @@
         "Node name for S&R": "LoadImageMask"
       },
       "widgets_values": [
-        "@feliciahan10_1397227240560242693_0_mask.png",
+        "dmm_watermark_mask.png",
         "red",
         "image"
-      ]
-    },
-    {
-      "id": 21,
-      "type": "KSampler",
-      "pos": [
-        389.3391363363486,
-        -85.66506461292552
-      ],
-      "size": [
-        351.6561542651252,
-        278.9460130364522
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 14
-        },
-        {
-          "localized_name": "positive",
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 23
-        },
-        {
-          "localized_name": "negative",
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 24
-        },
-        {
-          "localized_name": "latent_image",
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 25
-        },
-        {
-          "localized_name": "seed",
-          "name": "seed",
-          "type": "INT",
-          "widget": {
-            "name": "seed"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "steps",
-          "name": "steps",
-          "type": "INT",
-          "widget": {
-            "name": "steps"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "cfg",
-          "name": "cfg",
-          "type": "FLOAT",
-          "widget": {
-            "name": "cfg"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "sampler_name",
-          "name": "sampler_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "sampler_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "scheduler",
-          "name": "scheduler",
-          "type": "COMBO",
-          "widget": {
-            "name": "scheduler"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "denoise",
-          "name": "denoise",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "LATENT",
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            26
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "KSampler"
-      },
-      "widgets_values": [
-        725471948933685,
-        "randomize",
-        24,
-        1,
-        "euler",
-        "normal",
-        1
       ]
     }
   ],
@@ -1657,10 +1657,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 2.039806278531069,
+      "scale": 0.7370726556667115,
       "offset": [
-        147.1884267950462,
-        -13.278777301800972
+        1394.1823700131474,
+        514.0794661218183
       ]
     }
   },

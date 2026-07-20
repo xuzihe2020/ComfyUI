@@ -431,7 +431,7 @@
         "Node name for S&R": "PrimitiveInt"
       },
       "widgets_values": [
-        96,
+        60,
         "fixed"
       ]
     },
@@ -580,16 +580,16 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "load_image_source_clean_name": "@feliciahan10_1397227240560242693_0",
-        "load_image_source_root_dir": "D:\\Flux Prod Local\\reference_images\\nsfw\\images",
-        "load_image_source_path": "D:\\Flux Prod Local\\reference_images\\nsfw\\images\\@feliciahan10_1397227240560242693_0.jpg",
-        "load_image_source_image": "@feliciahan10_1397227240560242693_0.jpg",
-        "image": "clipspace/clipspace-painted-masked-1784472332133.png [input]"
+        "load_image_source_clean_name": "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000",
+        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix",
+        "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix\\[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg",
+        "load_image_source_image": "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg",
+        "image": "clipspace/clipspace-painted-masked-1784492887040.png [input]"
       },
       "widgets_values": [
-        "clipspace/clipspace-painted-masked-1784472332133.png [input]",
-        "@feliciahan10_1397227240560242693_0",
-        "D:\\Flux Prod Local\\reference_images\\nsfw\\images",
+        "clipspace/clipspace-painted-masked-1784492887040.png [input]",
+        "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000",
+        "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix",
         "masks",
         "_mask",
         true,
@@ -675,10 +675,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.2716658272828054,
+      "scale": 1.2264603369614373,
       "offset": [
-        1605.44408281339,
-        -14.8534614883539
+        1208.2382113955152,
+        -325.87353182995867
       ]
     }
   },
