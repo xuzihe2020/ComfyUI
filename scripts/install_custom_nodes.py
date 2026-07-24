@@ -103,6 +103,10 @@ ALWAYS_FIX_DEPENDENCIES = {
     # embeddings, etc.) that must be present before ComfyUI imports the node;
     # force its requirements.txt even under --no-deps.
     "ComfyUI-SeedVR2_VideoUpscaler",
+    # GFPGAN imports native/runtime dependencies during ComfyUI startup.
+    # Install everything up front and keep the gfpgan package's outdated
+    # dependency chain disabled through the pinned post-install command below.
+    "comfyui_gfpgan",
     # Fish S2's __init__.py auto-installs missing packages at ComfyUI startup;
     # force its requirements.txt (plus the --no-deps post-install fix below) so
     # that startup auto-installer never has anything to do.
@@ -118,6 +122,7 @@ SKIP_MANAGER_FIX_EXISTING = {
     # path below instead.
     "ComfyUI-FishAudioS2",
     "ComfyUI-fish-audio-s2",
+    "comfyui_gfpgan",
 }
 EXTRA_PIP_DEPENDENCIES = {
     "ComfyUI_essentials": [
@@ -211,12 +216,34 @@ def install_fish_audio_s2_dependencies(python_bin: str) -> None:
     run([python_bin, "-m", "pip", "install", "descript-audiotools>=0.7.2", "--no-deps"])
 
 
+def install_comfyui_gfpgan_dependencies(python_bin: str) -> None:
+    """Install GFPGAN without its obsolete upstream BasicSR dependency.
+
+    comfyui_gfpgan's requirements install basicsr-fixed, which is compatible
+    with current ComfyUI/PyTorch. Installing gfpgan with dependencies enabled
+    would replace it with the incompatible legacy basicsr package.
+    """
+    run([python_bin, "-m", "pip", "install", "gfpgan", "--no-deps"])
+
+
 # Node-specific dependency installs that need pip flags EXTRA_PIP_DEPENDENCIES
 # cannot express (it feeds one flat `pip install` command). Run whenever the
 # node's dependencies are being fixed, same gating as EXTRA_PIP_DEPENDENCIES.
 POST_INSTALL_DEPENDENCY_FIXES = {
     "ComfyUI-FishAudioS2": install_fish_audio_s2_dependencies,
     "ComfyUI-fish-audio-s2": install_fish_audio_s2_dependencies,
+    "comfyui_gfpgan": install_comfyui_gfpgan_dependencies,
+}
+
+# Some custom nodes resolve model folders directly under folder_paths.models_dir
+# and overwrite normal extra_model_paths registrations at import time. Keep
+# their files external by creating narrow directory links from ComfyUI/models/
+# to the configured external model root.
+EXTERNAL_MODEL_DIRECTORY_LINKS = {
+    "comfyui_gfpgan": {
+        "face_detection": "face_detection",
+        "face_restoration": "face_restoration",
+    },
 }
 
 
@@ -279,6 +306,45 @@ def external_model_base(path: Path = DEFAULT_EXTRA_MODEL_PATHS) -> Path | None:
         return Path(base_path).expanduser().resolve()
 
     return None
+
+
+def ensure_external_model_directory_links(manifest: dict) -> None:
+    model_base = external_model_base()
+    if model_base is None:
+        return
+
+    models_dir = REPO_ROOT / "models"
+    models_dir.mkdir(parents=True, exist_ok=True)
+    eligible = {
+        node["name"]
+        for node in manifest.get("nodes", [])
+        if node_allowed_here(node)
+    }
+
+    for node_name, links in EXTERNAL_MODEL_DIRECTORY_LINKS.items():
+        if node_name not in eligible:
+            continue
+        for local_name, external_name in links.items():
+            target = (model_base / external_name).resolve()
+            link = models_dir / local_name
+            target.mkdir(parents=True, exist_ok=True)
+
+            if link.exists():
+                if link.resolve() == target:
+                    continue
+                if link.is_dir() and not any(link.iterdir()):
+                    link.rmdir()
+                else:
+                    raise SystemExit(
+                        f"Cannot link {link} to {target}: the local path exists "
+                        "and is not an empty directory or the expected link."
+                    )
+
+            if os.name == "nt":
+                run(["cmd", "/c", "mklink", "/J", str(link), str(target)])
+            else:
+                link.symlink_to(target, target_is_directory=True)
+            print(f"Linked external model directory: {link} -> {target}", flush=True)
 
 
 def comfy_python() -> str:
@@ -619,6 +685,7 @@ def main() -> None:
     args = parser.parse_args()
 
     manifest = load_manifest(args.manifest)
+    ensure_external_model_directory_links(manifest)
     install_mode = "full" if args.full else args.install_mode
 
     # None = no scoping possible (full mode, first run, or the manifest itself

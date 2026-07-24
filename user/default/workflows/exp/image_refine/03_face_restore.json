@@ -1,0 +1,281 @@
+{
+  "id": "f70c42da-e7d4-55ed-a2b5-38af799ea609",
+  "revision": 0,
+  "last_node_id": 5,
+  "last_link_id": 4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        -800,
+        20
+      ],
+      "size": [
+        360,
+        420
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null,
+          "localized_name": "image"
+        },
+        {
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null,
+          "localized_name": "choose file to upload"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1,
+            2
+          ],
+          "localized_name": "IMAGE",
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "localized_name": "MASK",
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "char_01.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "PreviewImage",
+      "pos": [
+        -800,
+        480
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1,
+          "localized_name": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 3,
+      "type": "GFPGANRestorer",
+      "pos": [
+        -280,
+        120
+      ],
+      "size": [
+        280,
+        82
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "model_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "model_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            3,
+            4
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GFPGANRestorer"
+      },
+      "widgets_values": [
+        "GFPGANv1.4.pth"
+      ],
+      "color": "#343",
+      "bgcolor": "#565"
+    },
+    {
+      "id": 4,
+      "type": "PreviewImage",
+      "pos": [
+        100,
+        -20
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 3,
+          "localized_name": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 5,
+      "type": "SaveImage",
+      "pos": [
+        100,
+        360
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 4,
+          "localized_name": "images"
+        },
+        {
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null,
+          "localized_name": "filename_prefix"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "image_refine/stage_03_face_restore"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      1,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      3,
+      0,
+      5,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Step 3 — GFPGAN Face Restoration",
+      "bounding": [
+        -330,
+        40,
+        390,
+        230
+      ],
+      "color": "#4f7f5f",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8,
+      "offset": [
+        850,
+        260
+      ]
+    },
+    "frontendVersion": "1.41.21",
+    "workflowRendererVersion": "LG",
+    "ue_links": [],
+    "links_added_by_ue": []
+  },
+  "version": 0.4
+}

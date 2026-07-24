@@ -1,0 +1,408 @@
+{
+  "id": "9f410b2b-5e5e-5910-89c5-3559857e9b4e",
+  "revision": 0,
+  "last_node_id": 7,
+  "last_link_id": 6,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        -1050,
+        20
+      ],
+      "size": [
+        360,
+        420
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null,
+          "localized_name": "image"
+        },
+        {
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null,
+          "localized_name": "choose file to upload"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1,
+            2
+          ],
+          "localized_name": "IMAGE",
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "localized_name": "MASK",
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "char_01.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "PreviewImage",
+      "pos": [
+        -1050,
+        480
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1,
+          "localized_name": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 3,
+      "type": "SeedVR2LoadDiTModel",
+      "pos": [
+        -540,
+        -180
+      ],
+      "size": [
+        310,
+        210
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SEEDVR2_DIT",
+          "type": "SEEDVR2_DIT",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "seedvr2_videoupscaler",
+        "ver": "2.5.24",
+        "Node name for S&R": "SeedVR2LoadDiTModel"
+      },
+      "widgets_values": [
+        "seedvr2_ema_7b_sharp_fp16.safetensors",
+        "cuda:0",
+        18,
+        true,
+        "cpu",
+        false,
+        "sdpa"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 4,
+      "type": "SeedVR2LoadVAEModel",
+      "pos": [
+        -540,
+        80
+      ],
+      "size": [
+        320,
+        300
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "TORCH_COMPILE_ARGS",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SEEDVR2_VAE",
+          "type": "SEEDVR2_VAE",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "seedvr2_videoupscaler",
+        "ver": "2.5.24",
+        "Node name for S&R": "SeedVR2LoadVAEModel"
+      },
+      "widgets_values": [
+        "ema_vae_fp16.safetensors",
+        "cuda:0",
+        true,
+        1024,
+        128,
+        true,
+        1024,
+        128,
+        "false",
+        "cpu",
+        false
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 5,
+      "type": "SeedVR2VideoUpscaler",
+      "pos": [
+        -130,
+        10
+      ],
+      "size": [
+        320,
+        390
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "dit",
+          "type": "SEEDVR2_DIT",
+          "link": 3
+        },
+        {
+          "name": "vae",
+          "type": "SEEDVR2_VAE",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            5,
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "seedvr2_videoupscaler",
+        "ver": "2.5.24",
+        "Node name for S&R": "SeedVR2VideoUpscaler"
+      },
+      "widgets_values": [
+        42,
+        "fixed",
+        2048,
+        4096,
+        1,
+        false,
+        "lab",
+        0,
+        0,
+        0.05,
+        0.0,
+        "cpu",
+        false
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 6,
+      "type": "PreviewImage",
+      "pos": [
+        300,
+        -20
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 5,
+          "localized_name": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 7,
+      "type": "SaveImage",
+      "pos": [
+        300,
+        360
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 6,
+          "localized_name": "images"
+        },
+        {
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null,
+          "localized_name": "filename_prefix"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "image_refine/stage_02_seedvr2_restore"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      1,
+      0,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      3,
+      0,
+      5,
+      1,
+      "SEEDVR2_DIT"
+    ],
+    [
+      4,
+      4,
+      0,
+      5,
+      2,
+      "SEEDVR2_VAE"
+    ],
+    [
+      5,
+      5,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      6,
+      5,
+      0,
+      7,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Step 2 — SeedVR2 Detail Recovery, Deblur & Upscale",
+      "bounding": [
+        -590,
+        -230,
+        810,
+        650
+      ],
+      "color": "#8a6d3b",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8,
+      "offset": [
+        1050,
+        350
+      ]
+    },
+    "frontendVersion": "1.41.21",
+    "workflowRendererVersion": "LG",
+    "ue_links": [],
+    "links_added_by_ue": []
+  },
+  "version": 0.4
+}

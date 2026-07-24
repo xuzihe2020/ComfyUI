@@ -1,0 +1,383 @@
+{
+  "id": "e12d1d03-9b4a-5906-89e1-e80575653362",
+  "revision": 0,
+  "last_node_id": 7,
+  "last_link_id": 6,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        -900,
+        20
+      ],
+      "size": [
+        360,
+        420
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null,
+          "localized_name": "image"
+        },
+        {
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null,
+          "localized_name": "choose file to upload"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1,
+            3
+          ],
+          "localized_name": "IMAGE",
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "localized_name": "MASK",
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "char_01.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "PreviewImage",
+      "pos": [
+        -900,
+        480
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1,
+          "localized_name": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 3,
+      "type": "UpscaleModelLoader",
+      "pos": [
+        -420,
+        -100
+      ],
+      "size": [
+        250,
+        60
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "UPSCALE_MODEL",
+          "type": "UPSCALE_MODEL",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UpscaleModelLoader"
+      },
+      "widgets_values": [
+        "RealESRGAN_x4plus.pth"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 4,
+      "type": "ImageUpscaleWithModel",
+      "pos": [
+        -420,
+        80
+      ],
+      "size": [
+        300,
+        98
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "upscale_model",
+          "type": "UPSCALE_MODEL",
+          "link": 2,
+          "localized_name": "upscale_model"
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 3,
+          "localized_name": "image"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            4
+          ],
+          "localized_name": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageUpscaleWithModel"
+      },
+      "widgets_values": [],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 5,
+      "type": "ImageScaleBy",
+      "pos": [
+        -50,
+        80
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 4,
+          "localized_name": "image"
+        },
+        {
+          "name": "upscale_method",
+          "type": "COMBO",
+          "widget": {
+            "name": "upscale_method"
+          },
+          "link": null,
+          "localized_name": "upscale_method"
+        },
+        {
+          "name": "scale_by",
+          "type": "FLOAT",
+          "widget": {
+            "name": "scale_by"
+          },
+          "link": null,
+          "localized_name": "scale_by"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            5,
+            6
+          ],
+          "localized_name": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageScaleBy"
+      },
+      "widgets_values": [
+        "lanczos",
+        0.25
+      ],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 6,
+      "type": "PreviewImage",
+      "pos": [
+        330,
+        -30
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 5,
+          "localized_name": "images"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 7,
+      "type": "SaveImage",
+      "pos": [
+        330,
+        350
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 6,
+          "localized_name": "images"
+        },
+        {
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null,
+          "localized_name": "filename_prefix"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "image_refine/stage_01_denoise_cleanup"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      3,
+      0,
+      4,
+      0,
+      "UPSCALE_MODEL"
+    ],
+    [
+      3,
+      1,
+      0,
+      4,
+      1,
+      "IMAGE"
+    ],
+    [
+      4,
+      4,
+      0,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      5,
+      5,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      6,
+      5,
+      0,
+      7,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Step 1 — Real-ESRGAN Denoise & Artifact Cleanup",
+      "bounding": [
+        -470,
+        -160,
+        830,
+        430
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8,
+      "offset": [
+        950,
+        280
+      ]
+    },
+    "frontendVersion": "1.41.21",
+    "workflowRendererVersion": "LG",
+    "ue_links": [],
+    "links_added_by_ue": []
+  },
+  "version": 0.4
+}

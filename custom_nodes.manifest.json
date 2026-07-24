@@ -100,6 +100,12 @@
       "platforms": ["linux", "windows"]
     },
     {
+      "name": "comfyui_gfpgan",
+      "folder": "comfyui_gfpgan",
+      "repo": "https://github.com/comfyorg/comfyui_gfpgan",
+      "reason": "Provides GFPGANRestorer for deterministic, diffusion-free face restoration in the old-photo image-refine workflows. Requirements are installed before ComfyUI starts and gfpgan is installed with --no-deps to avoid its outdated BasicSR dependency chain. The installer links models/face_detection and models/face_restoration to the external comfyui_models directories because this node resolves those paths directly from folder_paths.models_dir."
+    },
+    {
       "name": "ComfyUI-fish-audio-s2",
       "folder": "ComfyUI-fish-audio-s2",
       "repo": "https://github.com/Saganaki22/ComfyUI-FishAudioS2",
