@@ -29,6 +29,10 @@ The manifest's "tools" section lists standalone tool repos (e.g. video_sampler)
 that are cloned into tools/ the same way: missing folders are cloned and their
 requirements.txt installed; existing clones are left in place.
 
+Manifest nodes with `"install_method": "git-clone"` bypass ComfyUI-Manager and
+are cloned directly into custom_nodes/. This supports self-contained frontend
+extensions whose upstream installation instructions require a direct clone.
+
 Show help/options only:
 
     python .\\scripts\\install_custom_nodes.py --help
@@ -365,6 +369,27 @@ def clone_repo(repo: str, target: Path) -> None:
         return
     target.parent.mkdir(parents=True, exist_ok=True)
     run(["git", "clone", repo, str(target)])
+
+
+def install_git_clone_node(
+    node: dict,
+    python_bin: str,
+    *,
+    install_mode: str,
+    no_deps: bool,
+) -> None:
+    """Install a self-contained manifest node without ComfyUI-Manager."""
+    target = CUSTOM_NODES_DIR / node["folder"]
+    newly_cloned = not target.exists()
+    clone_repo(node["repo"], target)
+
+    requirements = target / "requirements.txt"
+    if (
+        requirements.exists()
+        and not no_deps
+        and (newly_cloned or install_mode == "full")
+    ):
+        run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
 
 
 def install_tools(
@@ -748,7 +773,38 @@ def main() -> None:
     manager_dir = CUSTOM_NODES_DIR / manager_folder_name
     manager_changed = (changed_keys is not None
                        and f"custom_nodes/{manager_folder_name}" in changed_keys)
-    nodes_requiring_manager = nodes_to_install + existing_dependency_nodes
+    git_clone_nodes = [
+        node
+        for node in nodes_to_install
+        if node.get("install_method") == "git-clone"
+    ]
+    manager_nodes_to_install = [
+        node
+        for node in nodes_to_install
+        if node.get("install_method", "manager") == "manager"
+    ]
+    unsupported_install_methods = [
+        node
+        for node in nodes_to_install
+        if node.get("install_method", "manager") not in {"manager", "git-clone"}
+    ]
+    if unsupported_install_methods:
+        details = ", ".join(
+            f"{node['name']}={node.get('install_method')!r}"
+            for node in unsupported_install_methods
+        )
+        raise SystemExit(f"Unsupported custom-node install method(s): {details}")
+
+    for node in git_clone_nodes:
+        install_git_clone_node(
+            node,
+            python_bin,
+            install_mode=install_mode,
+            no_deps=args.no_deps,
+        )
+        install_optional_accelerators(python_bin, node)
+
+    nodes_requiring_manager = manager_nodes_to_install + existing_dependency_nodes
 
     if manager_changed and manager_dir.exists() and not nodes_requiring_manager:
         # Manager pulled new commits but no node needs work: refresh Manager's

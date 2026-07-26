@@ -86,6 +86,13 @@
       "reason": "Provides LayerForgeNode, an interactive layered canvas editor for testing manual environment and placement-mask compositing as a possible replacement for Compositor3."
     },
     {
+      "name": "Comfy Canvas",
+      "folder": "comfy_canvas",
+      "repo": "https://github.com/Zlata-Salyukova/Comfy-Canvas",
+      "install_method": "git-clone",
+      "reason": "Provides Comfy Canvas and Comfy Canvas Output: a local layered image editor with eyedropper, painting, selections, per-layer masks, IMAGE/MASK outputs, and an in-ComfyUI edit-generate-review loop."
+    },
+    {
       "name": "comfyui_controlnet_aux",
       "folder": "comfyui_controlnet_aux",
       "repo": "https://github.com/Fannovel16/comfyui_controlnet_aux",
