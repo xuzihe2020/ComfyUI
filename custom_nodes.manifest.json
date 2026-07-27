@@ -90,7 +90,25 @@
       "folder": "comfy_canvas",
       "repo": "https://github.com/Zlata-Salyukova/Comfy-Canvas",
       "install_method": "git-clone",
+      "required_paths": [
+        "__init__.py",
+        "comfy_canvas_node.py",
+        "web/js/comfyCanvasOverlay.js",
+        "web/app/index.html"
+      ],
       "reason": "Provides Comfy Canvas and Comfy Canvas Output: a local layered image editor with eyedropper, painting, selections, per-layer masks, IMAGE/MASK outputs, and an in-ComfyUI edit-generate-review loop."
+    },
+    {
+      "name": "ComfyUI Inpaint Region Editor",
+      "folder": "ComfyUI-InpaintRegionEditor",
+      "repo": "https://github.com/abc-lee/ComfyUI-InpaintRegionEditor",
+      "install_method": "git-clone",
+      "required_paths": [
+        "__init__.py",
+        "nodes.py",
+        "web/extension.js"
+      ],
+      "reason": "Provides the current InpaintRegionEditor node with embedded Photopea image and mask editing, live blur/filter preview, direct save-back to the node, and IMAGE/MASK outputs."
     },
     {
       "name": "comfyui_controlnet_aux",

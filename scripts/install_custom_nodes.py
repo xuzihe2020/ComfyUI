@@ -41,6 +41,7 @@ Show help/options only:
 Useful commands on Windows:
 
     python .\\scripts\\install_custom_nodes.py
+    python .\\scripts\\install_custom_nodes.py --node "Comfy Canvas"
     python .\\scripts\\install_custom_nodes.py --no-deps
     python .\\scripts\\install_custom_nodes.py --full
     python .\\scripts\\install_custom_nodes.py --full --manager-fix-existing
@@ -48,6 +49,7 @@ Useful commands on Windows:
 Useful commands on macOS/Linux:
 
     python3 scripts/install_custom_nodes.py
+    python3 scripts/install_custom_nodes.py --node "Comfy Canvas"
     python3 scripts/install_custom_nodes.py --no-deps
     python3 scripts/install_custom_nodes.py --full
     python3 scripts/install_custom_nodes.py --full --manager-fix-existing
@@ -56,6 +58,7 @@ Useful commands on macOS/Linux:
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 import hashlib
 import json
 import os
@@ -371,6 +374,39 @@ def clone_repo(repo: str, target: Path) -> None:
     run(["git", "clone", repo, str(target)])
 
 
+def missing_required_paths(node: dict, target: Path) -> list[str]:
+    """Return manifest-declared files missing from an installed checkout."""
+    return [
+        relative_path
+        for relative_path in node.get("required_paths", [])
+        if not (target / relative_path).exists()
+    ]
+
+
+def quarantine_incomplete_checkout(node: dict, target: Path) -> Path:
+    """Move a partial direct clone aside so rerunning the installer can recover.
+
+    Failed/interrupted `git clone` calls can leave a directory containing only
+    `.git`. Merely checking `Path.exists()` permanently misclassifies that state
+    as installed. Preserve the partial checkout for diagnosis, but move it out
+    of ComfyUI's active node path before cloning again.
+    """
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    candidate = target.with_name(f"{target.name}.incomplete-{timestamp}")
+    suffix = 1
+    while candidate.exists():
+        candidate = target.with_name(
+            f"{target.name}.incomplete-{timestamp}-{suffix}"
+        )
+        suffix += 1
+    target.rename(candidate)
+    print(
+        f"{node['name']}: moved incomplete checkout to {candidate}",
+        flush=True,
+    )
+    return candidate
+
+
 def install_git_clone_node(
     node: dict,
     python_bin: str,
@@ -381,7 +417,24 @@ def install_git_clone_node(
     """Install a self-contained manifest node without ComfyUI-Manager."""
     target = CUSTOM_NODES_DIR / node["folder"]
     newly_cloned = not target.exists()
+    if target.exists():
+        missing_paths = missing_required_paths(node, target)
+        if missing_paths:
+            print(
+                f"{node['name']}: checkout is incomplete; missing "
+                + ", ".join(missing_paths),
+                flush=True,
+            )
+            quarantine_incomplete_checkout(node, target)
+            newly_cloned = True
     clone_repo(node["repo"], target)
+
+    missing_paths = missing_required_paths(node, target)
+    if missing_paths:
+        raise SystemExit(
+            f"{node['name']}: clone completed but required paths are missing: "
+            + ", ".join(missing_paths)
+        )
 
     requirements = target / "requirements.txt"
     if (
@@ -547,6 +600,17 @@ def missing_manifest_nodes(manifest: dict) -> list[dict]:
             continue
         folder = CUSTOM_NODES_DIR / node["folder"]
         if folder.exists():
+            if (
+                node.get("install_method") == "git-clone"
+                and missing_required_paths(node, folder)
+            ):
+                print(
+                    f"{folder} exists but its direct clone is incomplete; "
+                    "scheduling repair",
+                    flush=True,
+                )
+                missing.append(node)
+                continue
             print(f"{folder} already exists; skipping in diff mode", flush=True)
             continue
         missing.append(node)
@@ -661,12 +725,14 @@ def main() -> None:
         epilog=(
             "Windows examples:\n"
             "  python .\\scripts\\install_custom_nodes.py\n"
+            "  python .\\scripts\\install_custom_nodes.py --node \"Comfy Canvas\"\n"
             "  python .\\scripts\\install_custom_nodes.py --no-deps\n"
             "  python .\\scripts\\install_custom_nodes.py --full\n"
             "  python .\\scripts\\install_custom_nodes.py --full --manager-fix-existing\n"
             "\n"
             "macOS/Linux examples:\n"
             "  python3 scripts/install_custom_nodes.py\n"
+            "  python3 scripts/install_custom_nodes.py --node \"Comfy Canvas\"\n"
             "  python3 scripts/install_custom_nodes.py --no-deps\n"
             "  python3 scripts/install_custom_nodes.py --full\n"
             "  python3 scripts/install_custom_nodes.py --full --manager-fix-existing\n"
@@ -707,9 +773,52 @@ def main() -> None:
         action="store_true",
         help="In full mode, also run Manager's slower dependency fix for nodes whose folders already exist.",
     )
+    parser.add_argument(
+        "--node",
+        action="append",
+        default=[],
+        metavar="NAME_OR_FOLDER",
+        help=(
+            "Install/check only the named manifest node (match by name or "
+            "folder). Repeat to select multiple nodes. Scoped runs do not "
+            "rewrite the global install-state stamp."
+        ),
+    )
     args = parser.parse_args()
 
     manifest = load_manifest(args.manifest)
+    scoped_node_run = bool(args.node)
+    if scoped_node_run:
+        requested = set(args.node)
+        selected_nodes = [
+            node
+            for node in manifest["nodes"]
+            if node["name"] in requested or node["folder"] in requested
+        ]
+        matched = {
+            requested_value
+            for requested_value in requested
+            if any(
+                node["name"] == requested_value
+                or node["folder"] == requested_value
+                for node in selected_nodes
+            )
+        }
+        unknown = sorted(requested - matched)
+        if unknown:
+            raise SystemExit(
+                "Unknown manifest node name/folder: " + ", ".join(unknown)
+            )
+        manifest = {
+            **manifest,
+            "nodes": selected_nodes,
+            "tools": [],
+        }
+        print(
+            "Scoped manifest install: "
+            + ", ".join(node["name"] for node in selected_nodes),
+            flush=True,
+        )
     ensure_external_model_directory_links(manifest)
     install_mode = "full" if args.full else args.install_mode
 
@@ -717,7 +826,7 @@ def main() -> None:
     # changed): every repo is treated as changed. A set = only these repos get
     # dependency work; everything else is skipped outright.
     changed_keys: set[str] | None = None
-    if install_mode == "diff":
+    if install_mode == "diff" and not scoped_node_run:
         current_state = compute_install_state(manifest, args.manifest)
         stamp = load_install_stamp()
         if (current_state == stamp
@@ -815,7 +924,8 @@ def main() -> None:
 
     if not nodes_to_install and not existing_dependency_nodes and not existing_accelerator_nodes:
         print("No missing custom nodes, dependency fixes, or optional accelerator checks found in manifest; diff install is complete.", flush=True)
-        write_install_stamp(compute_install_state(manifest, args.manifest))
+        if not scoped_node_run:
+            write_install_stamp(compute_install_state(manifest, args.manifest))
         return
 
     if nodes_requiring_manager:
@@ -853,7 +963,8 @@ def main() -> None:
     ):
         apply_post_install_fixes()
 
-    write_install_stamp(compute_install_state(manifest, args.manifest))
+    if not scoped_node_run:
+        write_install_stamp(compute_install_state(manifest, args.manifest))
 
 
 if __name__ == "__main__":

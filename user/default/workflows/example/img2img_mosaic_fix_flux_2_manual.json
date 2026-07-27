@@ -1,8 +1,8 @@
 {
   "id": "img2img_flux_2_mask_repaint",
   "revision": 0,
-  "last_node_id": 37,
-  "last_link_id": 42,
+  "last_node_id": 38,
+  "last_link_id": 52,
   "nodes": [
     {
       "id": 7,
@@ -151,7 +151,7 @@
           "widget": {
             "name": "width"
           },
-          "link": 19
+          "link": 47
         },
         {
           "localized_name": "height",
@@ -160,7 +160,7 @@
           "widget": {
             "name": "height"
           },
-          "link": 20
+          "link": 50
         },
         {
           "localized_name": "crop",
@@ -193,201 +193,6 @@
         1024,
         "center"
       ]
-    },
-    {
-      "id": 3,
-      "type": "PrimitiveInt",
-      "pos": [
-        -90.75093283190022,
-        743.0171388156532
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "value",
-          "name": "value",
-          "type": "INT",
-          "widget": {
-            "name": "value"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "INT",
-          "name": "INT",
-          "type": "INT",
-          "links": [
-            19,
-            21,
-            31
-          ]
-        }
-      ],
-      "title": "Width",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "PrimitiveInt"
-      },
-      "widgets_values": [
-        1920,
-        "fixed"
-      ]
-    },
-    {
-      "id": 4,
-      "type": "PrimitiveInt",
-      "pos": [
-        -86.06035026519692,
-        878.8277285892707
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "value",
-          "name": "value",
-          "type": "INT",
-          "widget": {
-            "name": "value"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "INT",
-          "name": "INT",
-          "type": "INT",
-          "links": [
-            20,
-            22,
-            32
-          ]
-        }
-      ],
-      "title": "Height",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "PrimitiveInt"
-      },
-      "widgets_values": [
-        964,
-        "fixed"
-      ]
-    },
-    {
-      "id": 33,
-      "type": "MaskPreview+",
-      "pos": [
-        -271.2247986421397,
-        1497.6307698543994
-      ],
-      "size": [
-        599.814826928001,
-        470.85884678009097
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 39
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfyui_essentials",
-        "ver": "1.1.0",
-        "Node name for S&R": "MaskPreview+"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 18,
-      "type": "SamplerCustomAdvanced",
-      "pos": [
-        1241.6527791623932,
-        475.27128527057357
-      ],
-      "size": [
-        355.3638671875,
-        184
-      ],
-      "flags": {},
-      "order": 21,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "noise",
-          "name": "noise",
-          "type": "NOISE",
-          "link": 9
-        },
-        {
-          "localized_name": "guider",
-          "name": "guider",
-          "type": "GUIDER",
-          "link": 10
-        },
-        {
-          "localized_name": "sampler",
-          "name": "sampler",
-          "type": "SAMPLER",
-          "link": 11
-        },
-        {
-          "localized_name": "sigmas",
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 13
-        },
-        {
-          "localized_name": "latent_image",
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 38
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "output",
-          "name": "output",
-          "type": "LATENT",
-          "links": [
-            15
-          ]
-        },
-        {
-          "localized_name": "denoised_output",
-          "name": "denoised_output",
-          "type": "LATENT",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "SamplerCustomAdvanced"
-      },
-      "widgets_values": []
     },
     {
       "id": 14,
@@ -431,7 +236,7 @@
         "Node name for S&R": "RandomNoise"
       },
       "widgets_values": [
-        893150479811327,
+        765645143334555,
         "randomize"
       ]
     },
@@ -491,7 +296,7 @@
         82
       ],
       "flags": {},
-      "order": 17,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {
@@ -532,7 +337,7 @@
         "Node name for S&R": "SplitSigmasDenoise"
       },
       "widgets_values": [
-        0.75
+        0.7
       ]
     },
     {
@@ -547,7 +352,7 @@
         72.69608982995862
       ],
       "flags": {},
-      "order": 20,
+      "order": 19,
       "mode": 0,
       "inputs": [
         {
@@ -560,7 +365,7 @@
           "localized_name": "mask",
           "name": "mask",
           "type": "MASK",
-          "link": 40
+          "link": 45
         }
       ],
       "outputs": [
@@ -592,7 +397,7 @@
         46
       ],
       "flags": {},
-      "order": 18,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -637,7 +442,7 @@
         46
       ],
       "flags": {},
-      "order": 22,
+      "order": 21,
       "mode": 0,
       "inputs": [
         {
@@ -672,62 +477,6 @@
       "widgets_values": []
     },
     {
-      "id": 27,
-      "type": "BatchImagesNode",
-      "pos": [
-        1866.8036799145323,
-        625.4560917559477
-      ],
-      "size": [
-        254.29478603876578,
-        86
-      ],
-      "flags": {},
-      "order": 23,
-      "mode": 0,
-      "inputs": [
-        {
-          "label": "image0",
-          "localized_name": "images.image0",
-          "name": "images.image0",
-          "type": "IMAGE",
-          "link": 27
-        },
-        {
-          "label": "image1",
-          "localized_name": "images.image1",
-          "name": "images.image1",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 28
-        },
-        {
-          "label": "image2",
-          "localized_name": "images.image2",
-          "name": "images.image2",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "IMAGE",
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            29
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "BatchImagesNode"
-      },
-      "widgets_values": []
-    },
-    {
       "id": 32,
       "type": "PreviewImage",
       "pos": [
@@ -739,7 +488,7 @@
         410.6613206217618
       ],
       "flags": {},
-      "order": 24,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {
@@ -758,128 +507,6 @@
       "widgets_values": []
     },
     {
-      "id": 30,
-      "type": "SaveImage",
-      "pos": [
-        1737.125473331732,
-        1062.454695460196
-      ],
-      "size": [
-        360.415293819442,
-        295.4353785439798
-      ],
-      "flags": {},
-      "order": 27,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 33
-        },
-        {
-          "localized_name": "filename_prefix",
-          "name": "filename_prefix",
-          "type": "STRING",
-          "widget": {
-            "name": "filename_prefix"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [],
-      "title": "Save Output Image",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0"
-      },
-      "widgets_values": [
-        "ComfyUI"
-      ]
-    },
-    {
-      "id": 29,
-      "type": "ImageGrid",
-      "pos": [
-        1802.775170011342,
-        802.2259893253564
-      ],
-      "size": [
-        315,
-        154
-      ],
-      "flags": {},
-      "order": 25,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 29
-        },
-        {
-          "localized_name": "columns",
-          "name": "columns",
-          "type": "INT",
-          "widget": {
-            "name": "columns"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "cell_width",
-          "name": "cell_width",
-          "type": "INT",
-          "widget": {
-            "name": "cell_width"
-          },
-          "link": 31
-        },
-        {
-          "localized_name": "cell_height",
-          "name": "cell_height",
-          "type": "INT",
-          "widget": {
-            "name": "cell_height"
-          },
-          "link": 32
-        },
-        {
-          "localized_name": "padding",
-          "name": "padding",
-          "type": "INT",
-          "widget": {
-            "name": "padding"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "links": [
-            30,
-            33
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "ImageGrid"
-      },
-      "widgets_values": [
-        1,
-        1920,
-        964,
-        40
-      ]
-    },
-    {
       "id": 28,
       "type": "PreviewImage",
       "pos": [
@@ -891,7 +518,7 @@
         811.8934204164357
       ],
       "flags": {},
-      "order": 26,
+      "order": 25,
       "mode": 0,
       "inputs": [
         {
@@ -951,7 +578,7 @@
         46
       ],
       "flags": {},
-      "order": 19,
+      "order": 18,
       "mode": 0,
       "inputs": [
         {
@@ -996,7 +623,7 @@
         58
       ],
       "flags": {},
-      "order": 16,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
@@ -1089,6 +716,464 @@
       ]
     },
     {
+      "id": 37,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        478.581448904319,
+        132.2623328063984
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 4,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 41
+        },
+        {
+          "localized_name": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            42
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "flux2\\pov_blowjob_v1a_flux2.safetensors",
+        0.8
+      ]
+    },
+    {
+      "id": 16,
+      "type": "Flux2Scheduler",
+      "pos": [
+        650.9603704257663,
+        707.8601129724095
+      ],
+      "size": [
+        242.4075000015432,
+        106
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 48
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 51
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "SIGMAS",
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "Flux2Scheduler"
+      },
+      "widgets_values": [
+        12,
+        1024,
+        1024
+      ]
+    },
+    {
+      "id": 18,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        1253.658732076446,
+        483.8469659234689
+      ],
+      "size": [
+        355.3638671875,
+        184
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "noise",
+          "name": "noise",
+          "type": "NOISE",
+          "link": 9
+        },
+        {
+          "localized_name": "guider",
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 10
+        },
+        {
+          "localized_name": "sampler",
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 11
+        },
+        {
+          "localized_name": "sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 13
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 38
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "output",
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            15
+          ]
+        },
+        {
+          "localized_name": "denoised_output",
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 30,
+      "type": "SaveImage",
+      "pos": [
+        1815.1641672730798,
+        1083.036329027145
+      ],
+      "size": [
+        360.415293819442,
+        295.4353785439798
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 33
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [],
+      "title": "Save Output Image",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0"
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 29,
+      "type": "ImageGrid",
+      "pos": [
+        1763.3270390080218,
+        843.3892564592537
+      ],
+      "size": [
+        315,
+        154
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 29
+        },
+        {
+          "localized_name": "columns",
+          "name": "columns",
+          "type": "INT",
+          "widget": {
+            "name": "columns"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "cell_width",
+          "name": "cell_width",
+          "type": "INT",
+          "widget": {
+            "name": "cell_width"
+          },
+          "link": 49
+        },
+        {
+          "localized_name": "cell_height",
+          "name": "cell_height",
+          "type": "INT",
+          "widget": {
+            "name": "cell_height"
+          },
+          "link": 52
+        },
+        {
+          "localized_name": "padding",
+          "name": "padding",
+          "type": "INT",
+          "widget": {
+            "name": "padding"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            30,
+            33
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "ImageGrid"
+      },
+      "widgets_values": [
+        1,
+        1920,
+        964,
+        40
+      ]
+    },
+    {
+      "id": 27,
+      "type": "BatchImagesNode",
+      "pos": [
+        1912.0760661117333,
+        585.842753833398
+      ],
+      "size": [
+        254.29478603876578,
+        86
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "image0",
+          "localized_name": "images.image0",
+          "name": "images.image0",
+          "type": "IMAGE",
+          "link": 27
+        },
+        {
+          "label": "image1",
+          "localized_name": "images.image1",
+          "name": "images.image1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 28
+        },
+        {
+          "label": "image2",
+          "localized_name": "images.image2",
+          "name": "images.image2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            29
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "BatchImagesNode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 10,
+      "type": "CLIPTextEncode",
+      "pos": [
+        923.5303123750276,
+        -10.925404211283446
+      ],
+      "size": [
+        430,
+        200
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 5
+        },
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "title": "CLIP Text Encode - Prompt",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "The frame shows the woman from head to feet with the lower legs and one foot near the right edge; Natural adult female vulvar anatomy centered between the upper thighs, public hair, continuous with visible hip and thigh contours, dark pubic hair above, smooth skin texture.\n\nPhotorealistic, sharp detail, cinematic lighting, explicit uncensored oral sex scene. Extreme sharp detail, ultra realistic, 8khigh-resolution, no mosaic or censorship, no blur."
+      ]
+    },
+    {
+      "id": 26,
+      "type": "PrimitiveNode",
+      "pos": [
+        -84.68054188981671,
+        1013.5583004948052
+      ],
+      "size": [
+        262.4245939356922,
+        82
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "links": [
+            26
+          ]
+        }
+      ],
+      "title": "Denoise",
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [
+        0.7,
+        "fixed"
+      ]
+    },
+    {
       "id": 1,
       "type": "LoadImage",
       "pos": [
@@ -1100,7 +1185,7 @@
         570
       ],
       "flags": {},
-      "order": 7,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
@@ -1184,14 +1269,15 @@
           "links": [
             1,
             2,
-            27
+            27,
+            46
           ]
         },
         {
           "localized_name": "MASK",
           "name": "MASK",
           "type": "MASK",
-          "links": null
+          "links": []
         },
         {
           "localized_name": "clean_name",
@@ -1229,16 +1315,16 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "image": "clipspace/clipspace-painted-masked-1783180129304.png [input]",
-        "load_image_source_clean_name": "Screenshot 2026-07-05 023605",
-        "load_image_source_root_dir": "F:\\sample_images\\test_run_02\\special_01",
-        "load_image_source_path": "F:\\sample_images\\test_run_02\\special_01\\Screenshot 2026-07-05 023605.png",
-        "load_image_source_image": "Screenshot 2026-07-05 023605.png"
+        "image": "clipspace/clipspace-painted-masked-1784687656667.png [input]",
+        "load_image_source_clean_name": "spread-0024",
+        "load_image_source_root_dir": "E:\\NSFW\\album-processed\\\u6975\u4e0a\u7f8e\u5973\u9ebb\u7e04\u7dca\u7e1b\u9451\u8cde",
+        "load_image_source_path": "E:\\NSFW\\album-processed\\\u6975\u4e0a\u7f8e\u5973\u9ebb\u7e04\u7dca\u7e1b\u9451\u8cde\\spread-0024.jpg",
+        "load_image_source_image": "spread-0024.jpg"
       },
       "widgets_values": [
-        "Screenshot 2026-07-05 023605.png",
-        "Screenshot 2026-07-05 023605",
-        "F:\\sample_images\\test_run_02\\special_01",
+        "spread-0024.jpg",
+        "spread-0024",
+        "E:\\NSFW\\album-processed\\\u6975\u4e0a\u7f8e\u5973\u9ebb\u7e04\u7dca\u7e1b\u9451\u8cde",
         "",
         "",
         true,
@@ -1246,158 +1332,11 @@
       ]
     },
     {
-      "id": 37,
-      "type": "LoraLoaderModelOnly",
-      "pos": [
-        478.581448904319,
-        132.2623328063984
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 4,
-      "inputs": [
-        {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 41
-        },
-        {
-          "localized_name": "lora_name",
-          "name": "lora_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "lora_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "strength_model",
-          "name": "strength_model",
-          "type": "FLOAT",
-          "widget": {
-            "name": "strength_model"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            42
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "LoraLoaderModelOnly"
-      },
-      "widgets_values": [
-        "flux2\\pov_blowjob_v1a_flux2.safetensors",
-        0.8
-      ]
-    },
-    {
-      "id": 10,
-      "type": "CLIPTextEncode",
-      "pos": [
-        923.5303123750276,
-        -10.925404211283446
-      ],
-      "size": [
-        430,
-        200
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 5
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            6
-          ]
-        }
-      ],
-      "title": "CLIP Text Encode - Prompt",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "Tight close-up on the woman's face, POV low-angle shot of a beautiful Japanese woman with flushed face and messy brown ponytail leaning forward, eyes looking up submissively, her hand holds a erect penis, her mouth stretched around it doing blowjob, wearing a shiny red sequined halter top and necklace, in a dimly lit room at night with warm lamp light, photorealistic, sharp detail, cinematic lighting, explicit uncensored oral sex scene\\nExtreme sharp detail, ultra realistic, 8khigh-resolution, no mosaic or censorship, no blur."
-      ]
-    },
-    {
-      "id": 26,
-      "type": "PrimitiveNode",
-      "pos": [
-        -84.68054188981671,
-        1013.5583004948052
-      ],
-      "size": [
-        262.4245939356922,
-        82
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "FLOAT",
-          "type": "FLOAT",
-          "widget": {
-            "name": "denoise"
-          },
-          "links": [
-            26
-          ]
-        }
-      ],
-      "title": "Denoise",
-      "properties": {
-        "Run widget replace on values": false
-      },
-      "widgets_values": [
-        0.75,
-        "fixed"
-      ]
-    },
-    {
       "id": 36,
       "type": "LoadImageMask",
       "pos": [
         -896.9481026072746,
-        1092.2121750496915
+        1101.643922174108
       ],
       "size": [
         508.09284936697895,
@@ -1441,8 +1380,7 @@
           "name": "IMAGE",
           "type": "MASK",
           "links": [
-            39,
-            40
+            45
           ]
         }
       ],
@@ -1453,74 +1391,65 @@
         "Node name for S&R": "LoadImageMask"
       },
       "widgets_values": [
-        "Screenshot 2026-07-05 023605_mask (2).png",
+        "mask_00004_.png",
         "red",
         "image"
       ]
     },
     {
-      "id": 16,
-      "type": "Flux2Scheduler",
+      "id": 38,
+      "type": "GetImageSize+",
       "pos": [
-        650.9603704257663,
-        707.8601129724095
+        -90.75093283190022,
+        743.0171388156532
       ],
       "size": [
-        242.4075000015432,
-        106
+        230,
+        82
       ],
       "flags": {},
-      "order": 11,
+      "order": 2,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "steps",
-          "name": "steps",
-          "type": "INT",
-          "widget": {
-            "name": "steps"
-          },
-          "link": null
-        },
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 46
+        }
+      ],
+      "outputs": [
         {
           "localized_name": "width",
           "name": "width",
           "type": "INT",
-          "widget": {
-            "name": "width"
-          },
-          "link": 21
+          "links": [
+            47,
+            48,
+            49
+          ]
         },
         {
           "localized_name": "height",
           "name": "height",
           "type": "INT",
-          "widget": {
-            "name": "height"
-          },
-          "link": 22
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "SIGMAS",
-          "name": "SIGMAS",
-          "type": "SIGMAS",
           "links": [
-            12
+            50,
+            51,
+            52
           ]
+        },
+        {
+          "localized_name": "count",
+          "name": "count",
+          "type": "INT",
+          "links": null
         }
       ],
       "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "Flux2Scheduler"
+        "Node name for S&R": "GetImageSize+"
       },
-      "widgets_values": [
-        12,
-        1024,
-        1024
-      ]
+      "widgets_values": []
     }
   ],
   "links": [
@@ -1645,38 +1574,6 @@
       "VAE"
     ],
     [
-      19,
-      3,
-      0,
-      5,
-      2,
-      "INT"
-    ],
-    [
-      20,
-      4,
-      0,
-      5,
-      3,
-      "INT"
-    ],
-    [
-      21,
-      3,
-      0,
-      16,
-      1,
-      "INT"
-    ],
-    [
-      22,
-      4,
-      0,
-      16,
-      2,
-      "INT"
-    ],
-    [
       26,
       26,
       0,
@@ -1717,22 +1614,6 @@
       "IMAGE"
     ],
     [
-      31,
-      3,
-      0,
-      29,
-      2,
-      "INT"
-    ],
-    [
-      32,
-      4,
-      0,
-      29,
-      3,
-      "INT"
-    ],
-    [
       33,
       29,
       0,
@@ -1757,22 +1638,6 @@
       "LATENT"
     ],
     [
-      39,
-      36,
-      0,
-      33,
-      0,
-      "MASK"
-    ],
-    [
-      40,
-      36,
-      0,
-      35,
-      1,
-      "MASK"
-    ],
-    [
       41,
       8,
       0,
@@ -1787,6 +1652,70 @@
       12,
       0,
       "MODEL"
+    ],
+    [
+      45,
+      36,
+      0,
+      35,
+      1,
+      "MASK"
+    ],
+    [
+      46,
+      1,
+      0,
+      38,
+      0,
+      "IMAGE"
+    ],
+    [
+      47,
+      38,
+      0,
+      5,
+      2,
+      "INT"
+    ],
+    [
+      48,
+      38,
+      0,
+      16,
+      1,
+      "INT"
+    ],
+    [
+      49,
+      38,
+      0,
+      29,
+      2,
+      "INT"
+    ],
+    [
+      50,
+      38,
+      1,
+      5,
+      3,
+      "INT"
+    ],
+    [
+      51,
+      38,
+      1,
+      16,
+      2,
+      "INT"
+    ],
+    [
+      52,
+      38,
+      1,
+      29,
+      3,
+      "INT"
     ]
   ],
   "groups": [
@@ -1842,10 +1771,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.9476812250040894,
+      "scale": 0.890330968135282,
       "offset": [
-        -583.5327310867339,
-        -698.3604410841234
+        1825.8322554463487,
+        -383.5042831449991
       ]
     }
   },
