@@ -132,7 +132,20 @@
       ],
       "title": "Dressing Reference 1",
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "LoadImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_01",
+            "label": "Dressing reference 1",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -272,7 +285,20 @@
       ],
       "title": "Dressing Reference 2",
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "LoadImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_02",
+            "label": "Dressing reference 2",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -412,7 +438,20 @@
       ],
       "title": "Character Reference 1",
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "LoadImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_03",
+            "label": "Character reference 1",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -552,7 +591,20 @@
       ],
       "title": "Character Reference 2",
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "LoadImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_04",
+            "label": "Character reference 2",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -692,7 +744,20 @@
       ],
       "title": "Character Reference 3",
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "LoadImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_05",
+            "label": "Character reference 3",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -832,7 +897,20 @@
       ],
       "title": "Character Reference 4",
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "LoadImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_06",
+            "label": "Character reference 4",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -972,7 +1050,20 @@
       ],
       "title": "Character Reference 5",
       "properties": {
-        "Node name for S&R": "LoadImage"
+        "Node name for S&R": "LoadImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_07",
+            "label": "Character reference 5",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -1327,7 +1418,16 @@
       ],
       "title": "Flux2 Max API - Generate",
       "properties": {
-        "Node name for S&R": "Flux2MaxImageNode"
+        "Node name for S&R": "Flux2MaxImageNode",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "generation_01",
+            "label": "Flux2 Max generation",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "Create one natural, photorealistic character reference photograph for synthetic LoRA training.",
@@ -1371,7 +1471,16 @@
       "outputs": [],
       "title": "Save Output Image",
       "properties": {
-        "Node name for S&R": "SaveImage"
+        "Node name for S&R": "SaveImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_01",
+            "label": "Generated reference",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "flux2_max_lora_references/sample"
@@ -1521,7 +1630,7 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.0,
+      "scale": 1,
       "offset": [
         0,
         0

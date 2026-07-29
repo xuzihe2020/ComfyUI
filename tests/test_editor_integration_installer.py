@@ -61,6 +61,7 @@ class EditorIntegrationManifestTests(unittest.TestCase):
             "https://github.com/xuzihe2020/ComfyUI_frontend.git",
         )
         self.assertEqual(frontend["version"], "1.49.0")
+        self.assertEqual(frontend["node_engine"], ">=25 <26")
         self.assertRegex(frontend["ref"], r"^[0-9a-f]{40}$")
 
         bridge = next(
@@ -256,6 +257,33 @@ class EditorIntegrationInstallTests(unittest.TestCase):
             installer.install_frontend(self.manifest, install_mode="diff")
 
         run_mock.assert_not_called()
+
+    def test_frontend_node_engine_rejects_wrong_major(self) -> None:
+        frontend = {"node_engine": ">=25 <26"}
+        completed = mock.Mock(returncode=0, stdout="v24.12.0\n")
+        with (
+            mock.patch.object(
+                installer, "command_prefix", return_value=["node"]
+            ),
+            mock.patch.object(
+                installer.subprocess, "run", return_value=completed
+            ),
+            self.assertRaisesRegex(SystemExit, r"requires Node.js >=25 <26"),
+        ):
+            installer.validate_frontend_node_engine(frontend)
+
+    def test_frontend_node_engine_accepts_matching_major(self) -> None:
+        frontend = {"node_engine": ">=25 <26"}
+        completed = mock.Mock(returncode=0, stdout="v25.9.0\n")
+        with (
+            mock.patch.object(
+                installer, "command_prefix", return_value=["node"]
+            ),
+            mock.patch.object(
+                installer.subprocess, "run", return_value=completed
+            ),
+        ):
+            installer.validate_frontend_node_engine(frontend)
 
     def test_frontend_migrates_from_legacy_tools_location(self) -> None:
         frontend = self.manifest["frontend"]

@@ -68,6 +68,7 @@ from datetime import datetime
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -338,6 +339,44 @@ def pnpm_prefix(package_manager: str) -> list[str]:
     )
 
 
+def validate_frontend_node_engine(frontend: dict) -> None:
+    requirement = frontend.get("node_engine")
+    if not requirement:
+        return
+    match = re.fullmatch(r">=(\d+)\s+<(\d+)", requirement)
+    if match is None:
+        raise SystemExit(
+            f"Unsupported frontend node_engine requirement: {requirement!r}"
+        )
+    node = command_prefix("node")
+    if node is None:
+        raise SystemExit(
+            f"The pinned ComfyUI frontend requires Node.js {requirement}. "
+            "Install that Node.js version, then rerun scripts/install_custom_nodes.py."
+        )
+    result = subprocess.run(
+        [*node, "--version"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+    )
+    version = result.stdout.strip()
+    version_match = re.fullmatch(r"v?(\d+)(?:\.\d+){0,2}", version)
+    minimum = int(match.group(1))
+    maximum = int(match.group(2))
+    if (
+        result.returncode != 0
+        or version_match is None
+        or not minimum <= int(version_match.group(1)) < maximum
+    ):
+        raise SystemExit(
+            f"The pinned ComfyUI frontend requires Node.js {requirement}, "
+            f"but {version or 'Node.js could not be executed'} is active. "
+            "Use the repository .nvmrc (nvm use), then rerun "
+            "scripts/install_custom_nodes.py."
+        )
+
+
 def frontend_path(manifest: dict) -> Path:
     frontend = manifest.get("frontend")
     if not frontend:
@@ -519,6 +558,7 @@ def install_frontend(manifest: dict, *, install_mode: str) -> None:
     package_manager = frontend.get("package_manager", "pnpm")
     if not package_manager.startswith("pnpm"):
         raise SystemExit(f"Unsupported frontend package manager: {package_manager}")
+    validate_frontend_node_engine(frontend)
     pnpm = pnpm_prefix(package_manager)
     run([*pnpm, "install", "--frozen-lockfile"], cwd=target)
     run([*pnpm, "run", frontend.get("build_script", "build")], cwd=target)

@@ -51,7 +51,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "UNETLoader"
+        "Node name for S&R": "UNETLoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "model_01",
+            "label": "Diffusion model",
+            "expose_all_fields": true,
+            "field_config": {
+              "unet_name": {
+                "kind": "model",
+                "model_category": "diffusion_models"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2/flux_2_klein_base_9b.safetensors",
@@ -111,11 +125,25 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "LoraLoaderModelOnly"
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "lora_01",
+            "label": "Training checkpoint",
+            "expose_all_fields": true,
+            "field_config": {
+              "lora_name": {
+                "kind": "model",
+                "model_category": "loras"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "_eval/RUN_ID/checkpoint.safetensors",
-        1.0
+        1
       ]
     },
     {
@@ -176,7 +204,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPLoader"
+        "Node name for S&R": "CLIPLoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "text_encoder_01",
+            "label": "Text encoder",
+            "expose_all_fields": true,
+            "field_config": {
+              "clip_name": {
+                "kind": "model",
+                "model_category": "text_encoders"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2/qwen_3_8b_fp8mixed.safetensors",
@@ -228,7 +270,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
+        "Node name for S&R": "CLIPTextEncode",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "positive_prompt_01",
+            "label": "Positive prompt",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "photo of [trigger], close-up portrait, natural window light -- REPLACE with an eval prompt from the run-config json"
@@ -278,7 +329,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
+        "Node name for S&R": "CLIPTextEncode",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "negative_prompt_01",
+            "label": "Negative prompt",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         ""
@@ -340,10 +400,19 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CFGGuider"
+        "Node name for S&R": "CFGGuider",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "guidance_01",
+            "label": "CFG guidance",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
-        4.0
+        4
       ]
     },
     {
@@ -384,7 +453,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "RandomNoise"
+        "Node name for S&R": "RandomNoise",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "noise_01",
+            "label": "Noise seed",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         42,
@@ -491,7 +569,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "Flux2Scheduler"
+        "Node name for S&R": "Flux2Scheduler",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "scheduler_01",
+            "label": "Flux scheduler",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         20,
@@ -670,7 +757,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "VAELoader"
+        "Node name for S&R": "VAELoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "vae_01",
+            "label": "VAE",
+            "expose_all_fields": true,
+            "field_config": {
+              "vae_name": {
+                "kind": "model",
+                "model_category": "vae"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2/full_encoder_small_decoder.safetensors"
@@ -756,7 +857,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "SaveImage"
+        "Node name for S&R": "SaveImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_01",
+            "label": "Validation output",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "lora_eval/manual"

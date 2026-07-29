@@ -1,0 +1,419 @@
+{
+  "id": "editor-bridge-cpu-smoke",
+  "revision": 0,
+  "last_node_id": 5,
+  "last_link_id": 3,
+  "version": 0.4,
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [
+        760,
+        360
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        -700,
+        -160
+      ],
+      "size": [
+        360,
+        558
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "clean_name",
+          "name": "clean_name",
+          "type": "STRING",
+          "widget": {
+            "name": "clean_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "root_dir",
+          "name": "root_dir",
+          "type": "STRING",
+          "widget": {
+            "name": "root_dir"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "folder_name",
+          "name": "folder_name",
+          "type": "STRING",
+          "widget": {
+            "name": "folder_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "filename_suffix",
+          "name": "filename_suffix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_suffix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strip_double_underscore_suffix",
+          "name": "strip_double_underscore_suffix",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "strip_double_underscore_suffix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strip_version_suffix",
+          "name": "strip_version_suffix",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "strip_version_suffix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        },
+        {
+          "localized_name": "clean_name",
+          "name": "clean_name",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "root_dir",
+          "name": "root_dir",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "output_path",
+          "name": "output_path",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "localized_name": "source_path",
+          "name": "source_path",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "LoadImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_01",
+            "label": "Edited image",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image",
+                "required_from_editor": true
+              }
+            }
+          }
+        }
+      },
+      "widgets_values": [
+        "example.png",
+        "",
+        "",
+        "",
+        "",
+        true,
+        true
+      ]
+    },
+    {
+      "id": 2,
+      "type": "LoadImageMask",
+      "pos": [
+        -700,
+        470
+      ],
+      "size": [
+        360,
+        330
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "channel",
+          "name": "channel",
+          "type": "COMBO",
+          "widget": {
+            "name": "channel"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "MASK",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "LoadImageMask",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "mask_01",
+            "label": "Inpaint mask",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "mask",
+                "required_from_editor": true,
+                "channel_field": "channel",
+                "channel_value": "red"
+              }
+            }
+          }
+        }
+      },
+      "widgets_values": [
+        "example.png",
+        "red"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "SaveImage",
+      "pos": [
+        -80,
+        -80
+      ],
+      "size": [
+        430,
+        360
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "SaveImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_01",
+            "label": "Output image",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
+      },
+      "widgets_values": [
+        "editor_bridge/smoke"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "MaskPreview",
+      "pos": [
+        -80,
+        470
+      ],
+      "size": [
+        430,
+        300
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 2
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "MaskPreview",
+        "cnr_id": "comfyui-impact-pack"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 5,
+      "type": "Text Multiline",
+      "pos": [
+        -700,
+        850
+      ],
+      "size": [
+        430,
+        200
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "STRING",
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "was-node-suite-comfyui",
+        "Node name for S&R": "Text Multiline",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "positive_prompt_01",
+            "label": "Human prompt",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
+      },
+      "widgets_values": [
+        "editor_bridge/smoke"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      2,
+      0,
+      4,
+      0,
+      "MASK"
+    ],
+    [
+      3,
+      5,
+      0,
+      3,
+      1,
+      "STRING"
+    ]
+  ],
+  "groups": []
+}

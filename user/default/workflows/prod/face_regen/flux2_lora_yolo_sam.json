@@ -170,7 +170,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPLoader"
+        "Node name for S&R": "CLIPLoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "text_encoder_01",
+            "label": "Text encoder",
+            "expose_all_fields": true,
+            "field_config": {
+              "clip_name": {
+                "kind": "model",
+                "model_category": "text_encoders"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2\\qwen_3_8b_fp8mixed.safetensors",
@@ -288,7 +302,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CFGGuider"
+        "Node name for S&R": "CFGGuider",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "guidance_01",
+            "label": "CFG guidance",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         1.2
@@ -332,7 +355,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "RandomNoise"
+        "Node name for S&R": "RandomNoise",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "noise_01",
+            "label": "Noise seed",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         442248023334261,
@@ -509,7 +541,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "SaveImage"
+        "Node name for S&R": "SaveImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_01",
+            "label": "Refined face output",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "vn_face_refine_flux2_native"
@@ -599,7 +640,21 @@
       "properties": {
         "cnr_id": "comfyui_face_parsing",
         "ver": "1.0.5",
-        "Node name for S&R": "BBoxDetectorLoader(FaceParsing)"
+        "Node name for S&R": "BBoxDetectorLoader(FaceParsing)",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "detector_model_01",
+            "label": "Face detector model",
+            "expose_all_fields": true,
+            "field_config": {
+              "model_name": {
+                "kind": "model",
+                "model_category": "ultralytics"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "bbox/face_yolov8m.pt"
@@ -1486,7 +1541,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "SaveImage"
+        "Node name for S&R": "SaveImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_02",
+            "label": "Comparison output",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "vn_face_refine_flux2_native/compare_original_final"
@@ -1665,7 +1729,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "Flux2Scheduler"
+        "Node name for S&R": "Flux2Scheduler",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "scheduler_01",
+            "label": "Flux scheduler",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         16,
@@ -1762,7 +1835,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
+        "Node name for S&R": "CLIPTextEncode",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "negative_prompt_01",
+            "label": "Negative prompt",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "identity mismatch with the face reference, changed hair, changed hairstyle, changed outfit, changed clothing, changed pose, changed camera angle, changed background, changed body, distorted face, melted skin, bad eyes, asymmetrical eyes, extra teeth, blurry face, harsh mask edge, visible seam"
@@ -1817,7 +1899,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "UNETLoader"
+        "Node name for S&R": "UNETLoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "model_01",
+            "label": "Diffusion model",
+            "expose_all_fields": true,
+            "field_config": {
+              "unet_name": {
+                "kind": "model",
+                "model_category": "diffusion_models"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2\\moody_desire_mix_v30.safetensors",
@@ -1947,7 +2043,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "VAELoader"
+        "Node name for S&R": "VAELoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "vae_01",
+            "label": "VAE",
+            "expose_all_fields": true,
+            "field_config": {
+              "vae_name": {
+                "kind": "model",
+                "model_category": "vae"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2\\full_encoder_small_decoder.safetensors"
@@ -2008,7 +2118,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "LoraLoaderModelOnly"
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "lora_01",
+            "label": "Face LoRA",
+            "expose_all_fields": true,
+            "field_config": {
+              "lora_name": {
+                "kind": "model",
+                "model_category": "loras"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2\\lora_face\\shiramine_face_0712_20260713T194237Z_000003240.safetensors",
@@ -2065,7 +2189,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "SplitSigmasDenoise"
+        "Node name for S&R": "SplitSigmasDenoise",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "denoise_01",
+            "label": "Denoise",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         0.7
@@ -2167,8 +2300,6 @@
           "links": [
             1,
             2,
-            3,
-            4,
             7,
             10,
             58,
@@ -2219,7 +2350,20 @@
         "load_image_source_clean_name": "mini_dress_full_body_sitting_0002_gpt_1783478681",
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\Documents\\characters\\lora_data_generator_04",
         "load_image_source_path": "C:\\Users\\Tony Xu\\Documents\\characters\\lora_data_generator_04\\mini_dress_full_body_sitting_0002_gpt_1783478681.png",
-        "load_image_source_image": "mini_dress_full_body_sitting_0002_gpt_1783478681.png"
+        "load_image_source_image": "mini_dress_full_body_sitting_0002_gpt_1783478681.png",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_01",
+            "label": "Input image",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "mini_dress_full_body_sitting_0002_gpt_1783478681.png",
@@ -2277,7 +2421,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
+        "Node name for S&R": "CLIPTextEncode",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "positive_prompt_01",
+            "label": "Positive prompt",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "Replace the detected face of this young Japaness girl with shiramine_face. She has a soft oval face, large expressive dark eyes, full natural lips, young tight skin. Preserve the original photo composition, pose, hairstyle, hair length, outfit, background, lighting, and camera angle."
@@ -2351,22 +2504,6 @@
       0,
       4,
       0,
-      "IMAGE"
-    ],
-    [
-      3,
-      2,
-      0,
-      6,
-      1,
-      "IMAGE"
-    ],
-    [
-      4,
-      2,
-      0,
-      8,
-      2,
       "IMAGE"
     ],
     [

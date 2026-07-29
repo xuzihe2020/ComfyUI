@@ -51,7 +51,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "UNETLoader"
+        "Node name for S&R": "UNETLoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "model_01",
+            "label": "Diffusion model",
+            "expose_all_fields": true,
+            "field_config": {
+              "unet_name": {
+                "kind": "model",
+                "model_category": "diffusion_models"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux1\\flux1_fill_dev.safetensors",
@@ -176,7 +190,25 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "DualCLIPLoader"
+        "Node name for S&R": "DualCLIPLoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "text_encoder_01",
+            "label": "Text encoders",
+            "expose_all_fields": true,
+            "field_config": {
+              "clip_name1": {
+                "kind": "model",
+                "model_category": "text_encoders"
+              },
+              "clip_name2": {
+                "kind": "model",
+                "model_category": "text_encoders"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux1\\clip_l.safetensors",
@@ -224,7 +256,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "VAELoader"
+        "Node name for S&R": "VAELoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "vae_01",
+            "label": "VAE",
+            "expose_all_fields": true,
+            "field_config": {
+              "vae_name": {
+                "kind": "model",
+                "model_category": "vae"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux1\\ae.safetensors"
@@ -274,7 +320,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
+        "Node name for S&R": "CLIPTextEncode",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "positive_prompt_01",
+            "label": "Positive prompt",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "A clean natural continuation of the original photo in the masked area, matching the surrounding texture, lighting, color, perspective, material, and structure. Preserve the scene exactly outside the masked area."
@@ -324,7 +379,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "FluxGuidance"
+        "Node name for S&R": "FluxGuidance",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "guidance_01",
+            "label": "Flux guidance",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         3.5
@@ -374,7 +438,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
+        "Node name for S&R": "CLIPTextEncode",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "negative_prompt_01",
+            "label": "Negative prompt",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "text, words, letters, typography, numbers, watermark, logo, caption, signature, stamp, symbols, glyphs, random characters, gibberish, blocky pixels, blur patch, artifacts, seams, mismatched texture, changed background, low quality"
@@ -801,7 +874,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "SaveImage"
+        "Node name for S&R": "SaveImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_01",
+            "label": "Comparison output",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "watermark_fix_manual/compare_original_final"
@@ -1020,7 +1102,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "KSampler"
+        "Node name for S&R": "KSampler",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "generation_01",
+            "label": "Sampler",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         414772238996798,
@@ -1267,7 +1358,20 @@
         "load_image_source_clean_name": "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000",
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix",
         "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix\\[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg",
-        "load_image_source_image": "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg"
+        "load_image_source_image": "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_01",
+            "label": "Input image",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg",
@@ -1337,7 +1441,22 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "LoadImageMask"
+        "Node name for S&R": "LoadImageMask",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "mask_01",
+            "label": "Inpaint mask",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "mask",
+                "channel_field": "channel",
+                "channel_value": "red"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "dmm_watermark_mask.png",

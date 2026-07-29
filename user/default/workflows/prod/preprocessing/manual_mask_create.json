@@ -278,7 +278,16 @@
       "properties": {
         "cnr_id": "was-node-suite-comfyui",
         "ver": "ea935d1044ae5a26efa54ebeb18fe9020af49a45",
-        "Node name for S&R": "Image Save"
+        "Node name for S&R": "Image Save",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_01",
+            "label": "Mask output",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "masks",
@@ -428,7 +437,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "PrimitiveInt"
+        "Node name for S&R": "PrimitiveInt",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "mask_blur_01",
+            "label": "Mask blur amount",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         60,
@@ -584,7 +602,20 @@
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix",
         "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\Images\\lora_training\\nsfw\\bondage\\raw_data_need_fix\\[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg",
         "load_image_source_image": "[Absolute Control] - [完全支配] - Hikari Sena [瀬名ひかり]_01-25-34.000.jpg",
-        "image": "clipspace/clipspace-painted-masked-1784492887040.png [input]"
+        "image": "clipspace/clipspace-painted-masked-1784492887040.png [input]",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_01",
+            "label": "Input image",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "clipspace/clipspace-painted-masked-1784492887040.png [input]",

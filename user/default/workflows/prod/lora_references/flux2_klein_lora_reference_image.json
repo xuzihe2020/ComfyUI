@@ -61,7 +61,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPLoader"
+        "Node name for S&R": "CLIPLoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "text_encoder_01",
+            "label": "Text encoder",
+            "expose_all_fields": true,
+            "field_config": {
+              "clip_name": {
+                "kind": "model",
+                "model_category": "text_encoders"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2\\qwen_3_8b_fp8mixed.safetensors",
@@ -114,7 +128,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "VAELoader"
+        "Node name for S&R": "VAELoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "vae_01",
+            "label": "VAE",
+            "expose_all_fields": true,
+            "field_config": {
+              "vae_name": {
+                "kind": "model",
+                "model_category": "vae"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2\\full_encoder_small_decoder.safetensors"
@@ -164,7 +192,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode"
+        "Node name for S&R": "CLIPTextEncode",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "positive_prompt_01",
+            "label": "Positive prompt",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "Create one natural, photorealistic character reference photograph for synthetic LoRA training."
@@ -463,7 +500,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "Flux2Scheduler"
+        "Node name for S&R": "Flux2Scheduler",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "scheduler_01",
+            "label": "Flux scheduler",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         12,
@@ -573,7 +619,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "RandomNoise"
+        "Node name for S&R": "RandomNoise",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "noise_01",
+            "label": "Noise seed",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         0,
@@ -773,7 +828,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "SaveImage"
+        "Node name for S&R": "SaveImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_01",
+            "label": "Generated reference",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "lora_data_generator/local_stage/sample"
@@ -920,7 +984,20 @@
         "load_image_source_clean_name": "example",
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input",
         "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input\\example.png",
-        "load_image_source_image": "example.png"
+        "load_image_source_image": "example.png",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_01",
+            "label": "Reference image 1",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -1164,7 +1241,20 @@
         "load_image_source_clean_name": "example",
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input",
         "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input\\example.png",
-        "load_image_source_image": "example.png"
+        "load_image_source_image": "example.png",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_02",
+            "label": "Reference image 2",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -1408,7 +1498,20 @@
         "load_image_source_clean_name": "example",
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input",
         "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input\\example.png",
-        "load_image_source_image": "example.png"
+        "load_image_source_image": "example.png",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_03",
+            "label": "Reference image 3",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -1652,7 +1755,20 @@
         "load_image_source_clean_name": "example",
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input",
         "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input\\example.png",
-        "load_image_source_image": "example.png"
+        "load_image_source_image": "example.png",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_04",
+            "label": "Reference image 4",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -1896,7 +2012,20 @@
         "load_image_source_clean_name": "example",
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input",
         "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input\\example.png",
-        "load_image_source_image": "example.png"
+        "load_image_source_image": "example.png",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_05",
+            "label": "Reference image 5",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -2140,7 +2269,20 @@
         "load_image_source_clean_name": "example",
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input",
         "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input\\example.png",
-        "load_image_source_image": "example.png"
+        "load_image_source_image": "example.png",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_06",
+            "label": "Reference image 6",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -2384,7 +2526,20 @@
         "load_image_source_clean_name": "example",
         "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input",
         "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\comfyui\\input\\example.png",
-        "load_image_source_image": "example.png"
+        "load_image_source_image": "example.png",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_07",
+            "label": "Reference image 7",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "example.png",
@@ -2534,7 +2689,21 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "UNETLoader"
+        "Node name for S&R": "UNETLoader",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "model_01",
+            "label": "Diffusion model",
+            "expose_all_fields": true,
+            "field_config": {
+              "unet_name": {
+                "kind": "model",
+                "model_category": "diffusion_models"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "flux2\\flux_2_klein_9b.safetensors",

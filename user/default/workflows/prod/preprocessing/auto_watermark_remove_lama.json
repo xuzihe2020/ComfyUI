@@ -69,7 +69,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "SaveImage"
+        "Node name for S&R": "SaveImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_01",
+            "label": "Clean output",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "text_watermark_fix/lama_result"
@@ -856,7 +865,16 @@
       "properties": {
         "cnr_id": "comfyui-inpaint-nodes",
         "ver": "1.4.3",
-        "Node name for S&R": "INPAINT_LoadInpaintModel"
+        "Node name for S&R": "INPAINT_LoadInpaintModel",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "inpaint_model_01",
+            "label": "LaMa inpaint model",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "big-lama.pt"
@@ -993,7 +1011,16 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "SaveImage"
+        "Node name for S&R": "SaveImage",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "save_image_02",
+            "label": "Comparison output",
+            "expose_all_fields": true,
+            "field_config": {}
+          }
+        }
       },
       "widgets_values": [
         "text_watermark_fix/compare_original_lama"
@@ -1143,7 +1170,20 @@
         "load_image_source_clean_name": "@guanguanpuppy_1749817232111325187_1",
         "load_image_source_root_dir": "D:\\Flux Prod Local\\reference_images\\nsfw\\images",
         "load_image_source_path": "D:\\Flux Prod Local\\reference_images\\nsfw\\images\\@guanguanpuppy_1749817232111325187_1.jpg",
-        "load_image_source_image": "@guanguanpuppy_1749817232111325187_1.jpg"
+        "load_image_source_image": "@guanguanpuppy_1749817232111325187_1.jpg",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "input_image_01",
+            "label": "Input image",
+            "expose_all_fields": true,
+            "field_config": {
+              "image": {
+                "kind": "image"
+              }
+            }
+          }
+        }
       },
       "widgets_values": [
         "@guanguanpuppy_1749817232111325187_1.jpg",
