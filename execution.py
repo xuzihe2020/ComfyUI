@@ -1253,6 +1253,24 @@ class PromptQueue:
             self.server.queue_updated()
             self.not_empty.notify()
 
+    def put_if_prompt_absent(self, item):
+        prompt_id = item[1]
+        with self.mutex:
+            queued_ids = (queued[1] for queued in self.queue)
+            running_ids = (
+                running[1] for running in self.currently_running.values()
+            )
+            if (
+                prompt_id in self.history
+                or prompt_id in queued_ids
+                or prompt_id in running_ids
+            ):
+                return False
+            heapq.heappush(self.queue, item)
+            self.server.queue_updated()
+            self.not_empty.notify()
+            return True
+
     def get(self, timeout=None):
         with self.not_empty:
             while len(self.queue) == 0:

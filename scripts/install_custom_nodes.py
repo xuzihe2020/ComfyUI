@@ -77,6 +77,8 @@ TOOLS_DIR = REPO_ROOT / "tools"
 # no-change run costs seconds instead of re-running dependency fixes and
 # cm-cli (whose registry fetch alone is minutes per node).
 INSTALL_STAMP = CUSTOM_NODES_DIR / ".install_state.json"
+EDITOR_BRIDGE_SOURCE = REPO_ROOT.parent / "comfyui-editor-bridge"
+EDITOR_BRIDGE_TARGET = CUSTOM_NODES_DIR / "comfyui-editor-bridge"
 
 # Patched custom nodes maintained from the user's GitHub should be handled first.
 # These forks carry repo-specific fixes and compatibility patches, so the install
@@ -364,14 +366,54 @@ def comfy_python() -> str:
     return sys.executable
 
 
-def clone_repo(repo: str, target: Path) -> None:
+def ensure_editor_bridge(
+    source: Path = EDITOR_BRIDGE_SOURCE,
+    target: Path = EDITOR_BRIDGE_TARGET,
+) -> bool:
+    """Expose the maintained sibling bridge as a ComfyUI custom node.
+
+    A junction/symlink keeps the bridge's own repository as the only source of
+    truth and avoids copying runtime code into the ComfyUI checkout.
+    """
+    if target.exists() or target.is_symlink():
+        print(f"Editor bridge custom-node path is present: {target}", flush=True)
+        return True
+    if not (source / "__init__.py").is_file():
+        print(
+            f"Editor bridge source not found at {source}; bridge installation skipped.",
+            flush=True,
+        )
+        return False
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if os.name == "nt":
+        run(
+            ["cmd", "/c", "mklink", "/J", str(target), str(source)],
+            cwd=target.parent,
+        )
+    else:
+        target.symlink_to(source.resolve(), target_is_directory=True)
+    print(f"Linked editor bridge custom node: {target} -> {source}", flush=True)
+    return True
+
+
+def clone_repo(repo: str, target: Path, ref: str | None = None) -> None:
     if target.exists():
         if not (target / ".git").exists():
             raise SystemExit(f"{target} exists but is not a git repository")
-        print(f"{target} already exists; leaving clone in place")
+        if ref:
+            run(["git", "fetch", "origin", ref], cwd=target)
+            run(["git", "checkout", "--detach", "FETCH_HEAD"], cwd=target)
+            print(f"{target}: checked out pinned ref {ref}")
+        else:
+            print(f"{target} already exists; leaving clone in place")
         return
     target.parent.mkdir(parents=True, exist_ok=True)
-    run(["git", "clone", repo, str(target)])
+    if ref:
+        run(["git", "clone", "--no-checkout", repo, str(target)])
+        run(["git", "fetch", "origin", ref], cwd=target)
+        run(["git", "checkout", "--detach", "FETCH_HEAD"], cwd=target)
+    else:
+        run(["git", "clone", repo, str(target)])
 
 
 def missing_required_paths(node: dict, target: Path) -> list[str]:
@@ -465,7 +507,7 @@ def install_tools(
             continue
         target = TOOLS_DIR / tool["folder"]
         newly_cloned = not target.exists()
-        clone_repo(tool["repo"], target)
+        clone_repo(tool["repo"], target, tool.get("ref"))
         requirements = target / "requirements.txt"
         tool_changed = changed_keys is not None and f"tools/{tool['folder']}" in changed_keys
         if requirements.exists() and not no_deps and (newly_cloned or install_mode == "full" or tool_changed):
@@ -475,7 +517,7 @@ def install_tools(
 def install_manager(manifest: dict, python_bin: str, *, install_requirements: bool) -> Path:
     manager = manifest["manager"]
     manager_dir = CUSTOM_NODES_DIR / manager["folder"]
-    clone_repo(manager["repo"], manager_dir)
+    clone_repo(manager["repo"], manager_dir, manager.get("ref"))
 
     requirements = manager_dir / "requirements.txt"
     if install_requirements and requirements.exists():
@@ -510,6 +552,18 @@ def manager_install_node(
     always_fix_deps = name in ALWAYS_FIX_DEPENDENCIES or node["folder"] in ALWAYS_FIX_DEPENDENCIES
     extra_dependencies = EXTRA_PIP_DEPENDENCIES.get(name, []) + EXTRA_PIP_DEPENDENCIES.get(node["folder"], [])
     post_install_fix = POST_INSTALL_DEPENDENCY_FIXES.get(name) or POST_INSTALL_DEPENDENCY_FIXES.get(node["folder"])
+    pinned_ref = node.get("ref")
+
+    if pinned_ref:
+        clone_repo(repo, folder, pinned_ref)
+        requirements = folder / "requirements.txt"
+        if requirements.exists() and (always_fix_deps or not no_deps):
+            run([python_bin, "-m", "pip", "install", "-r", str(requirements)])
+        if extra_dependencies and (always_fix_deps or not no_deps):
+            run([python_bin, "-m", "pip", "install", *extra_dependencies])
+        if post_install_fix and (always_fix_deps or not no_deps):
+            post_install_fix(python_bin)
+        return None
 
     base_cmd = [python_bin, str(manager_cli)]
     if folder.exists():
@@ -635,7 +689,8 @@ def diff_mode_existing_dependency_nodes(
         folder = CUSTOM_NODES_DIR / folder_name
         fix_existing_deps = name in DIFF_MODE_FIX_EXISTING_DEPENDENCIES or folder_name in DIFF_MODE_FIX_EXISTING_DEPENDENCIES
         always_fix_deps = name in ALWAYS_FIX_DEPENDENCIES or folder_name in ALWAYS_FIX_DEPENDENCIES
-        if folder.exists() and (fix_existing_deps or always_fix_deps):
+        pinned_ref = bool(node.get("ref"))
+        if folder.exists() and (fix_existing_deps or always_fix_deps or pinned_ref):
             if not node_repo_changed(node, changed_keys):
                 continue
             print(f"{folder} already exists; checking dependencies", flush=True)
@@ -786,6 +841,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    ensure_editor_bridge()
     manifest = load_manifest(args.manifest)
     scoped_node_run = bool(args.node)
     if scoped_node_run:
