@@ -75,7 +75,8 @@ class EditorIntegrationManifestTests(unittest.TestCase):
     def test_run_script_uses_only_manifest_installed_dependencies(self) -> None:
         run_script = (REPO_ROOT / "run_comfyui.bat").read_text(encoding="utf-8")
         self.assertIn("--check-editor-integration", run_script)
-        self.assertIn(r"tools\ComfyUI_frontend\dist", run_script)
+        self.assertIn(r"ComfyUI_frontend\dist", run_script)
+        self.assertNotIn(r"tools\ComfyUI_frontend", run_script)
         self.assertNotIn(r"..\ComfyUI_frontend", run_script)
         self.assertNotIn("COMFYUI_EDITOR_BRIDGE_SOURCE", run_script)
         self.assertNotIn("using the packaged ComfyUI frontend", run_script.lower())
@@ -92,22 +93,29 @@ class EditorIntegrationInstallTests(unittest.TestCase):
         self.manifest = integration_manifest()
 
         self.tools_patch = mock.patch.object(installer, "TOOLS_DIR", self.tools)
+        self.frontend_patch = mock.patch.object(
+            installer,
+            "FRONTEND_ROOT",
+            self.root,
+        )
         self.nodes_patch = mock.patch.object(
             installer,
             "CUSTOM_NODES_DIR",
             self.custom_nodes,
         )
         self.tools_patch.start()
+        self.frontend_patch.start()
         self.nodes_patch.start()
 
     def tearDown(self) -> None:
         self.nodes_patch.stop()
+        self.frontend_patch.stop()
         self.tools_patch.stop()
         self.temp.cleanup()
 
     def create_ready_install(self) -> None:
         frontend = self.manifest["frontend"]
-        frontend_dir = self.tools / frontend["folder"]
+        frontend_dir = self.root / frontend["folder"]
         frontend_dir.mkdir(parents=True)
         (frontend_dir / "package.json").write_text(
             json.dumps({"version": frontend["version"]}),
@@ -143,7 +151,7 @@ class EditorIntegrationInstallTests(unittest.TestCase):
         self.create_ready_install()
 
         def fake_head(path: Path) -> str | None:
-            if path == self.tools / "ComfyUI_frontend":
+            if path == self.root / "ComfyUI_frontend":
                 return "f" * 40
             if path == self.custom_nodes / "comfyui-editor-bridge":
                 return "b" * 40
@@ -159,7 +167,7 @@ class EditorIntegrationInstallTests(unittest.TestCase):
         self.create_ready_install()
         marker_path = (
             installer.frontend_build_marker_path(
-                self.tools / "ComfyUI_frontend"
+                self.root / "ComfyUI_frontend"
             )
         )
         marker_path.write_text(
@@ -174,7 +182,7 @@ class EditorIntegrationInstallTests(unittest.TestCase):
         )
 
         def fake_head(path: Path) -> str | None:
-            if path == self.tools / "ComfyUI_frontend":
+            if path == self.root / "ComfyUI_frontend":
                 return "f" * 40
             if path == self.custom_nodes / "comfyui-editor-bridge":
                 return "b" * 40
@@ -191,7 +199,7 @@ class EditorIntegrationInstallTests(unittest.TestCase):
         self,
     ) -> None:
         frontend = self.manifest["frontend"]
-        frontend_dir = self.tools / frontend["folder"]
+        frontend_dir = self.root / frontend["folder"]
 
         def fake_clone(_repo: str, target: Path, _ref: str | None) -> None:
             target.mkdir(parents=True)
@@ -248,6 +256,21 @@ class EditorIntegrationInstallTests(unittest.TestCase):
             installer.install_frontend(self.manifest, install_mode="diff")
 
         run_mock.assert_not_called()
+
+    def test_frontend_migrates_from_legacy_tools_location(self) -> None:
+        frontend = self.manifest["frontend"]
+        legacy = self.tools / frontend["folder"]
+        legacy.mkdir(parents=True)
+        (legacy / "preserved.txt").write_text("existing clone", encoding="utf-8")
+
+        installer.migrate_legacy_frontend_checkout(self.manifest)
+
+        target = self.root / frontend["folder"]
+        self.assertFalse(legacy.exists())
+        self.assertEqual(
+            (target / "preserved.txt").read_text(encoding="utf-8"),
+            "existing clone",
+        )
 
     def test_bridge_install_replaces_only_legacy_external_link(self) -> None:
         bridge = self.manifest["nodes"][0]

@@ -38,7 +38,9 @@ __pycache__/
 # Standalone tool repos installed by scripts/install_custom_nodes.py
 # (see the "tools" section of custom_nodes.manifest.json)
 /tools/video_sampler/
-/tools/ComfyUI_frontend/
+
+# Manifest-managed nested frontend repository and build artifacts
+/ComfyUI_frontend/
 
 # Local caches and runtime state
 /logs/

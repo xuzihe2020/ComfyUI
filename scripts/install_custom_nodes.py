@@ -14,10 +14,10 @@ macOS/Linux:
     python3 scripts/install_custom_nodes.py
 
 The default command also installs the pinned comfyui-editor-bridge directly
-under custom_nodes/, clones the pinned custom ComfyUI frontend under tools/,
-installs its JavaScript dependencies, and produces its production dist build.
-run_comfyui.bat verifies and serves that exact build; it never silently falls
-back to the packaged frontend.
+under custom_nodes/, clones the pinned custom ComfyUI frontend directly under
+the ComfyUI repository root, installs its JavaScript dependencies, and
+produces its production dist build. run_comfyui.bat verifies and serves that
+exact build; it never silently falls back to the packaged frontend.
 
 Default behavior is diff mode: only dependencies whose installed state differs
 from the manifest are processed. Existing nodes can get a dependency fix or
@@ -79,6 +79,7 @@ DEFAULT_MANIFEST = REPO_ROOT / "custom_nodes.manifest.json"
 DEFAULT_EXTRA_MODEL_PATHS = REPO_ROOT / "extra_model_paths.yaml"
 CUSTOM_NODES_DIR = REPO_ROOT / "custom_nodes"
 TOOLS_DIR = REPO_ROOT / "tools"
+FRONTEND_ROOT = REPO_ROOT
 FRONTEND_BUILD_MARKER = ".comfyui-frontend-build.json"
 # Written after every successful run; diff mode exits immediately when the
 # recomputed state (manifest hash + every repo's HEAD) matches the stamp, so a
@@ -341,7 +342,22 @@ def frontend_path(manifest: dict) -> Path:
     frontend = manifest.get("frontend")
     if not frontend:
         raise SystemExit("custom_nodes.manifest.json is missing the required frontend section.")
-    return TOOLS_DIR / frontend["folder"]
+    return FRONTEND_ROOT / frontend["folder"]
+
+
+def migrate_legacy_frontend_checkout(manifest: dict) -> None:
+    """Move the short-lived tools/ install to the root-level managed path."""
+    frontend = manifest["frontend"]
+    target = frontend_path(manifest)
+    legacy = TOOLS_DIR / frontend["folder"]
+    if target.exists() or not legacy.exists():
+        return
+    target.parent.mkdir(parents=True, exist_ok=True)
+    legacy.rename(target)
+    print(
+        f"{frontend['name']}: migrated managed checkout from {legacy} to {target}.",
+        flush=True,
+    )
 
 
 def frontend_build_marker_path(path: Path, dist: str = "dist") -> Path:
@@ -455,6 +471,7 @@ def check_editor_integration(manifest: dict) -> None:
 def install_frontend(manifest: dict, *, install_mode: str) -> None:
     """Clone, dependency-install, and build the manifest-pinned frontend."""
     frontend = manifest["frontend"]
+    migrate_legacy_frontend_checkout(manifest)
     target = frontend_path(manifest)
     before_head = repo_head(target) if target.exists() else None
     newly_cloned = not target.exists()
@@ -978,7 +995,7 @@ def compute_install_state(manifest: dict, manifest_path: Path) -> dict:
         repos[f"tools/{tool['folder']}"] = repo_head(folder) if folder.exists() else None
     frontend = manifest.get("frontend")
     if frontend:
-        folder = TOOLS_DIR / frontend["folder"]
+        folder = frontend_path(manifest)
         repos[f"frontend/{frontend['folder']}"] = (
             repo_head(folder) if folder.exists() else None
         )

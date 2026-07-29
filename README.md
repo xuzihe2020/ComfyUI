@@ -139,12 +139,14 @@ python scripts\install_custom_nodes.py
 run_comfyui.bat
 ```
 
-The installer clones the private `comfyui-editor-bridge` into `custom_nodes`,
-clones the matching `ComfyUI_frontend` into `tools`, installs its locked
-JavaScript dependencies, and builds its production `dist`. Startup verifies
-the pinned revisions and build marker before launching, then serves that build
-through `--front-end-root`. It fails with an installer instruction if any
-component is missing or stale; it does not fall back to the stock frontend.
+The installer clones the private `comfyui-editor-bridge` into `custom_nodes`
+and the matching `ComfyUI_frontend` directly under the ComfyUI repository
+root. Both are ignored nested Git repositories with their own histories. The
+installer installs the frontend's locked JavaScript dependencies and builds
+its production `dist`. Startup verifies the pinned revisions and build marker
+before launching, then serves that build through `--front-end-root`. It fails
+with an installer instruction if any component is missing or stale; it does
+not fall back to the stock frontend.
 
 ## Release Process
 
