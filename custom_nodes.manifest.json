@@ -6,7 +6,38 @@
     "repo": "https://github.com/Comfy-Org/ComfyUI-Manager",
     "reason": "CLI and UI management for custom node installation, updates, snapshots, and dependency fixes."
   },
+  "frontend": {
+    "name": "ComfyUI Frontend with Editor Bridge",
+    "folder": "ComfyUI_frontend",
+    "repo": "https://github.com/xuzihe2020/ComfyUI_frontend.git",
+    "ref": "f196c6e09d9158854632187d1c7127c5380f782a",
+    "version": "1.49.0",
+    "package_manager": "pnpm@11.13.1",
+    "build_script": "build",
+    "dist": "dist",
+    "required_paths": [
+      "package.json",
+      "pnpm-lock.yaml"
+    ],
+    "required_dist_paths": [
+      "index.html"
+    ],
+    "reason": "Pinned frontend build that provides Expose to editor bindings and native post-save workflow compilation."
+  },
   "nodes": [
+    {
+      "name": "comfyui-editor-bridge",
+      "folder": "comfyui-editor-bridge",
+      "repo": "https://github.com/xuzihe2020/comfyui-editor-bridge.git",
+      "ref": "6ef7346f5625e884c95a1ed688076b4106105896",
+      "install_method": "git-clone",
+      "require_local_checkout": true,
+      "required_paths": [
+        "__init__.py",
+        "editor_bridge/routes.py"
+      ],
+      "reason": "Pinned private ComfyUI extension that stores compiled workflow sidecars, exposes editor bridge routes, streams logs, and manages staged run artifacts."
+    },
     {
       "name": "ComfyUI-EasyOCR",
       "folder": "ComfyUI-EasyOCR",

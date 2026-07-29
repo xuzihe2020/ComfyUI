@@ -128,6 +128,24 @@ See what ComfyUI can do with the [newer template workflows](https://comfy.org/wo
 
 Workflow examples can be found on the [Examples page](https://comfyanonymous.github.io/ComfyUI_examples/)
 
+## Maintained editor integration
+
+This fork treats the editor bridge and custom frontend as pinned ComfyUI
+dependencies in `custom_nodes.manifest.json`. From the ComfyUI repository, the
+complete Windows lifecycle is:
+
+```bat
+python scripts\install_custom_nodes.py
+run_comfyui.bat
+```
+
+The installer clones the private `comfyui-editor-bridge` into `custom_nodes`,
+clones the matching `ComfyUI_frontend` into `tools`, installs its locked
+JavaScript dependencies, and builds its production `dist`. Startup verifies
+the pinned revisions and build marker before launching, then serves that build
+through `--front-end-root`. It fails with an installer instruction if any
+component is missing or stale; it does not fall back to the stock frontend.
+
 ## Release Process
 
 ComfyUI follows a weekly release cycle targeting Monday but this regularly changes because of model releases or large changes to the codebase. There are three interconnected repositories:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install the ComfyUI custom nodes listed in custom_nodes.manifest.json.
+"""Install every ComfyUI dependency listed in custom_nodes.manifest.json.
 
 Run from the repository root.
 
@@ -13,10 +13,16 @@ macOS/Linux:
     cd /path/to/comfyui
     python3 scripts/install_custom_nodes.py
 
-Default behavior is diff mode: only custom nodes listed in the manifest whose
-folders are missing from custom_nodes/ are installed. Existing nodes can get a
-dependency fix or lightweight optional-accelerator check without running
-ComfyUI-Manager for every node.
+The default command also installs the pinned comfyui-editor-bridge directly
+under custom_nodes/, clones the pinned custom ComfyUI frontend under tools/,
+installs its JavaScript dependencies, and produces its production dist build.
+run_comfyui.bat verifies and serves that exact build; it never silently falls
+back to the packaged frontend.
+
+Default behavior is diff mode: only dependencies whose installed state differs
+from the manifest are processed. Existing nodes can get a dependency fix or
+lightweight optional-accelerator check without running ComfyUI-Manager for every
+node.
 
 Diff mode is also SCOPED per repo: the stamp records every repo's HEAD, and
 dependency work runs only for nodes whose own repo actually changed since the
@@ -62,6 +68,7 @@ from datetime import datetime
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -72,14 +79,12 @@ DEFAULT_MANIFEST = REPO_ROOT / "custom_nodes.manifest.json"
 DEFAULT_EXTRA_MODEL_PATHS = REPO_ROOT / "extra_model_paths.yaml"
 CUSTOM_NODES_DIR = REPO_ROOT / "custom_nodes"
 TOOLS_DIR = REPO_ROOT / "tools"
+FRONTEND_BUILD_MARKER = ".comfyui-frontend-build.json"
 # Written after every successful run; diff mode exits immediately when the
 # recomputed state (manifest hash + every repo's HEAD) matches the stamp, so a
 # no-change run costs seconds instead of re-running dependency fixes and
 # cm-cli (whose registry fetch alone is minutes per node).
 INSTALL_STAMP = CUSTOM_NODES_DIR / ".install_state.json"
-EDITOR_BRIDGE_SOURCE = REPO_ROOT.parent / "comfyui-editor-bridge"
-EDITOR_BRIDGE_TARGET = CUSTOM_NODES_DIR / "comfyui-editor-bridge"
-
 # Patched custom nodes maintained from the user's GitHub should be handled first.
 # These forks carry repo-specific fixes and compatibility patches, so the install
 # pass checks/clones them before normal upstream/community nodes.
@@ -295,6 +300,238 @@ def load_manifest(path: Path) -> dict:
         return json.load(f)
 
 
+def command_prefix(name: str) -> list[str] | None:
+    """Return a subprocess-safe command prefix for native executables/scripts."""
+    executable = shutil.which(name)
+    if executable is None:
+        return None
+    if os.name == "nt" and Path(executable).suffix.lower() in {".bat", ".cmd"}:
+        return [os.environ.get("COMSPEC", "cmd.exe"), "/d", "/c", executable]
+    return [executable]
+
+
+def pnpm_prefix(package_manager: str) -> list[str]:
+    corepack = command_prefix("corepack")
+    if corepack is not None:
+        return [*corepack, package_manager]
+    direct = command_prefix("pnpm")
+    if direct is not None:
+        expected_version = package_manager.partition("@")[2]
+        result = subprocess.run(
+            [*direct, "--version"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+        )
+        actual_version = result.stdout.strip() if result.returncode == 0 else None
+        if expected_version and actual_version != expected_version:
+            raise SystemExit(
+                f"The manifest requires {package_manager}, but pnpm "
+                f"{actual_version or 'could not be executed'} is installed. "
+                "Install/enable Corepack so the installer can run the pinned version."
+            )
+        return direct
+    raise SystemExit(
+        "The pinned ComfyUI frontend requires Node.js with pnpm or corepack. "
+        "Install Node.js, then rerun scripts/install_custom_nodes.py."
+    )
+
+
+def frontend_path(manifest: dict) -> Path:
+    frontend = manifest.get("frontend")
+    if not frontend:
+        raise SystemExit("custom_nodes.manifest.json is missing the required frontend section.")
+    return TOOLS_DIR / frontend["folder"]
+
+
+def frontend_build_marker_path(path: Path, dist: str = "dist") -> Path:
+    return path / dist / FRONTEND_BUILD_MARKER
+
+
+def frontend_build_marker(path: Path, dist: str = "dist") -> dict | None:
+    try:
+        with frontend_build_marker_path(path, dist).open(
+            "r",
+            encoding="utf-8",
+        ) as f:
+            value = json.load(f)
+        return value if isinstance(value, dict) else None
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def frontend_package_version(path: Path) -> str | None:
+    try:
+        with (path / "package.json").open("r", encoding="utf-8") as f:
+            package = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
+    value = package.get("version")
+    return value if isinstance(value, str) and value else None
+
+
+def editor_integration_errors(manifest: dict) -> list[str]:
+    """Return actionable errors for the pinned bridge/frontend runtime."""
+    errors: list[str] = []
+    frontend = manifest.get("frontend")
+    if not frontend:
+        return ["manifest frontend section is missing"]
+
+    frontend_dir = frontend_path(manifest)
+    frontend_head = repo_head(frontend_dir) if frontend_dir.exists() else None
+    expected_frontend_ref = frontend.get("ref")
+    if frontend_head != expected_frontend_ref:
+        errors.append(
+            f"frontend checkout is {frontend_head or 'missing'}, "
+            f"expected {expected_frontend_ref}"
+        )
+    package_version = frontend_package_version(frontend_dir)
+    expected_version = frontend.get("version")
+    if package_version != expected_version:
+        errors.append(
+            f"frontend package version is {package_version or 'missing'}, "
+            f"expected {expected_version}"
+        )
+
+    dist_dir = frontend_dir / frontend.get("dist", "dist")
+    for relative_path in frontend.get("required_dist_paths", ["index.html"]):
+        if not (dist_dir / relative_path).is_file():
+            errors.append(f"frontend build is missing {dist_dir / relative_path}")
+
+    dist_name = frontend.get("dist", "dist")
+    marker = frontend_build_marker(frontend_dir, dist_name)
+    if marker is None:
+        errors.append(
+            "frontend build marker is missing: "
+            f"{frontend_build_marker_path(frontend_dir, dist_name)}"
+        )
+    elif (
+        marker.get("head") != frontend_head
+        or marker.get("ref") != expected_frontend_ref
+        or marker.get("version") != expected_version
+    ):
+        errors.append("frontend build marker does not match the pinned checkout")
+
+    bridge = next(
+        (
+            node
+            for node in manifest.get("nodes", [])
+            if node.get("folder") == "comfyui-editor-bridge"
+        ),
+        None,
+    )
+    if bridge is None:
+        errors.append("manifest comfyui-editor-bridge node is missing")
+    else:
+        bridge_dir = CUSTOM_NODES_DIR / bridge["folder"]
+        bridge_head = repo_head(bridge_dir) if bridge_dir.exists() else None
+        if bridge_head != bridge.get("ref"):
+            errors.append(
+                f"editor bridge checkout is {bridge_head or 'missing'}, "
+                f"expected {bridge.get('ref')}"
+            )
+        for relative_path in bridge.get("required_paths", []):
+            if not (bridge_dir / relative_path).is_file():
+                errors.append(f"editor bridge is missing {bridge_dir / relative_path}")
+
+    return errors
+
+
+def check_editor_integration(manifest: dict) -> None:
+    errors = editor_integration_errors(manifest)
+    if errors:
+        details = "\n".join(f"- {error}" for error in errors)
+        raise SystemExit(
+            "ComfyUI editor integration is not installed or is stale:\n"
+            f"{details}\n"
+            "Run scripts/install_custom_nodes.py, then start ComfyUI again."
+        )
+    print(
+        "ComfyUI editor integration ready: pinned frontend build and editor bridge verified.",
+        flush=True,
+    )
+
+
+def install_frontend(manifest: dict, *, install_mode: str) -> None:
+    """Clone, dependency-install, and build the manifest-pinned frontend."""
+    frontend = manifest["frontend"]
+    target = frontend_path(manifest)
+    before_head = repo_head(target) if target.exists() else None
+    newly_cloned = not target.exists()
+    clone_repo(frontend["repo"], target, frontend.get("ref"))
+    after_head = repo_head(target)
+
+    missing_source_paths = missing_required_paths(frontend, target)
+    if missing_source_paths:
+        raise SystemExit(
+            f"{frontend['name']}: checkout is missing required paths: "
+            + ", ".join(missing_source_paths)
+        )
+    package_version = frontend_package_version(target)
+    if package_version != frontend.get("version"):
+        raise SystemExit(
+            f"{frontend['name']}: package version is "
+            f"{package_version or 'missing'}, expected {frontend.get('version')}"
+        )
+
+    dist_name = frontend.get("dist", "dist")
+    marker = frontend_build_marker(target, dist_name)
+    dist_dir = target / dist_name
+    missing_dist_paths = [
+        relative_path
+        for relative_path in frontend.get("required_dist_paths", ["index.html"])
+        if not (dist_dir / relative_path).is_file()
+    ]
+    needs_build = (
+        newly_cloned
+        or install_mode == "full"
+        or before_head != after_head
+        or bool(missing_dist_paths)
+        or marker is None
+        or marker.get("head") != after_head
+        or marker.get("ref") != frontend.get("ref")
+        or marker.get("version") != frontend.get("version")
+    )
+    if not needs_build:
+        print(
+            f"{frontend['name']}: pinned checkout and build are current; skipping build.",
+            flush=True,
+        )
+        return
+
+    package_manager = frontend.get("package_manager", "pnpm")
+    if not package_manager.startswith("pnpm"):
+        raise SystemExit(f"Unsupported frontend package manager: {package_manager}")
+    pnpm = pnpm_prefix(package_manager)
+    run([*pnpm, "install", "--frozen-lockfile"], cwd=target)
+    run([*pnpm, "run", frontend.get("build_script", "build")], cwd=target)
+
+    missing_dist_paths = [
+        relative_path
+        for relative_path in frontend.get("required_dist_paths", ["index.html"])
+        if not (dist_dir / relative_path).is_file()
+    ]
+    if missing_dist_paths:
+        raise SystemExit(
+            f"{frontend['name']}: build completed but required outputs are missing: "
+            + ", ".join(missing_dist_paths)
+        )
+
+    marker_value = {
+        "head": after_head,
+        "ref": frontend.get("ref"),
+        "version": frontend.get("version"),
+        "built_at": datetime.now().astimezone().isoformat(),
+    }
+    with frontend_build_marker_path(target, dist_name).open(
+        "w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(marker_value, f, indent=2, sort_keys=True)
+        f.write("\n")
+    print(f"{frontend['name']}: build ready at {dist_dir}", flush=True)
+
+
 def external_model_base(path: Path = DEFAULT_EXTRA_MODEL_PATHS) -> Path | None:
     if not path.exists():
         return None
@@ -366,36 +603,6 @@ def comfy_python() -> str:
     return sys.executable
 
 
-def ensure_editor_bridge(
-    source: Path = EDITOR_BRIDGE_SOURCE,
-    target: Path = EDITOR_BRIDGE_TARGET,
-) -> bool:
-    """Expose the maintained sibling bridge as a ComfyUI custom node.
-
-    A junction/symlink keeps the bridge's own repository as the only source of
-    truth and avoids copying runtime code into the ComfyUI checkout.
-    """
-    if target.exists() or target.is_symlink():
-        print(f"Editor bridge custom-node path is present: {target}", flush=True)
-        return True
-    if not (source / "__init__.py").is_file():
-        print(
-            f"Editor bridge source not found at {source}; bridge installation skipped.",
-            flush=True,
-        )
-        return False
-    target.parent.mkdir(parents=True, exist_ok=True)
-    if os.name == "nt":
-        run(
-            ["cmd", "/c", "mklink", "/J", str(target), str(source)],
-            cwd=target.parent,
-        )
-    else:
-        target.symlink_to(source.resolve(), target_is_directory=True)
-    print(f"Linked editor bridge custom node: {target} -> {source}", flush=True)
-    return True
-
-
 def clone_repo(repo: str, target: Path, ref: str | None = None) -> None:
     if target.exists():
         if not (target / ".git").exists():
@@ -449,6 +656,25 @@ def quarantine_incomplete_checkout(node: dict, target: Path) -> Path:
     return candidate
 
 
+def is_link_or_junction(path: Path) -> bool:
+    if path.is_symlink():
+        return True
+    is_junction = getattr(path, "is_junction", None)
+    if callable(is_junction) and is_junction():
+        return True
+    try:
+        return path.exists() and path.resolve() != path.absolute()
+    except OSError:
+        return False
+
+
+def remove_link_or_junction(path: Path) -> None:
+    if path.is_symlink():
+        path.unlink()
+    else:
+        path.rmdir()
+
+
 def install_git_clone_node(
     node: dict,
     python_bin: str,
@@ -458,6 +684,13 @@ def install_git_clone_node(
 ) -> None:
     """Install a self-contained manifest node without ComfyUI-Manager."""
     target = CUSTOM_NODES_DIR / node["folder"]
+    if node.get("require_local_checkout") and is_link_or_junction(target):
+        remove_link_or_junction(target)
+        print(
+            f"{node['name']}: removed legacy external link; "
+            "installing the manifest-owned checkout.",
+            flush=True,
+        )
     newly_cloned = not target.exists()
     if target.exists():
         missing_paths = missing_required_paths(node, target)
@@ -469,7 +702,7 @@ def install_git_clone_node(
             )
             quarantine_incomplete_checkout(node, target)
             newly_cloned = True
-    clone_repo(node["repo"], target)
+    clone_repo(node["repo"], target, node.get("ref"))
 
     missing_paths = missing_required_paths(node, target)
     if missing_paths:
@@ -743,6 +976,12 @@ def compute_install_state(manifest: dict, manifest_path: Path) -> dict:
             continue
         folder = TOOLS_DIR / tool["folder"]
         repos[f"tools/{tool['folder']}"] = repo_head(folder) if folder.exists() else None
+    frontend = manifest.get("frontend")
+    if frontend:
+        folder = TOOLS_DIR / frontend["folder"]
+        repos[f"frontend/{frontend['folder']}"] = (
+            repo_head(folder) if folder.exists() else None
+        )
     return {
         "manifest_md5": hashlib.md5(manifest_path.read_bytes()).hexdigest(),
         "repos": repos,
@@ -839,10 +1078,17 @@ def main() -> None:
             "rewrite the global install-state stamp."
         ),
     )
+    parser.add_argument(
+        "--check-editor-integration",
+        action="store_true",
+        help="Verify the manifest-pinned frontend build and editor bridge, then exit.",
+    )
     args = parser.parse_args()
 
-    ensure_editor_bridge()
     manifest = load_manifest(args.manifest)
+    if args.check_editor_integration:
+        check_editor_integration(manifest)
+        return
     scoped_node_run = bool(args.node)
     if scoped_node_run:
         requested = set(args.node)
@@ -886,7 +1132,8 @@ def main() -> None:
         current_state = compute_install_state(manifest, args.manifest)
         stamp = load_install_stamp()
         if (current_state == stamp
-                and None not in current_state["repos"].values()):
+                and None not in current_state["repos"].values()
+                and not editor_integration_errors(manifest)):
             print(
                 "Install state unchanged since last successful run; nothing to do. "
                 f"(stamp: {INSTALL_STAMP}; use --full to force a re-check)",
@@ -906,6 +1153,8 @@ def main() -> None:
                 flush=True,
             )
 
+    if not scoped_node_run:
+        install_frontend(manifest, install_mode=install_mode)
     install_tools(manifest, comfy_python(), install_mode=install_mode,
                   no_deps=args.no_deps, changed_keys=changed_keys)
     existing_dependency_nodes: list[dict] = []
@@ -981,6 +1230,7 @@ def main() -> None:
     if not nodes_to_install and not existing_dependency_nodes and not existing_accelerator_nodes:
         print("No missing custom nodes, dependency fixes, or optional accelerator checks found in manifest; diff install is complete.", flush=True)
         if not scoped_node_run:
+            check_editor_integration(manifest)
             write_install_stamp(compute_install_state(manifest, args.manifest))
         return
 
@@ -1020,6 +1270,7 @@ def main() -> None:
         apply_post_install_fixes()
 
     if not scoped_node_run:
+        check_editor_integration(manifest)
         write_install_stamp(compute_install_state(manifest, args.manifest))
 
 
