@@ -23,6 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 from lib.envfile import env_value  # noqa: E402
+from aigc_shared.batch import append_jsonl, atomic_write_json  # noqa: E402
 from aigc_shared.llm_client import APIError, GeminiClient  # noqa: E402
 from aigc_shared.media import detect_supported_image_mime_type  # noqa: E402
 
@@ -561,8 +562,7 @@ def render_variant_prompts(
 
 
 def write_json(path: Path, data: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    atomic_write_json(path, data)
 
 
 def write_text(path: Path, text: str) -> None:
@@ -572,9 +572,7 @@ def write_text(path: Path, text: str) -> None:
 
 def append_manifest(settings: Settings, row: dict[str, Any]) -> None:
     manifest_path = settings.output_dir / "manifest.jsonl"
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    with manifest_path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+    append_jsonl(manifest_path, row)
 
 
 def process_image(settings: Settings, image_path: Path) -> bool:

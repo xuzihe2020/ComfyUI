@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import lib.envfile as legacy_envfile
 import pytest
@@ -23,10 +25,14 @@ from lib.llm_client import (
     OpenAIClient,
 )
 from scripts.environment.gemini_environment_briefs import (
+    append_manifest as append_gemini_manifest,
     image_mime_type as gemini_image_mime_type,
+    write_json as write_gemini_json,
 )
 from scripts.environment.openai_generate_environment_images import (
+    append_manifest as append_openai_manifest,
     image_mime_type as openai_image_mime_type,
+    write_json as write_openai_json,
 )
 
 
@@ -70,3 +76,27 @@ def test_environment_scripts_preserve_unsupported_image_errors() -> None:
         gemini_image_mime_type(Path("reference.gif"))
     with pytest.raises(ValueError, match="Unsupported reference image type"):
         openai_image_mime_type(Path("reference.gif"))
+
+
+def test_environment_scripts_preserve_json_and_manifest_bytes(tmp_path) -> None:
+    payload = {"name": "环境", "value": 2}
+    for name, writer in (
+        ("gemini", write_gemini_json),
+        ("openai", write_openai_json),
+    ):
+        output = tmp_path / name / "record.json"
+        writer(output, payload)
+        assert output.read_text(encoding="utf-8") == (
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
+        )
+        assert not (output.parent / f".{output.name}.tmp").exists()
+
+    gemini_settings = SimpleNamespace(output_dir=tmp_path / "gemini-output")
+    openai_settings = SimpleNamespace(output_dir=tmp_path / "openai-output")
+    append_gemini_manifest(gemini_settings, payload)
+    append_openai_manifest(openai_settings, payload)
+    expected = json.dumps(payload, ensure_ascii=False) + "\n"
+    assert (gemini_settings.output_dir / "manifest.jsonl").read_text() == expected
+    assert (
+        openai_settings.output_dir / "generation_manifest.jsonl"
+    ).read_text() == expected
