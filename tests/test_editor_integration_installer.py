@@ -73,9 +73,18 @@ class EditorIntegrationManifestTests(unittest.TestCase):
         self.assertTrue(bridge["require_local_checkout"])
         self.assertRegex(bridge["ref"], r"^[0-9a-f]{40}$")
 
-    def test_run_script_uses_only_manifest_installed_dependencies(self) -> None:
+    def test_run_script_converges_manifest_before_startup(self) -> None:
         run_script = (REPO_ROOT / "run_comfyui.bat").read_text(encoding="utf-8")
-        self.assertIn("--check-editor-integration", run_script)
+        installer_command = (
+            r'".venv\Scripts\python.exe" '
+            r'"scripts\install_custom_nodes.py"'
+        )
+        self.assertIn(installer_command, run_script)
+        self.assertLess(
+            run_script.index(installer_command),
+            run_script.index(r'".venv\Scripts\python.exe" "main.py"'),
+        )
+        self.assertIn("if errorlevel 1 exit /b 1", run_script)
         self.assertIn(r"ComfyUI_frontend\dist", run_script)
         self.assertNotIn(r"tools\ComfyUI_frontend", run_script)
         self.assertNotIn(r"..\ComfyUI_frontend", run_script)

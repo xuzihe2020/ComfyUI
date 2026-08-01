@@ -11,7 +11,8 @@ if not defined AUX_ANNOTATOR_CKPTS_PATH (
     set "AUX_ANNOTATOR_CKPTS_PATH=C:\Users\Tony Xu\workspace\comfyui_models\annotators"
 )
 
-".venv\Scripts\python.exe" "scripts\install_custom_nodes.py" --check-editor-integration
+echo Checking manifest-managed custom nodes and dependencies...
+".venv\Scripts\python.exe" "scripts\install_custom_nodes.py"
 if errorlevel 1 exit /b 1
 
 set "COMFYUI_EDITOR_FRONTEND_ROOT=%~dp0ComfyUI_frontend\dist"
