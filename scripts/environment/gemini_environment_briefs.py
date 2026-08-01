@@ -12,7 +12,6 @@ from __future__ import annotations
 import argparse
 import base64
 import json
-import mimetypes
 import sys
 import time
 from dataclasses import dataclass
@@ -25,6 +24,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from lib.envfile import env_value  # noqa: E402
 from aigc_shared.llm_client import APIError, GeminiClient  # noqa: E402
+from aigc_shared.media import detect_supported_image_mime_type  # noqa: E402
 
 
 DEFAULT_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
@@ -386,15 +386,9 @@ def variant_prompt_path(settings: Settings, image_path: Path, variant_id: str) -
 
 
 def image_mime_type(image_path: Path) -> str:
-    guessed, _ = mimetypes.guess_type(image_path.name)
-    if guessed in {"image/png", "image/jpeg", "image/webp"}:
-        return guessed
-    if image_path.suffix.lower() in {".jpg", ".jpeg"}:
-        return "image/jpeg"
-    if image_path.suffix.lower() == ".png":
-        return "image/png"
-    if image_path.suffix.lower() == ".webp":
-        return "image/webp"
+    mime_type = detect_supported_image_mime_type(image_path)
+    if mime_type is not None:
+        return mime_type
     raise ValueError(f"Unsupported image MIME type for {image_path}")
 
 
