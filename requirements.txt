@@ -70,6 +70,10 @@ randomname
 ffmpy
 argbind
 tensorboard
+markdown2
+pyloudnorm
+pystoi
+torch-stoi
 
 # --- repo-specific: LoRA data face verification (tools/lora_data_generator) ---
 # ArcFace identity scoring of generated images vs the primary character
