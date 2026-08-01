@@ -7,7 +7,17 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import lib.envfile as legacy_envfile
+import lib.llm_client.base as legacy_base
+import lib.llm_client.bfl as legacy_bfl
+import lib.llm_client.gemini as legacy_gemini
+import lib.llm_client.grok as legacy_grok
+import lib.llm_client.openai as legacy_openai
 import pytest
+import aigc_shared.llm_client.base as shared_base
+import aigc_shared.llm_client.bfl as shared_bfl
+import aigc_shared.llm_client.gemini as shared_gemini
+import aigc_shared.llm_client.grok as shared_grok
+import aigc_shared.llm_client.openai as shared_openai
 from aigc_shared.llm_client import (
     APIError as SharedAPIError,
     BFLClient as SharedBFLClient,
@@ -43,6 +53,18 @@ def test_legacy_client_imports_are_canonical_shared_classes() -> None:
     assert GeminiClient is SharedGeminiClient
     assert GrokClient is SharedGrokClient
     assert OpenAIClient is SharedOpenAIClient
+
+
+def test_legacy_client_submodules_are_canonical_shared_exports() -> None:
+    assert legacy_base.APIError is shared_base.APIError
+    assert legacy_base.BaseAPIClient is shared_base.BaseAPIClient
+    assert legacy_base.encode_multipart is shared_base.encode_multipart
+    assert legacy_bfl.BFLClient is shared_bfl.BFLClient
+    assert legacy_bfl.BFLError is shared_bfl.BFLError
+    assert legacy_gemini.GeminiClient is shared_gemini.GeminiClient
+    assert legacy_grok.GrokClient is shared_grok.GrokClient
+    assert legacy_openai.OpenAIClient is shared_openai.OpenAIClient
+    assert legacy_openai.OpenAIError is shared_openai.OpenAIError
 
 
 def test_comfy_env_wrapper_loads_project_file_without_overwriting_process_env(
