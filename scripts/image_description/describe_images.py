@@ -16,8 +16,8 @@ be reviewed and edited without touching this code. The FLUX.2 prompt is built by
 plain, static string assembly from the JSON fields -- no model call is involved.
 
 Auth: set the ``XAI_API_KEY`` environment variable, put it in the repo-root
-``.env``, or pass ``--api-key``. API access goes through the shared
-``lib.llm_client`` package (only the Python standard library is required).
+``.env``, or pass ``--api-key``. API access goes through
+``aigc_shared.llm_client`` (only the Python standard library is required).
 """
 
 from __future__ import annotations

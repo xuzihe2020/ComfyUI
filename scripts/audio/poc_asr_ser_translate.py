@@ -12,8 +12,8 @@ docs/fish-audio-s2-dubbing-pipeline-design.md:
     SenseVoice-Small per segment (emotion label + events such as laughter/BGM),
     optionally emotion2vec+ as a second opinion with a confidence score.
     Disagreement between the two models flags the segment for human review.
- 4. Translate segments to Chinese with Grok through the shared repo client
-    (lib.llm_client). Auth via XAI_API_KEY from the environment or the
+ 4. Translate segments to Chinese with Grok through ``aigc_shared.llm_client``.
+    Auth via XAI_API_KEY from the environment or the
     repo-root .env. Skipped with a warning when no API key is set.
 
 Outputs (under --out-dir, default data/dubbing/<clip stem>/):
