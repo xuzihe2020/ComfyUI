@@ -1088,7 +1088,10 @@ def install_state_entry_changed(previous: str | None, current: str | None) -> bo
         isinstance(previous, str)
         and re.fullmatch(r"[0-9a-f]{40}", previous)
         and isinstance(current, str)
-        and current.startswith("deps:")
+        and (
+            current.startswith("deps:")
+            or current == f"git:{previous}"
+        )
     ):
         return False
     return True

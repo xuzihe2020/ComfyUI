@@ -411,6 +411,9 @@ class InstallStateTests(unittest.TestCase):
         self.assertFalse(
             installer.install_state_entry_changed("a" * 40, "deps:" + "b" * 64)
         )
+        self.assertFalse(
+            installer.install_state_entry_changed("a" * 40, "git:" + "a" * 40)
+        )
         self.assertTrue(
             installer.install_state_entry_changed(
                 "git:" + "a" * 40,
