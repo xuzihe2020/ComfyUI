@@ -476,9 +476,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--emotion2vec-size", default="base", choices=("base", "large"))
     parser.add_argument("--model-hub", default="hf", choices=("hf", "ms"),
                         help="Model download hub for funasr models (default: hf).")
-    parser.add_argument("--llm-base-url", default=GrokClient.DEFAULT_BASE_URL,
+    parser.add_argument(
+                        "--llm-base-url",
+                        default=env_value("XAI_API_BASE_URL") or GrokClient.DEFAULT_BASE_URL,
                         help="OpenAI-compatible API base URL (default: xAI).")
-    parser.add_argument("--llm-model", default=GrokClient.DEFAULT_MODEL,
+    parser.add_argument(
+                        "--llm-model",
+                        default=env_value("XAI_MODEL") or GrokClient.DEFAULT_MODEL,
                         help=f"Chat model for translation (default: {GrokClient.DEFAULT_MODEL}).")
     parser.add_argument("--api-key-env", default="XAI_API_KEY",
                         help="Env var holding the API key (default: XAI_API_KEY).")

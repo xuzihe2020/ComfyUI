@@ -535,8 +535,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--overwrite", action="store_true", help="Re-run images that already have output.")
     p.add_argument("--limit", type=int, default=0, help="Process at most N images (0 = all).")
 
-    p.add_argument("--model", default=GrokClient.DEFAULT_MODEL, help="Vision-capable Grok model id.")
-    p.add_argument("--base-url", default=GrokClient.DEFAULT_BASE_URL, help="xAI OpenAI-compatible base URL.")
+    p.add_argument(
+        "--model",
+        default=env_value("XAI_MODEL") or GrokClient.DEFAULT_MODEL,
+        help="Vision-capable Grok model id.",
+    )
+    p.add_argument(
+        "--base-url",
+        default=env_value("XAI_API_BASE_URL") or GrokClient.DEFAULT_BASE_URL,
+        help="xAI OpenAI-compatible base URL.",
+    )
     p.add_argument("--api-key", default=env_value("XAI_API_KEY"),
                    help="xAI API key (or set XAI_API_KEY in the environment or repo .env).")
     p.add_argument("--language", default="English", help="Language for Grok's description values.")

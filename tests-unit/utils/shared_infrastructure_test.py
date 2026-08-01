@@ -44,6 +44,7 @@ from scripts.environment.openai_generate_environment_images import (
     image_mime_type as openai_image_mime_type,
     write_json as write_openai_json,
 )
+from scripts.image_description.describe_images import parse_args as parse_description_args
 
 
 def test_legacy_client_imports_are_canonical_shared_classes() -> None:
@@ -81,6 +82,18 @@ def test_comfy_env_wrapper_loads_project_file_without_overwriting_process_env(
 
     assert legacy_envfile.env_value("COMFY_SHARED_FILE_VALUE") == "decoded value"
     assert legacy_envfile.env_value("COMFY_SHARED_PROCESS_VALUE") == "process"
+
+
+def test_grok_script_defaults_use_canonical_xai_environment(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv("XAI_MODEL", "grok-4.3")
+    monkeypatch.setenv("XAI_API_BASE_URL", "https://api.x.ai/v1")
+
+    args = parse_description_args([str(tmp_path)])
+
+    assert args.model == "grok-4.3"
+    assert args.base_url == "https://api.x.ai/v1"
 
 
 def test_environment_scripts_share_supported_image_mime_detection() -> None:
