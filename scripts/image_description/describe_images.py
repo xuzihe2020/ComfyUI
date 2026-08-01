@@ -34,7 +34,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 from lib.envfile import env_value  # noqa: E402
-from lib.llm_client import GrokClient  # noqa: E402
+from aigc_shared.llm_client import GrokClient  # noqa: E402
 
 
 # --------------------------------------------------------------------------- #

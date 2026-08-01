@@ -1,4 +1,4 @@
-"""Shared repo-level infrastructure for scripts and tools.
+"""Compatibility paths for shared infrastructure used by older scripts.
 
 Subpackages / modules:
 
@@ -7,10 +7,8 @@ Subpackages / modules:
     lib.llm_client   hosted-API clients (Grok, OpenAI, Gemini, BFL), all
                      subclasses of BaseAPIClient with .env-backed from_env()
 
-Every hosted-API call made by this repo's scripts and tools goes through
-lib.llm_client — do not duplicate API client code in scripts. Keys come from
-the environment or the repo-root `.env` (see `.env.example`); real environment
-variables always win over `.env` values.
+The implementations now live in the sibling ``aigc-shared`` package. These
+paths remain only so external callers using the old imports do not break.
 
 Scripts put the repo root on sys.path before importing:
 
@@ -18,6 +16,5 @@ Scripts put the repo root on sys.path before importing:
     sys.path.insert(0, str(REPO_ROOT))
     from lib.llm_client import GrokClient
 
-Everything here is stdlib-only (urllib) on purpose so it runs in the ComfyUI
-venv without extra SDK dependencies.
+Install the sibling package into the ComfyUI venv before using these paths.
 """
