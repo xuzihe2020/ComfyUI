@@ -549,6 +549,10 @@ def install_frontend(manifest: dict, *, install_mode: str) -> None:
         or marker.get("version") != frontend.get("version")
     )
     if not needs_build:
+        # Only dist/ is a runtime artifact. Never retain the development
+        # dependency tree on a persistent workstation or RunPod volume.
+        shutil.rmtree(target / "node_modules", ignore_errors=True)
+        shutil.rmtree(target / ".pnpm-build-store", ignore_errors=True)
         print(
             f"{frontend['name']}: pinned checkout and build are current; skipping build.",
             flush=True,
@@ -560,8 +564,28 @@ def install_frontend(manifest: dict, *, install_mode: str) -> None:
         raise SystemExit(f"Unsupported frontend package manager: {package_manager}")
     validate_frontend_node_engine(frontend)
     pnpm = pnpm_prefix(package_manager)
-    run([*pnpm, "install", "--frozen-lockfile"], cwd=target)
-    run([*pnpm, "run", frontend.get("build_script", "build")], cwd=target)
+    node_modules = target / "node_modules"
+    build_store = target / ".pnpm-build-store"
+    shutil.rmtree(node_modules, ignore_errors=True)
+    shutil.rmtree(build_store, ignore_errors=True)
+    try:
+        run(
+            [
+                *pnpm,
+                "install",
+                "--frozen-lockfile",
+                "--store-dir",
+                str(build_store),
+            ],
+            cwd=target,
+        )
+        run([*pnpm, "run", frontend.get("build_script", "build")], cwd=target)
+    finally:
+        # The compiled dist is served directly by ComfyUI. Keeping the pnpm
+        # virtual store/node_modules after the build wastes many GB and is not
+        # required at runtime. Cleanup also runs after a failed build.
+        shutil.rmtree(node_modules, ignore_errors=True)
+        shutil.rmtree(build_store, ignore_errors=True)
 
     missing_dist_paths = [
         relative_path

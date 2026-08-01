@@ -212,6 +212,9 @@ class EditorIntegrationInstallTests(unittest.TestCase):
 
         def fake_run(command: list[str], *, cwd: Path, env=None) -> None:
             del env
+            if "install" in command:
+                (cwd / "node_modules").mkdir()
+                (cwd / ".pnpm-build-store").mkdir()
             if command[-2:] == ["run", "build"]:
                 (cwd / "dist").mkdir()
                 (cwd / "dist" / "index.html").write_text(
@@ -229,7 +232,13 @@ class EditorIntegrationInstallTests(unittest.TestCase):
 
         self.assertEqual(run_mock.call_count, 2)
         run_mock.assert_any_call(
-            ["pnpm", "install", "--frozen-lockfile"],
+            [
+                "pnpm",
+                "install",
+                "--frozen-lockfile",
+                "--store-dir",
+                str(frontend_dir / ".pnpm-build-store"),
+            ],
             cwd=frontend_dir,
         )
         run_mock.assert_any_call(
@@ -244,10 +253,15 @@ class EditorIntegrationInstallTests(unittest.TestCase):
         self.assertEqual(marker["head"], frontend["ref"])
         self.assertEqual(marker["ref"], frontend["ref"])
         self.assertEqual(marker["version"], frontend["version"])
+        self.assertFalse((frontend_dir / "node_modules").exists())
+        self.assertFalse((frontend_dir / ".pnpm-build-store").exists())
 
     def test_frontend_install_skips_current_build(self) -> None:
         self.create_ready_install()
         frontend = self.manifest["frontend"]
+        frontend_dir = self.root / frontend["folder"]
+        (frontend_dir / "node_modules").mkdir()
+        (frontend_dir / ".pnpm-build-store").mkdir()
 
         with (
             mock.patch.object(installer, "clone_repo"),
@@ -257,6 +271,40 @@ class EditorIntegrationInstallTests(unittest.TestCase):
             installer.install_frontend(self.manifest, install_mode="diff")
 
         run_mock.assert_not_called()
+        self.assertFalse((frontend_dir / "node_modules").exists())
+        self.assertFalse((frontend_dir / ".pnpm-build-store").exists())
+
+    def test_frontend_install_cleans_dependencies_after_build_failure(self) -> None:
+        frontend = self.manifest["frontend"]
+        frontend_dir = self.root / frontend["folder"]
+
+        def fake_clone(_repo: str, target: Path, _ref: str | None) -> None:
+            target.mkdir(parents=True)
+            (target / "package.json").write_text(
+                json.dumps({"version": frontend["version"]}),
+                encoding="utf-8",
+            )
+            (target / "pnpm-lock.yaml").write_text("", encoding="utf-8")
+
+        def fake_run(command: list[str], *, cwd: Path, env=None) -> None:
+            del env
+            if "install" in command:
+                (cwd / "node_modules").mkdir()
+                (cwd / ".pnpm-build-store").mkdir()
+                return
+            raise RuntimeError("simulated frontend build failure")
+
+        with (
+            mock.patch.object(installer, "clone_repo", side_effect=fake_clone),
+            mock.patch.object(installer, "repo_head", return_value=frontend["ref"]),
+            mock.patch.object(installer, "pnpm_prefix", return_value=["pnpm"]),
+            mock.patch.object(installer, "run", side_effect=fake_run),
+            self.assertRaisesRegex(RuntimeError, "simulated frontend build failure"),
+        ):
+            installer.install_frontend(self.manifest, install_mode="diff")
+
+        self.assertFalse((frontend_dir / "node_modules").exists())
+        self.assertFalse((frontend_dir / ".pnpm-build-store").exists())
 
     def test_frontend_node_engine_rejects_wrong_major(self) -> None:
         frontend = {"node_engine": ">=25 <26"}
