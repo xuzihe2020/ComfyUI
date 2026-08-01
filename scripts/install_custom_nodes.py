@@ -1039,29 +1039,83 @@ def repo_head(path: Path) -> str | None:
     return result.stdout.strip() if result.returncode == 0 else None
 
 
+def dependency_state(path: Path) -> str | None:
+    """Track a real nested repo by HEAD; embedded nodes by dependency files.
+
+    ``git -C embedded/path rev-parse HEAD`` walks up to ComfyUI's parent
+    repository. That previously made every embedded node look changed after
+    any unrelated ComfyUI commit and caused a large false pip refresh.
+    """
+    if not path.exists():
+        return None
+    if (path / ".git").exists():
+        head = repo_head(path)
+        return f"git:{head}" if head else None
+
+    dependency_file_set = set(path.glob("requirements*.txt"))
+    requirements_dir = path / "requirements"
+    if requirements_dir.is_dir():
+        dependency_file_set.update(requirements_dir.glob("*.txt"))
+    dependency_file_set.update(
+        candidate
+        for candidate in (
+            path / "pyproject.toml",
+            path / "setup.py",
+            path / "setup.cfg",
+        )
+        if candidate.is_file()
+    )
+    dependency_files = sorted(
+        dependency_file_set,
+        key=lambda item: str(item.relative_to(path)),
+    )
+    digest = hashlib.sha256()
+    for dependency_file in dependency_files:
+        digest.update(str(dependency_file.relative_to(path)).encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(dependency_file.read_bytes())
+        digest.update(b"\0")
+    return f"deps:{digest.hexdigest()}"
+
+
+def install_state_entry_changed(previous: str | None, current: str | None) -> bool:
+    if previous == current:
+        return False
+    # Migrate legacy stamps that recorded the parent ComfyUI SHA for embedded
+    # directories. The previous successful stamp already proves their deps
+    # were installed; adopt the new dependency fingerprint without rerunning.
+    if (
+        isinstance(previous, str)
+        and re.fullmatch(r"[0-9a-f]{40}", previous)
+        and isinstance(current, str)
+        and current.startswith("deps:")
+    ):
+        return False
+    return True
+
+
 def compute_install_state(manifest: dict, manifest_path: Path) -> dict:
-    """Manifest hash + HEAD of every platform-eligible node/tool repo.
-    A missing folder records None, which can never equal a stamped SHA."""
+    """Manifest hash + dependency revision of every eligible component."""
     repos: dict[str, str | None] = {}
     manager_folder = CUSTOM_NODES_DIR / manifest["manager"]["folder"]
     repos[f"custom_nodes/{manifest['manager']['folder']}"] = (
-        repo_head(manager_folder) if manager_folder.exists() else None
+        dependency_state(manager_folder)
     )
     for node in manifest["nodes"]:
         if not node_allowed_here(node):
             continue
         folder = CUSTOM_NODES_DIR / node["folder"]
-        repos[f"custom_nodes/{node['folder']}"] = repo_head(folder) if folder.exists() else None
+        repos[f"custom_nodes/{node['folder']}"] = dependency_state(folder)
     for tool in manifest.get("tools", []):
         if not node_allowed_here(tool):
             continue
         folder = TOOLS_DIR / tool["folder"]
-        repos[f"tools/{tool['folder']}"] = repo_head(folder) if folder.exists() else None
+        repos[f"tools/{tool['folder']}"] = dependency_state(folder)
     frontend = manifest.get("frontend")
     if frontend:
         folder = frontend_path(manifest)
         repos[f"frontend/{frontend['folder']}"] = (
-            repo_head(folder) if folder.exists() else None
+            dependency_state(folder)
         )
     return {
         "manifest_md5": hashlib.md5(manifest_path.read_bytes()).hexdigest(),
@@ -1225,7 +1279,9 @@ def main() -> None:
             stamped_repos = stamp.get("repos", {})
             changed_keys = {
                 key for key, head in current_state["repos"].items()
-                if head is None or stamped_repos.get(key) != head
+                if head is None or install_state_entry_changed(
+                    stamped_repos.get(key), head
+                )
             }
             print(
                 "Changed since last run: "

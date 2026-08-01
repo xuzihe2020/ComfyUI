@@ -383,5 +383,41 @@ class EditorIntegrationInstallTests(unittest.TestCase):
         )
 
 
+class InstallStateTests(unittest.TestCase):
+    def test_embedded_node_tracks_dependency_files_not_parent_git_head(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            node = Path(temp) / "embedded-node"
+            node.mkdir()
+            requirements = node / "requirements.txt"
+            requirements.write_text("example-package==1\n", encoding="utf-8")
+
+            with mock.patch.object(installer, "repo_head") as repo_head:
+                before = installer.dependency_state(node)
+            repo_head.assert_not_called()
+            self.assertTrue(before.startswith("deps:"))
+
+            requirements.write_text("example-package==2\n", encoding="utf-8")
+            after = installer.dependency_state(node)
+            self.assertNotEqual(before, after)
+
+    def test_real_nested_repo_tracks_its_own_head(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            node = Path(temp) / "nested-repo"
+            (node / ".git").mkdir(parents=True)
+            with mock.patch.object(installer, "repo_head", return_value="a" * 40):
+                self.assertEqual(installer.dependency_state(node), "git:" + "a" * 40)
+
+    def test_legacy_parent_sha_migrates_without_false_dependency_refresh(self) -> None:
+        self.assertFalse(
+            installer.install_state_entry_changed("a" * 40, "deps:" + "b" * 64)
+        )
+        self.assertTrue(
+            installer.install_state_entry_changed(
+                "git:" + "a" * 40,
+                "git:" + "b" * 40,
+            )
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
