@@ -313,12 +313,9 @@ def command_prefix(name: str) -> list[str] | None:
 
 
 def pnpm_prefix(package_manager: str) -> list[str]:
-    corepack = command_prefix("corepack")
-    if corepack is not None:
-        return [*corepack, package_manager]
+    expected_version = package_manager.partition("@")[2]
     direct = command_prefix("pnpm")
     if direct is not None:
-        expected_version = package_manager.partition("@")[2]
         result = subprocess.run(
             [*direct, "--version"],
             cwd=REPO_ROOT,
@@ -326,13 +323,17 @@ def pnpm_prefix(package_manager: str) -> list[str]:
             text=True,
         )
         actual_version = result.stdout.strip() if result.returncode == 0 else None
-        if expected_version and actual_version != expected_version:
-            raise SystemExit(
-                f"The manifest requires {package_manager}, but pnpm "
-                f"{actual_version or 'could not be executed'} is installed. "
-                "Install/enable Corepack so the installer can run the pinned version."
-            )
-        return direct
+        if not expected_version or actual_version == expected_version:
+            return direct
+    corepack = command_prefix("corepack")
+    if corepack is not None:
+        return [*corepack, package_manager]
+    if direct is not None:
+        raise SystemExit(
+            f"The manifest requires {package_manager}, but pnpm "
+            f"{actual_version or 'could not be executed'} is installed. "
+            "Install/enable Corepack so the installer can run the pinned version."
+        )
     raise SystemExit(
         "The pinned ComfyUI frontend requires Node.js with pnpm or corepack. "
         "Install Node.js, then rerun scripts/install_custom_nodes.py."
@@ -567,25 +568,32 @@ def install_frontend(manifest: dict, *, install_mode: str) -> None:
     node_modules = target / "node_modules"
     build_store = target / ".pnpm-build-store"
     shutil.rmtree(node_modules, ignore_errors=True)
-    shutil.rmtree(build_store, ignore_errors=True)
+    build_succeeded = False
     try:
         run(
             [
                 *pnpm,
                 "install",
                 "--frozen-lockfile",
+                "--fetch-retries=5",
+                "--fetch-timeout=300000",
+                "--network-concurrency=8",
                 "--store-dir",
                 str(build_store),
             ],
             cwd=target,
         )
         run([*pnpm, "run", frontend.get("build_script", "build")], cwd=target)
+        build_succeeded = True
     finally:
         # The compiled dist is served directly by ComfyUI. Keeping the pnpm
         # virtual store/node_modules after the build wastes many GB and is not
-        # required at runtime. Cleanup also runs after a failed build.
+        # required at runtime. Preserve the content-addressed store after a
+        # failure so a flaky registry does not force every package to download
+        # again on the next run; it is removed after a successful build.
         shutil.rmtree(node_modules, ignore_errors=True)
-        shutil.rmtree(build_store, ignore_errors=True)
+        if build_succeeded:
+            shutil.rmtree(build_store, ignore_errors=True)
 
     missing_dist_paths = [
         relative_path
@@ -684,13 +692,26 @@ def comfy_python() -> str:
     return sys.executable
 
 
+def managed_git_command(path: Path, *args: str) -> list[str]:
+    """Run Git in one manifest-managed checkout without global trust changes."""
+    resolved = path.resolve()
+    return [
+        "git",
+        "-c",
+        f"safe.directory={resolved.as_posix()}",
+        "-C",
+        str(resolved),
+        *args,
+    ]
+
+
 def clone_repo(repo: str, target: Path, ref: str | None = None) -> None:
     if target.exists():
         if not (target / ".git").exists():
             raise SystemExit(f"{target} exists but is not a git repository")
         if ref:
-            run(["git", "fetch", "origin", ref], cwd=target)
-            run(["git", "checkout", "--detach", "FETCH_HEAD"], cwd=target)
+            run(managed_git_command(target, "fetch", "origin", ref))
+            run(managed_git_command(target, "checkout", "--detach", "FETCH_HEAD"))
             print(f"{target}: checked out pinned ref {ref}")
         else:
             print(f"{target} already exists; leaving clone in place")
@@ -698,8 +719,8 @@ def clone_repo(repo: str, target: Path, ref: str | None = None) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
     if ref:
         run(["git", "clone", "--no-checkout", repo, str(target)])
-        run(["git", "fetch", "origin", ref], cwd=target)
-        run(["git", "checkout", "--detach", "FETCH_HEAD"], cwd=target)
+        run(managed_git_command(target, "fetch", "origin", ref))
+        run(managed_git_command(target, "checkout", "--detach", "FETCH_HEAD"))
     else:
         run(["git", "clone", repo, str(target)])
 
@@ -1033,7 +1054,7 @@ def diff_mode_existing_accelerator_nodes(
 
 def repo_head(path: Path) -> str | None:
     result = subprocess.run(
-        ["git", "-C", str(path), "rev-parse", "HEAD"],
+        managed_git_command(path, "rev-parse", "HEAD"),
         capture_output=True, text=True,
     )
     return result.stdout.strip() if result.returncode == 0 else None

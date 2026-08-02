@@ -44,6 +44,7 @@ __pycache__/
 
 # Local caches and runtime state
 /logs/
+/.runtime/
 /.cache/
 /.torch/
 /.triton/

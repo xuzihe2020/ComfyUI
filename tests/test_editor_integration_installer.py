@@ -245,6 +245,9 @@ class EditorIntegrationInstallTests(unittest.TestCase):
                 "pnpm",
                 "install",
                 "--frozen-lockfile",
+                "--fetch-retries=5",
+                "--fetch-timeout=300000",
+                "--network-concurrency=8",
                 "--store-dir",
                 str(frontend_dir / ".pnpm-build-store"),
             ],
@@ -283,7 +286,7 @@ class EditorIntegrationInstallTests(unittest.TestCase):
         self.assertFalse((frontend_dir / "node_modules").exists())
         self.assertFalse((frontend_dir / ".pnpm-build-store").exists())
 
-    def test_frontend_install_cleans_dependencies_after_build_failure(self) -> None:
+    def test_frontend_install_preserves_store_after_build_failure(self) -> None:
         frontend = self.manifest["frontend"]
         frontend_dir = self.root / frontend["folder"]
 
@@ -313,7 +316,7 @@ class EditorIntegrationInstallTests(unittest.TestCase):
             installer.install_frontend(self.manifest, install_mode="diff")
 
         self.assertFalse((frontend_dir / "node_modules").exists())
-        self.assertFalse((frontend_dir / ".pnpm-build-store").exists())
+        self.assertTrue((frontend_dir / ".pnpm-build-store").exists())
 
     def test_frontend_node_engine_rejects_wrong_major(self) -> None:
         frontend = {"node_engine": ">=25 <26"}
@@ -328,6 +331,29 @@ class EditorIntegrationInstallTests(unittest.TestCase):
             self.assertRaisesRegex(SystemExit, r"requires Node.js >=25 <26"),
         ):
             installer.validate_frontend_node_engine(frontend)
+
+    def test_pnpm_prefix_prefers_exact_direct_version_over_corepack(self) -> None:
+        completed = mock.Mock(returncode=0, stdout="11.13.1\n")
+
+        def command(name: str) -> list[str]:
+            return [name]
+
+        with (
+            mock.patch.object(installer, "command_prefix", side_effect=command),
+            mock.patch.object(installer.subprocess, "run", return_value=completed),
+        ):
+            prefix = installer.pnpm_prefix("pnpm@11.13.1")
+
+        self.assertEqual(prefix, ["pnpm"])
+
+    def test_managed_git_command_scopes_safe_directory_to_checkout(self) -> None:
+        checkout = self.root / "managed checkout"
+
+        command = installer.managed_git_command(checkout, "rev-parse", "HEAD")
+
+        self.assertEqual(command[0:2], ["git", "-c"])
+        self.assertEqual(command[2], f"safe.directory={checkout.resolve().as_posix()}")
+        self.assertEqual(command[3:], ["-C", str(checkout.resolve()), "rev-parse", "HEAD"])
 
     def test_frontend_node_engine_accepts_matching_major(self) -> None:
         frontend = {"node_engine": ">=25 <26"}

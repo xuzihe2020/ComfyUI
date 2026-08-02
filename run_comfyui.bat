@@ -7,6 +7,14 @@ if not exist ".venv\Scripts\python.exe" (
     exit /b 1
 )
 
+rem Keep the frontend toolchain isolated from the machine-wide Node install.
+set "COMFYUI_NODE_RUNTIME=%~sdp0.runtime\node-v25.9.0-win-x64"
+set "COMFYUI_PACKAGE_MANAGER=%~sdp0.runtime\package-manager"
+if exist "%COMFYUI_NODE_RUNTIME%\node.exe" (
+    set "PATH=%COMFYUI_NODE_RUNTIME%;%COMFYUI_PACKAGE_MANAGER%;%PATH%"
+    echo Using repository-local Node.js 25.9.0 runtime.
+)
+
 if not defined AUX_ANNOTATOR_CKPTS_PATH (
     set "AUX_ANNOTATOR_CKPTS_PATH=C:\Users\Tony Xu\workspace\comfyui_models\annotators"
 )
