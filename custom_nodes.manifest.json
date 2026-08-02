@@ -10,7 +10,7 @@
     "name": "ComfyUI Frontend with Editor Bridge",
     "folder": "ComfyUI_frontend",
     "repo": "https://github.com/xuzihe2020/ComfyUI_frontend.git",
-    "ref": "c4b8c8ba63ff405f30f3ae04548aef0f8531486e",
+    "ref": "7a066c7f6986ad44cbb3ed388a8c54051415a83b",
     "version": "1.49.0",
     "node_engine": ">=25 <26",
     "package_manager": "pnpm@11.13.1",
@@ -30,7 +30,7 @@
       "name": "comfyui-editor-bridge",
       "folder": "comfyui-editor-bridge",
       "repo": "https://github.com/xuzihe2020/comfyui-editor-bridge.git",
-      "ref": "2c490a13e1137b1dfa22a0fcf4770b3ce4b199a6",
+      "ref": "03023fd528e818b3c9b667d6d7df0848282a1d6c",
       "install_method": "git-clone",
       "require_local_checkout": true,
       "required_paths": [
