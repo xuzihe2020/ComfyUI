@@ -13,6 +13,26 @@ import run_flux2_inpaint_lora_batch as batch
 
 
 class Flux2InpaintLoraBatchTests(unittest.TestCase):
+    def test_discovers_only_explicitly_selected_loras_in_list_order(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lora_dir = root / "flux2" / "test"
+            lora_dir.mkdir(parents=True)
+            for filename in ("first.safetensors", "second.safetensors", "ignored.safetensors"):
+                (lora_dir / filename).write_bytes(b"model")
+
+            loras = batch.discover_loras(
+                lora_dir,
+                root,
+                ("second.safetensors", "first.safetensors"),
+            )
+
+            self.assertEqual([lora.path.name for lora in loras], ["second.safetensors", "first.safetensors"])
+            self.assertEqual(
+                [lora.model_name for lora in loras],
+                [r"flux2\test\second.safetensors", r"flux2\test\first.safetensors"],
+            )
+
     def test_discovers_image_mask_and_caption_without_treating_mask_as_source(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

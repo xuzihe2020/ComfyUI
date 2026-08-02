@@ -1,19 +1,56 @@
 #!/usr/bin/env python3
-r"""Batch-run the compiled Flux 2 inpaint-with-LoRA workflow.
+r"""COPY/PASTE POWERSHELL COMMANDS
 
-For each source image, the input directory must contain:
+DEFAULT - 4 seeds, denoise 0.8:
+python "C:\Users\Tony Xu\workspace\aigc\comfyui\scripts\workflows\run_flux2_inpaint_lora_batch.py" `
+    "C:\PATH\TO\INPUT_FOLDER"
 
-* ``<stem>_mask.<image extension>`` -- its black/white mask.
-* ``<stem>.txt`` -- its caption/prompt.
+2 SEEDS - denoise 0.8:
+python "C:\Users\Tony Xu\workspace\aigc\comfyui\scripts\workflows\run_flux2_inpaint_lora_batch.py" `
+    "C:\PATH\TO\INPUT_FOLDER" `
+    2
 
-The runner generates N unique random seeds per source image and reuses those
-same seeds for every LoRA and denoise value. Jobs are ordered LoRA -> image ->
-seed -> denoise to minimize model reloads and maximize ComfyUI node-cache reuse.
+4 SEEDS - denoise 0.7, 0.8, and 0.9:
+python "C:\Users\Tony Xu\workspace\aigc\comfyui\scripts\workflows\run_flux2_inpaint_lora_batch.py" `
+    "C:\PATH\TO\INPUT_FOLDER" `
+    4 `
+    --denoise "0.7,0.8,0.9"
 
-PowerShell example:
+RESUME:
+python "C:\Users\Tony Xu\workspace\aigc\comfyui\scripts\workflows\run_flux2_inpaint_lora_batch.py" `
+    "C:\PATH\TO\INPUT_FOLDER" `
+    4 `
+    --denoise "0.7,0.8,0.9" `
+    --resume
 
-    python .\scripts\workflows\run_flux2_inpaint_lora_batch.py `
-        "D:\images" 4 --denoise "0.7,0.8,0.9" --resume
+INCLUDE SUBFOLDERS:
+python "C:\Users\Tony Xu\workspace\aigc\comfyui\scripts\workflows\run_flux2_inpaint_lora_batch.py" `
+    "C:\PATH\TO\INPUT_FOLDER" `
+    4 `
+    --denoise "0.8" `
+    --recursive
+
+CUSTOM OUTPUT FOLDER:
+python "C:\Users\Tony Xu\workspace\aigc\comfyui\scripts\workflows\run_flux2_inpaint_lora_batch.py" `
+    "C:\PATH\TO\INPUT_FOLDER" `
+    4 `
+    --denoise "0.8" `
+    --output-dir "C:\PATH\TO\OUTPUT_FOLDER"
+
+DRY RUN:
+python "C:\Users\Tony Xu\workspace\aigc\comfyui\scripts\workflows\run_flux2_inpaint_lora_batch.py" `
+    "C:\PATH\TO\INPUT_FOLDER" `
+    4 `
+    --denoise "0.7,0.8,0.9" `
+    --dry-run
+
+INPUT FILES:
+C:\PATH\TO\INPUT_FOLDER\image.png
+C:\PATH\TO\INPUT_FOLDER\image_mask.png
+C:\PATH\TO\INPUT_FOLDER\image.txt
+
+DEFAULT OUTPUT:
+C:\Users\Tony Xu\workspace\aigc\comfyui\output\flux2_inpaint_lora_batch
 """
 
 from __future__ import annotations
@@ -44,6 +81,16 @@ DEFAULT_COMPILED_WORKFLOW = Path(
 )
 DEFAULT_LORA_ROOT = Path(r"C:\Users\Tony Xu\workspace\comfyui_models\lora")
 DEFAULT_LORA_DIR = DEFAULT_LORA_ROOT / "flux2" / "detailed_pussy"
+
+# ONLY these LoRAs are tested. Remove or comment out entries to run a subset.
+LORA_FILENAMES = (
+    "pussy_0801_20260801T214823Z.safetensors",
+    # "pussy_0801_20260801T214823Z_000000450.safetensors",
+    # "pussy_0801_20260801T214823Z_000000525.safetensors",
+    # "pussy_0801_20260801T214823Z_000000600.safetensors",
+    "pussy_0801_20260801T214823Z_000000675.safetensors",
+)
+
 DEFAULT_DENOISE = "0.8"
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
 MAX_SEED = 0xFFFFFFFFFFFFFFFF
@@ -297,13 +344,25 @@ def discover_assets(input_dir: Path, recursive: bool, limit: int | None) -> list
     return assets
 
 
-def discover_loras(lora_dir: Path, lora_root: Path) -> tuple[LoraSpec, ...]:
-    paths = sorted(
-        (path for path in lora_dir.iterdir() if path.is_file() and path.suffix.casefold() == ".safetensors"),
-        key=lambda path: path.name.casefold(),
-    )
-    if not paths:
-        raise ValueError(f"No .safetensors LoRAs found in {lora_dir}")
+def discover_loras(
+    lora_dir: Path,
+    lora_root: Path,
+    filenames: tuple[str, ...] = LORA_FILENAMES,
+) -> tuple[LoraSpec, ...]:
+    if not filenames:
+        raise ValueError("LORA_FILENAMES is empty; select at least one LoRA")
+    normalized = [name.casefold() for name in filenames]
+    if len(normalized) != len(set(normalized)):
+        raise ValueError("LORA_FILENAMES contains duplicate entries")
+
+    paths = tuple(lora_dir / filename for filename in filenames)
+    invalid = [path.name for path in paths if path.suffix.casefold() != ".safetensors"]
+    if invalid:
+        raise ValueError("LORA_FILENAMES contains non-.safetensors entries: " + ", ".join(invalid))
+    missing = [str(path) for path in paths if not path.is_file()]
+    if missing:
+        raise ValueError("Selected LoRA files do not exist: " + ", ".join(missing))
+
     specs: list[LoraSpec] = []
     for path in paths:
         relative = path.relative_to(lora_root)

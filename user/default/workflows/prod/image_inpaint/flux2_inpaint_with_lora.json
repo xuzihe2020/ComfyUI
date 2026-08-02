@@ -1169,142 +1169,6 @@
       "widgets_values": []
     },
     {
-      "id": 37,
-      "type": "LoraLoaderModelOnly",
-      "pos": [
-        461.38733776286585,
-        138.54502143901666
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 41
-        },
-        {
-          "localized_name": "lora_name",
-          "name": "lora_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "lora_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "strength_model",
-          "name": "strength_model",
-          "type": "FLOAT",
-          "widget": {
-            "name": "strength_model"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            42
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "LoraLoaderModelOnly",
-        "comfyui_editor_bridge": {
-          "version": 1,
-          "endpoint": {
-            "key": "lora_01",
-            "expose_all_fields": true,
-            "field_config": {
-              "lora_name": {
-                "kind": "model",
-                "model_category": "loras"
-              }
-            }
-          }
-        }
-      },
-      "widgets_values": [
-        "flux2\\blowjob\\blowjob_0801_20260801T191910Z.safetensors",
-        0.8
-      ]
-    },
-    {
-      "id": 10,
-      "type": "CLIPTextEncode",
-      "pos": [
-        802.9492862609827,
-        -8.561075034686638
-      ],
-      "size": [
-        430,
-        200
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "clip",
-          "name": "clip",
-          "type": "CLIP",
-          "link": 5
-        },
-        {
-          "localized_name": "text",
-          "name": "text",
-          "type": "STRING",
-          "widget": {
-            "name": "text"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            6
-          ]
-        }
-      ],
-      "title": "CLIP Text Encode - Prompt",
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "CLIPTextEncode",
-        "comfyui_editor_bridge": {
-          "version": 1,
-          "endpoint": {
-            "key": "prompt_01",
-            "expose_all_fields": true,
-            "field_config": {
-              "text": {
-                "required_from_editor": true
-              }
-            }
-          }
-        }
-      },
-      "widgets_values": [
-        "The frame shows the woman from head to feet with the lower legs and one foot near the right edge; Natural adult female vulvar anatomy centered between the upper thighs, public hair, continuous with visible hip and thigh contours, dark pubic hair above, smooth skin texture.\n\nPhotorealistic, sharp detail, cinematic lighting, explicit uncensored oral sex scene. Extreme sharp detail, ultra realistic, 8khigh-resolution, no mosaic or censorship, no blur."
-      ]
-    },
-    {
       "id": 12,
       "type": "BasicGuider",
       "pos": [
@@ -1441,6 +1305,142 @@
       "widgets_values": [
         0.7,
         "fixed"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "CLIPTextEncode",
+      "pos": [
+        802.9492862609827,
+        -8.561075034686638
+      ],
+      "size": [
+        430,
+        200
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 5
+        },
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "title": "CLIP Text Encode - Prompt",
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "CLIPTextEncode",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "prompt_01",
+            "expose_all_fields": true,
+            "field_config": {
+              "text": {
+                "required_from_editor": true
+              }
+            }
+          }
+        }
+      },
+      "widgets_values": [
+        "The frame shows the woman from head to feet with the lower legs and one foot near the right edge; Natural adult female vulvar anatomy centered between the upper thighs, public hair, continuous with visible hip and thigh contours, dark pubic hair above, smooth skin texture.\n\nPhotorealistic, sharp detail, cinematic lighting, explicit uncensored oral sex scene. Extreme sharp detail, ultra realistic, 8khigh-resolution, no mosaic or censorship, no blur."
+      ]
+    },
+    {
+      "id": 37,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        461.38733776286585,
+        138.54502143901666
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 41
+        },
+        {
+          "localized_name": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            42
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "comfyui_editor_bridge": {
+          "version": 1,
+          "endpoint": {
+            "key": "lora_01",
+            "expose_all_fields": true,
+            "field_config": {
+              "lora_name": {
+                "kind": "model",
+                "model_category": "loras"
+              }
+            }
+          }
+        }
+      },
+      "widgets_values": [
+        "flux2\\blowjob\\blowjob_0801_20260801T191910Z.safetensors",
+        0.7
       ]
     }
   ],
@@ -1739,10 +1739,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.900593746293956,
+      "scale": 1.3596799259194967,
       "offset": [
-        1177.0665981428745,
-        -349.9506797326309
+        147.7612287396155,
+        156.2240311598002
       ]
     }
   },
