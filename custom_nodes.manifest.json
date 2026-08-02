@@ -30,7 +30,7 @@
       "name": "comfyui-editor-bridge",
       "folder": "comfyui-editor-bridge",
       "repo": "https://github.com/xuzihe2020/comfyui-editor-bridge.git",
-      "ref": "e6cf97ce307ae9404cca60025db7b25c8e41e92f",
+      "ref": "2c490a13e1137b1dfa22a0fcf4770b3ce4b199a6",
       "install_method": "git-clone",
       "require_local_checkout": true,
       "required_paths": [

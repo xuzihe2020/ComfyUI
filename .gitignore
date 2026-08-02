@@ -41,6 +41,7 @@ __pycache__/
 
 # Manifest-managed nested frontend repository and build artifacts
 /ComfyUI_frontend/
+/user/*/compiled_workflows/
 
 # Local caches and runtime state
 /logs/
