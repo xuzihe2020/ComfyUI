@@ -385,7 +385,7 @@
         "Node name for S&R": "RandomNoise"
       },
       "widgets_values": [
-        345936090328780,
+        747329205453826,
         "randomize"
       ]
     },
@@ -1403,75 +1403,6 @@
       "bgcolor": "#335"
     },
     {
-      "id": 37,
-      "type": "SamplerCustomAdvanced",
-      "pos": [
-        3374.9243547492083,
-        -239.62773041925783
-      ],
-      "size": [
-        340,
-        130
-      ],
-      "flags": {},
-      "order": 34,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "noise",
-          "name": "noise",
-          "type": "NOISE",
-          "link": 39
-        },
-        {
-          "localized_name": "guider",
-          "name": "guider",
-          "type": "GUIDER",
-          "link": 38
-        },
-        {
-          "localized_name": "sampler",
-          "name": "sampler",
-          "type": "SAMPLER",
-          "link": 40
-        },
-        {
-          "localized_name": "sigmas",
-          "name": "sigmas",
-          "type": "SIGMAS",
-          "link": 44
-        },
-        {
-          "localized_name": "latent_image",
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 45
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "output",
-          "name": "output",
-          "type": "LATENT",
-          "links": [
-            46
-          ]
-        },
-        {
-          "localized_name": "denoised_output",
-          "name": "denoised_output",
-          "type": "LATENT",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "SamplerCustomAdvanced"
-      },
-      "widgets_values": []
-    },
-    {
       "id": 39,
       "type": "PreviewImage",
       "pos": [
@@ -1541,69 +1472,6 @@
       "widgets_values": [
         "vn_face_refine_flux2_native/compare_original_final"
       ]
-    },
-    {
-      "id": 57,
-      "type": "MaskBlur+",
-      "pos": [
-        1941.5552384890937,
-        1193.0673507278957
-      ],
-      "size": [
-        280,
-        120
-      ],
-      "flags": {},
-      "order": 31,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 66
-        },
-        {
-          "localized_name": "amount",
-          "name": "amount",
-          "type": "INT",
-          "widget": {
-            "name": "amount"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "device",
-          "name": "device",
-          "type": "COMBO",
-          "widget": {
-            "name": "device"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            12,
-            63
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfyui_essentials",
-        "ver": "1.1.0",
-        "Node name for S&R": "MaskBlur+"
-      },
-      "widgets_values": [
-        20,
-        "auto"
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
     },
     {
       "id": 53,
@@ -1980,6 +1848,148 @@
       "bgcolor": "#533"
     },
     {
+      "id": 56,
+      "type": "ImpactDilateMask",
+      "pos": [
+        1589.8837436476738,
+        1190.0034811141609
+      ],
+      "size": [
+        260,
+        90
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 61
+        },
+        {
+          "localized_name": "dilation",
+          "name": "dilation",
+          "type": "INT",
+          "widget": {
+            "name": "dilation"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            66
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-impact-pack",
+        "ver": "8.28.3",
+        "Node name for S&R": "ImpactDilateMask"
+      },
+      "widgets_values": [
+        30
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 42,
+      "type": "PreviewImage",
+      "pos": [
+        3818.6098773900544,
+        1009.9975355083118
+      ],
+      "size": [
+        1546.5485681222326,
+        1269.386188827158
+      ],
+      "flags": {},
+      "order": 40,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 51
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 69,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        509.7890446820579,
+        -723.6362744900503
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 86
+        },
+        {
+          "localized_name": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            87
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "flux2\\lora_face\\shiramine_face_0712_20260714T200650Z_000000810.safetensors",
+        1
+      ]
+    },
+    {
       "id": 2,
       "type": "LoadImage",
       "pos": [
@@ -2124,15 +2134,15 @@
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
         "Node name for S&R": "LoadImage",
-        "load_image_source_clean_name": "char_gen_13",
-        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\Documents\\characters\\character_gen_01",
-        "load_image_source_path": "C:\\Users\\Tony Xu\\Documents\\characters\\character_gen_01\\char_gen_13.png",
-        "load_image_source_image": "char_gen_13.png"
+        "load_image_source_clean_name": "ComfyUI_00092_",
+        "load_image_source_root_dir": "C:\\Users\\Tony Xu\\workspace\\aigc\\comfyui\\output",
+        "load_image_source_path": "C:\\Users\\Tony Xu\\workspace\\aigc\\comfyui\\output\\ComfyUI_00092_.png",
+        "load_image_source_image": "ComfyUI_00092_.png"
       },
       "widgets_values": [
-        "char_gen_13.png",
-        "char_gen_13",
-        "C:\\Users\\Tony Xu\\Documents\\characters\\character_gen_01",
+        "ComfyUI_00092_.png",
+        "ComfyUI_00092_",
+        "C:\\Users\\Tony Xu\\workspace\\aigc\\comfyui\\output",
         "",
         "",
         true,
@@ -2142,67 +2152,15 @@
       "bgcolor": "#353"
     },
     {
-      "id": 56,
-      "type": "ImpactDilateMask",
-      "pos": [
-        1589.8837436476738,
-        1190.0034811141609
-      ],
-      "size": [
-        260,
-        90
-      ],
-      "flags": {},
-      "order": 29,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "mask",
-          "name": "mask",
-          "type": "MASK",
-          "link": 61
-        },
-        {
-          "localized_name": "dilation",
-          "name": "dilation",
-          "type": "INT",
-          "widget": {
-            "name": "dilation"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MASK",
-          "name": "MASK",
-          "type": "MASK",
-          "links": [
-            66
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfyui-impact-pack",
-        "ver": "8.28.3",
-        "Node name for S&R": "ImpactDilateMask"
-      },
-      "widgets_values": [
-        30
-      ],
-      "color": "#223",
-      "bgcolor": "#335"
-    },
-    {
       "id": 23,
       "type": "CLIPTextEncode",
       "pos": [
-        987.0501679133615,
-        -717.95573004029
+        977.1575364322318,
+        -781.9671966670008
       ],
       "size": [
-        540,
-        230
+        588.299589596154,
+        296.3391492186827
       ],
       "flags": {},
       "order": 10,
@@ -2240,100 +2198,142 @@
         "Node name for S&R": "CLIPTextEncode"
       },
       "widgets_values": [
-        "Replace the detected face of this young Japaness girl from the face reference images. She has a soft oval face, large expressive dark eyes, eyes look down, full natural lips, young tight skinPreserve the original photo composition, pose, hairstyle, hair length, outfit, background, lighting, and camera angle. Match the reference identity strongly: facial proportions, cheeks, jaw width, chin shape, face fullness, nose, eyes, lips, and skin texture. Natural expression, seamless edge blend, high quality."
+        "Replace the detected face of this young Japaness girl from the face reference images. She has a soft oval face, large expressive dark eyes, eyes look down, full natural lips, young tight skinPreserve the original photo composition, pose, hairstyle, hair length, outfit, background, lighting, and camera angle. Match the reference identity strongly: facial proportions, cheeks, jaw width, chin shape, face fullness, nose, eyes, lips, and skin texture. Natural expression, seamless edge blend, high quality.\n\nShe holds the penis of a standing adult male with her right hand. Her head is tilted upward, mouth open, and lips touching the glans while she looks toward the upper right. The woman wears a black sleeveless top with visible leather straps and metal buckles across her shoulders and chest. Her right hand grips the shaft near the base with fingers wrapped around it and short polished nails visible. The standing adult male’s lower torso and upper thighs appear at the right edge of the frame. The penis extends horizontally from the right toward the woman’s mouth with the glans resting against her parted lips. A dark gray tiled wall fills the background behind both figures. Lighting is even indoor illumination that creates soft highlights on the moist skin of the glans and lips. The framing centers the mouth-glans junction with the woman’s face occupying the left two-thirds of the image and the penis entering from the right."
       ],
       "color": "#232",
       "bgcolor": "#353"
     },
     {
-      "id": 42,
-      "type": "PreviewImage",
+      "id": 37,
+      "type": "SamplerCustomAdvanced",
       "pos": [
-        3818.6098773900544,
-        1009.9975355083118
+        3373.9060621171866,
+        -239.62773041925783
       ],
       "size": [
-        1546.5485681222326,
-        1269.386188827158
+        340,
+        130
       ],
       "flags": {},
-      "order": 40,
+      "order": 34,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 51
+          "localized_name": "noise",
+          "name": "noise",
+          "type": "NOISE",
+          "link": 39
+        },
+        {
+          "localized_name": "guider",
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 38
+        },
+        {
+          "localized_name": "sampler",
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 40
+        },
+        {
+          "localized_name": "sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 44
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 45
         }
       ],
-      "outputs": [],
+      "outputs": [
+        {
+          "localized_name": "output",
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            46
+          ]
+        },
+        {
+          "localized_name": "denoised_output",
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.25.0",
-        "Node name for S&R": "PreviewImage"
+        "Node name for S&R": "SamplerCustomAdvanced"
       },
       "widgets_values": []
     },
     {
-      "id": 69,
-      "type": "LoraLoaderModelOnly",
+      "id": 57,
+      "type": "MaskBlur+",
       "pos": [
-        509.7890446820579,
-        -723.6362744900503
+        1941.5552384890937,
+        1193.0673507278957
       ],
       "size": [
-        270,
-        82
+        280,
+        120
       ],
       "flags": {},
-      "order": 12,
+      "order": 31,
       "mode": 0,
       "inputs": [
         {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 86
+          "localized_name": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 66
         },
         {
-          "localized_name": "lora_name",
-          "name": "lora_name",
-          "type": "COMBO",
+          "localized_name": "amount",
+          "name": "amount",
+          "type": "INT",
           "widget": {
-            "name": "lora_name"
+            "name": "amount"
           },
           "link": null
         },
         {
-          "localized_name": "strength_model",
-          "name": "strength_model",
-          "type": "FLOAT",
+          "localized_name": "device",
+          "name": "device",
+          "type": "COMBO",
           "widget": {
-            "name": "strength_model"
+            "name": "device"
           },
           "link": null
         }
       ],
       "outputs": [
         {
-          "localized_name": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK",
           "links": [
-            87
+            12,
+            63
           ]
         }
       ],
       "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "LoraLoaderModelOnly"
+        "cnr_id": "comfyui_essentials",
+        "ver": "1.1.0",
+        "Node name for S&R": "MaskBlur+"
       },
       "widgets_values": [
-        "flux2\\lora_face\\shiramine_face_0712_20260714T200650Z_000000810.safetensors",
-        1
-      ]
+        64,
+        "auto"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
     }
   ],
   "links": [
@@ -2811,10 +2811,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.6901792161439946,
+      "scale": 1.386649894838322,
       "offset": [
-        922.4089594566957,
-        444.7624394859341
+        -1445.3621364122691,
+        -792.4489557846773
       ]
     },
     "frontendVersion": "1.42.15",

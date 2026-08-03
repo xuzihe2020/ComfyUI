@@ -2,7 +2,7 @@
   "id": "88ec6ede-06ba-41ac-b49b-10b91489fff4",
   "revision": 0,
   "last_node_id": 18,
-  "last_link_id": 18,
+  "last_link_id": 20,
   "nodes": [
     {
       "id": 8,
@@ -23,7 +23,7 @@
           "localized_name": "model",
           "name": "model",
           "type": "MODEL",
-          "link": 18
+          "link": 20
         },
         {
           "localized_name": "conditioning",
@@ -105,7 +105,7 @@
         106
       ],
       "flags": {},
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -202,36 +202,6 @@
       ]
     },
     {
-      "id": 17,
-      "type": "PreviewImage",
-      "pos": [
-        2791.1111111111145,
-        686.1111111111109
-      ],
-      "size": [
-        736.8470120633119,
-        611.3367962547932
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "images",
-          "name": "images",
-          "type": "IMAGE",
-          "link": 16
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
       "id": 9,
       "type": "Flux2Scheduler",
       "pos": [
@@ -243,7 +213,7 @@
         106
       ],
       "flags": {},
-      "order": 9,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
@@ -361,116 +331,6 @@
       ]
     },
     {
-      "id": 18,
-      "type": "LoraLoaderModelOnly",
-      "pos": [
-        1028.4902138009406,
-        744.5543589296583
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "model",
-          "name": "model",
-          "type": "MODEL",
-          "link": 17
-        },
-        {
-          "localized_name": "lora_name",
-          "name": "lora_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "lora_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "strength_model",
-          "name": "strength_model",
-          "type": "FLOAT",
-          "widget": {
-            "name": "strength_model"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            18
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "LoraLoaderModelOnly"
-      },
-      "widgets_values": [
-        "flux2\\detailed_pussy\\pussy_0801_20260801T214823Z.safetensors",
-        0.8
-      ]
-    },
-    {
-      "id": 7,
-      "type": "FluxGuidance",
-      "pos": [
-        1615.461345664765,
-        284.87821884068524
-      ],
-      "size": [
-        270,
-        58
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "conditioning",
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 2
-        },
-        {
-          "localized_name": "guidance",
-          "name": "guidance",
-          "type": "FLOAT",
-          "widget": {
-            "name": "guidance"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "CONDITIONING",
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            3
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "FluxGuidance"
-      },
-      "widgets_values": [
-        1
-      ]
-    },
-    {
       "id": 15,
       "type": "SamplerCustomAdvanced",
       "pos": [
@@ -585,107 +445,6 @@
       "widgets_values": []
     },
     {
-      "id": 3,
-      "type": "UNETLoader",
-      "pos": [
-        700.8333333333336,
-        744.4444444444445
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "unet_name",
-          "name": "unet_name",
-          "type": "COMBO",
-          "widget": {
-            "name": "unet_name"
-          },
-          "link": null
-        },
-        {
-          "localized_name": "weight_dtype",
-          "name": "weight_dtype",
-          "type": "COMBO",
-          "widget": {
-            "name": "weight_dtype"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "MODEL",
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            17
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "UNETLoader"
-      },
-      "widgets_values": [
-        "flux2\\moody_desire_mix_v30.safetensors",
-        "default"
-      ]
-    },
-    {
-      "id": 11,
-      "type": "RandomNoise",
-      "pos": [
-        1671.7172715928812,
-        431.71718004014747
-      ],
-      "size": [
-        270,
-        82
-      ],
-      "flags": {
-        "collapsed": false
-      },
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "localized_name": "noise_seed",
-          "name": "noise_seed",
-          "type": "INT",
-          "widget": {
-            "name": "noise_seed"
-          },
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "localized_name": "NOISE",
-          "name": "NOISE",
-          "type": "NOISE",
-          "links": [
-            10
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.25.0",
-        "Node name for S&R": "RandomNoise"
-      },
-      "widgets_values": [
-        650101192343014,
-        "randomize"
-      ]
-    },
-    {
       "id": 13,
       "type": "PrimitiveInt",
       "pos": [
@@ -697,7 +456,7 @@
         82
       ],
       "flags": {},
-      "order": 5,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
@@ -743,7 +502,7 @@
         82
       ],
       "flags": {},
-      "order": 6,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -774,6 +533,247 @@
       },
       "widgets_values": [
         764,
+        "fixed"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "PreviewImage",
+      "pos": [
+        2791.1111111111145,
+        686.1111111111109
+      ],
+      "size": [
+        736.8470120633119,
+        611.3367962547932
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 16
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 3,
+      "type": "UNETLoader",
+      "pos": [
+        700.8333333333336,
+        744.4444444444445
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "unet_name",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "weight_dtype",
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "weight_dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "flux2\\moody_desire_mix_v30.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "FluxGuidance",
+      "pos": [
+        1603.0668611093374,
+        272.4836730975066
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "conditioning",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 2
+        },
+        {
+          "localized_name": "guidance",
+          "name": "guidance",
+          "type": "FLOAT",
+          "widget": {
+            "name": "guidance"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "FluxGuidance"
+      },
+      "widgets_values": [
+        1.2
+      ]
+    },
+    {
+      "id": 18,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        1042.101281179531,
+        746.851763609883
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 4,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 17
+        },
+        {
+          "localized_name": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "flux2\\blowjob\\blowjob_0801_20260801T191910Z.safetensors",
+        1
+      ]
+    },
+    {
+      "id": 11,
+      "type": "RandomNoise",
+      "pos": [
+        1671.7172715928812,
+        431.71718004014747
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "noise_seed",
+          "name": "noise_seed",
+          "type": "INT",
+          "widget": {
+            "name": "noise_seed"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "NOISE",
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.25.0",
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        748170504351511,
         "fixed"
       ]
     },
@@ -824,7 +824,7 @@
         "Node name for S&R": "CLIPTextEncode"
       },
       "widgets_values": [
-        "detailed_pussy presents a close-up view of an young American woman's vulva as she lies on her back on white bedding. The woman has waist-length straight blonde hair and wears a black lace top with matching thigh-high stockings featuring rose patterns. Her legs are spread apart with one stocking-covered thigh visible on the left side of the frame. Her right hand rests directly on the vulva, fingers gently parting the outer labia and exposing the inner folds. The vulva shows trimmed dark pubic hair, glistening moisture across the labia and surrounding skin, and a slightly open vaginal area. The camera captures the scene from an overhead angle looking down between her thighs, centering the genital area while showing part of her torso and face with eyes closed. Soft indoor lighting creates bright reflections on the wet skin and subtle shadows along the labia. The white sheets and pillows form the visible background behind her hips and shoulders.\n\nPhotorealistic, sharp detail, cinematic lighting, explicit uncensored oral sex scene. Extreme sharp detail, ultra realistic, 8khigh-resolution, no mosaic or censorship, no blur.\n\n"
+        "This blowjob presents a close-up of oral contact where a Japanese woman with short dark brown hair holds the penis of a standing adult male with her right hand. Her head is tilted upward, mouth open, and lips touching the glans while she looks toward the upper right. The woman wears a black sleeveless top with visible leather straps and metal buckles across her shoulders and chest. Her right hand grips the shaft near the base with fingers wrapped around it and short polished nails visible. The standing adult male’s lower torso and upper thighs appear at the right edge of the frame. The penis extends horizontally from the right toward the woman’s mouth with the glans resting against her parted lips. A dark gray tiled wall fills the background behind both figures. Lighting is even indoor illumination that creates soft highlights on the moist skin of the glans and lips. The framing centers the mouth-glans junction with the woman’s face occupying the left two-thirds of the image and the penis entering from the right.\n\nPhotorealistic, sharp detail, cinematic lighting, explicit uncensored oral sex scene. Extreme sharp detail, ultra realistic, 8khigh-resolution, no mosaic or censorship, no blur.\n\n"
       ]
     }
   ],
@@ -958,7 +958,7 @@
       "MODEL"
     ],
     [
-      18,
+      20,
       18,
       0,
       8,
@@ -970,10 +970,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 1.553628576349977,
+      "scale": 1.4130668053948323,
       "offset": [
-        -327.2159067049771,
-        -183.82060418691333
+        -424.0340703244087,
+        22.31022349934653
       ]
     }
   },
