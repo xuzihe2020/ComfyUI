@@ -88,26 +88,31 @@ Any Python, shell, batch, or PowerShell script that processes multiple independe
 - Do not place `set -e`, `$ErrorActionPreference = 'Stop'`, or equivalent fail-fast behavior around a job loop unless each iteration contains its own error boundary.
 - Test the failure path by forcing an early job to fail and verifying that at least one later job still runs and the final summary reports succeeded, skipped, and failed counts.
 
-## Shared infra lives in the sibling `aigc-shared` repo
+## Shared library and operational infra ownership
 
-This fork is one of three sibling repos with an identical layout locally and on
-the RunPod volume:
+This fork is part of a four-repository local workspace:
 
 ```
 <parent>/          # locally: ~/Workspace/playground_01/aigc ; on volume: /workspace
-├── aigc-shared/   # infra, skills, pipelines, shared libs, tools, configs
+├── aigc-shared/   # stable Python library
+├── aigc-infra/    # infra, skills, pipelines, tools, and configs
 ├── ComfyUI/       # this repo — the deployed ComfyUI unit (nested custom_nodes/)
 └── ai-toolkit/    # xuzihe2020/ai-toolkit fork — trainer + web UI
 ```
 
 RunPod skills (`skills/runpod-*.md`), RunPod scripts (`scripts/runpod/`),
 dataset-prep tools, `docs/`, and cross-repo orchestration all moved to
-`aigc-shared` — read `../aigc-shared/AGENTS.md` (and its skills index) before
-any RunPod, pipeline, or dataset-prep work. This repo keeps only what ComfyUI
-itself needs: `custom_nodes.manifest.json`, `scripts/install_custom_nodes.py`,
-workflows under `user/default/workflows/`, and a few not-yet-migrated scripts.
+`aigc-infra` — read `../aigc-infra/AGENTS.md` and its skills index before any
+RunPod, pipeline, or dataset-prep work. On RunPod, `aigc-infra`, ComfyUI, and
+ai-toolkit are checkouts under `/workspace`; the stable `aigc-shared` library
+is installed from an immutable pin rather than maintained as an operational
+checkout.
 
-The root `lib/` here is a temporary duplicate of `aigc-shared/lib/`, kept only
-because the remaining `scripts/*` still import it. Do not extend it — new
-shared code goes in `aigc-shared`; `.env.example` stays with it for the same
-reason and both leave when those scripts migrate or retire.
+This repo keeps only what ComfyUI itself needs: `custom_nodes.manifest.json`,
+`scripts/install_custom_nodes.py`, workflows under `user/default/workflows/`,
+and a few not-yet-migrated scripts.
+
+The root `lib/` contains compatibility adapters for remaining `scripts/*`.
+Do not extend it: reusable primitives belong in `aigc-shared`, while new
+operational behavior belongs in `aigc-infra`. `.env.example` remains here only
+for the ComfyUI-owned scripts that have not migrated or retired.

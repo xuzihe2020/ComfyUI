@@ -1,7 +1,7 @@
 comfyui-frontend-package==1.45.15
 comfyui-workflow-templates==0.10.0
 comfyui-embedded-docs==0.5.4
-aigc-shared[media] @ git+https://github.com/xuzihe2020/aigc-shared.git@91e1a71d47c36c214cd445bdf56eb9ec8de44a4f
+aigc-shared[media] @ git+https://github.com/xuzihe2020/aigc-shared.git@bee20b88e1a4b28b942e3f7e71e80b5a39e2f094
 torch
 torchsde
 torchvision

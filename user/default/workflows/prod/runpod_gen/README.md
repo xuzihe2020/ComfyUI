@@ -1,7 +1,7 @@
 # RunPod generation workflow
 
 `flux2_txt2img_5_references.json` is the editable manual twin of
-`aigc-shared/training/pipeline/generation.py`.
+`aigc-infra/training/pipeline/generation.py`.
 
 The workflow is standard Flux 2 text-to-image with five ordered reference
 slots. All reference `LoadImage` → `VAEEncode` → `ReferenceLatent` triplets
