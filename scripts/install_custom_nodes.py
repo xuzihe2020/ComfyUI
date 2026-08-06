@@ -280,6 +280,40 @@ def node_allowed_here(node: dict) -> bool:
     return True if not platforms else current_os() in platforms
 
 
+def without_editor_integration(manifest: dict) -> dict:
+    """Return a RunPod manifest that excludes the desktop editor bridge."""
+    filtered = {
+        **manifest,
+        "nodes": [
+            node
+            for node in manifest.get("nodes", [])
+            if node.get("folder") != "comfyui-editor-bridge"
+        ],
+    }
+    filtered.pop("frontend", None)
+    return filtered
+
+
+def disable_installed_editor_bridge() -> Path | None:
+    """Move an installed bridge outside custom_nodes so ComfyUI cannot load it."""
+    source = CUSTOM_NODES_DIR / "comfyui-editor-bridge"
+    if not source.exists():
+        return None
+    disabled_root = REPO_ROOT / "disabled_custom_nodes"
+    disabled_root.mkdir(parents=True, exist_ok=True)
+    destination = disabled_root / source.name
+    suffix = 1
+    while destination.exists():
+        destination = disabled_root / f"{source.name}.{suffix}"
+        suffix += 1
+    shutil.move(str(source), str(destination))
+    print(
+        f"RunPod editor integration disabled: moved {source} to {destination}",
+        flush=True,
+    )
+    return destination
+
+
 def is_patched_node_from_user_github(node: dict) -> bool:
     return node.get("folder") in PATCHED_NODE_FOLDERS or node.get("name") in PATCHED_NODE_FOLDERS
 
@@ -1242,12 +1276,25 @@ def main() -> None:
         action="store_true",
         help="Verify the manifest-pinned frontend build and editor bridge, then exit.",
     )
+    parser.add_argument(
+        "--skip-editor-integration",
+        action="store_true",
+        help=(
+            "Skip the custom frontend and editor bridge, moving an existing "
+            "bridge checkout outside custom_nodes (used by RunPod)."
+        ),
+    )
     args = parser.parse_args()
 
     manifest = load_manifest(args.manifest)
     if args.check_editor_integration:
         check_editor_integration(manifest)
         return
+    editor_integration_enabled = not args.skip_editor_integration
+    if not editor_integration_enabled:
+        disable_installed_editor_bridge()
+        manifest = without_editor_integration(manifest)
+        print("RunPod mode: custom frontend and editor bridge skipped.", flush=True)
     scoped_node_run = bool(args.node)
     if scoped_node_run:
         requested = set(args.node)
@@ -1292,7 +1339,10 @@ def main() -> None:
         stamp = load_install_stamp()
         if (current_state == stamp
                 and None not in current_state["repos"].values()
-                and not editor_integration_errors(manifest)):
+                and (
+                    not editor_integration_enabled
+                    or not editor_integration_errors(manifest)
+                )):
             print(
                 "Install state unchanged since last successful run; nothing to do. "
                 f"(stamp: {INSTALL_STAMP}; use --full to force a re-check)",
@@ -1314,7 +1364,7 @@ def main() -> None:
                 flush=True,
             )
 
-    if not scoped_node_run:
+    if not scoped_node_run and editor_integration_enabled:
         install_frontend(manifest, install_mode=install_mode)
     install_tools(manifest, comfy_python(), install_mode=install_mode,
                   no_deps=args.no_deps, changed_keys=changed_keys)
@@ -1391,7 +1441,8 @@ def main() -> None:
     if not nodes_to_install and not existing_dependency_nodes and not existing_accelerator_nodes:
         print("No missing custom nodes, dependency fixes, or optional accelerator checks found in manifest; diff install is complete.", flush=True)
         if not scoped_node_run:
-            check_editor_integration(manifest)
+            if editor_integration_enabled:
+                check_editor_integration(manifest)
             write_install_stamp(compute_install_state(manifest, args.manifest))
         return
 
@@ -1431,7 +1482,8 @@ def main() -> None:
         apply_post_install_fixes()
 
     if not scoped_node_run:
-        check_editor_integration(manifest)
+        if editor_integration_enabled:
+            check_editor_integration(manifest)
         write_install_stamp(compute_install_state(manifest, args.manifest))
 
 
