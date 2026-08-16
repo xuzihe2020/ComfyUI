@@ -73,6 +73,15 @@ class EditorIntegrationManifestTests(unittest.TestCase):
         self.assertTrue(bridge["require_local_checkout"])
         self.assertRegex(bridge["ref"], r"^[0-9a-f]{40}$")
 
+    def test_runpod_manifest_excludes_frontend_and_bridge(self) -> None:
+        manifest = integration_manifest()
+        filtered = installer.without_editor_integration(manifest)
+
+        self.assertNotIn("frontend", filtered)
+        self.assertEqual(filtered["nodes"], [])
+        self.assertIn("frontend", manifest)
+        self.assertEqual(len(manifest["nodes"]), 1)
+
     def test_run_script_converges_manifest_before_startup(self) -> None:
         run_script = (REPO_ROOT / "run_comfyui.bat").read_text(encoding="utf-8")
         installer_command = (
